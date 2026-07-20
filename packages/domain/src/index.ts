@@ -9,3 +9,17 @@ export {
   type PackagingSnapshot,
   type PackagingStatus,
 } from "./packaging.js";
+export {
+  PackagingBatchAggregate,
+  PACKAGING_BATCH_STATUSES,
+  type PackagingBatchSnapshot,
+  type PackagingBatchStatus,
+  type CreatePackagingBatchInput,
+} from "./packaging-batch.js";
+export {
+  ImportJobAggregate,
+  IMPORT_JOB_STATUSES,
+  type ImportJobSnapshot,
+  type ImportJobStatus,
+  type CreateImportJobInput,
+} from "./import-job.js";

@@ -80,7 +80,7 @@ Legenda: `[x]` concluído e verificado · `[~]` em execução · `[ ]` pendente 
 ### W05 · Catálogo e importação
 
 - [x] Implementar agregado de embalagem e transições explícitas.
-- [ ] Implementar lote e repositório Prisma transacional.
+- [x] Implementar lote e repositório Prisma transacional.
 - [ ] Validar CSV/XLSX por contrato e duplicidade.
 - [ ] Gerar prévia e relatório de erros por linha.
 - [ ] Disponibilizar cadastro manual com as mesmas regras.
