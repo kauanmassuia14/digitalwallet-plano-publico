@@ -27,7 +27,7 @@ import { UploadImportDto } from "./dto/upload-import.dto.js";
 import { ImportService } from "./import.service.js";
 
 @ApiTags("Imports")
-@Controller("api/v1/imports")
+@Controller({ path: "imports", version: "1" })
 @UseGuards(TenantContextGuard)
 @ApiHeader({ name: "x-user-id", required: true, description: "Authenticated User UUID" })
 @ApiHeader({ name: "x-tenant-id", required: false, description: "Tenant UUID context" })

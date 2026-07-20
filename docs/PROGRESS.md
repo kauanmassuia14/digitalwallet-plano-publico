@@ -90,7 +90,7 @@ Legenda: `[x]` concluído e verificado · `[~]` em execução · `[ ]` pendente 
 ### W06 · Coleta e Ledger
 
 - [x] Modelar tabelas de solicitações e atribuições de coletas no Prisma.
-- [ ] Implementar fila Redis para o matchmaking de coletas das cooperativas.
+- [x] Implementar fila Redis para o matchmaking de coletas das cooperativas.
 - [ ] Desenvolver rotina de encadeamento criptográfico no Ledger (Row Chaining).
 - [ ] Implementar assinatura digital de transações de triagem com chaves RSA/KMS.
 - [ ] Escrever testes de integridade para a cadeia de hashes do Ledger.

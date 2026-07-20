@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { AppModule } from "../src/app.module.js";
 import { DatabaseService } from "../src/common/database/database.service.js";
+import { configureApplication } from "../src/configure-application.js";
 
 const tenantEs = "11111111-1111-4111-8111-111111111111";
 const tenantPt = "22222222-2222-4222-8222-222222222222";
@@ -22,6 +23,7 @@ describe("Import Flow API E2E", () => {
     }).compile();
 
     app = testingModule.createNestApplication();
+    configureApplication(app);
     await app.init();
     database = app.get(DatabaseService);
 
@@ -57,7 +59,7 @@ describe("Import Flow API E2E", () => {
       .field("currencyCode", "EUR")
       .expect(400);
 
-    expect(response.body.message).toContain("Missing required CSV header");
+    expect(response.body.error.message).toContain("Missing required CSV header");
   });
 
   it("validates line items, reports partial errors, and commits accepted rows only", async () => {
