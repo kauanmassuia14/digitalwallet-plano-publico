@@ -1,0 +1,84 @@
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Headers,
+  Param,
+  Post,
+  Res,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from "@nestjs/common";
+import { FileInterceptor } from "@nestjs/platform-express";
+import {
+  ApiConsumes,
+  ApiHeader,
+  ApiOkResponse,
+  ApiTags,
+} from "@nestjs/swagger";
+import type { Response } from "express";
+import type { ImportJobSnapshot } from "@digitalwallet/domain";
+
+import { CurrentTenant } from "../common/tenant/tenant-context.js";
+import { TenantContextGuard } from "../common/tenant/tenant-context.guard.js";
+import { UploadImportDto } from "./dto/upload-import.dto.js";
+import { ImportService } from "./import.service.js";
+
+@ApiTags("Imports")
+@Controller("api/v1/imports")
+@UseGuards(TenantContextGuard)
+@ApiHeader({ name: "x-user-id", required: true, description: "Authenticated User UUID" })
+@ApiHeader({ name: "x-tenant-id", required: false, description: "Tenant UUID context" })
+export class ImportController {
+  public constructor(private readonly importService: ImportService) {}
+
+  @Post()
+  @ApiConsumes("multipart/form-data")
+  @UseInterceptors(FileInterceptor("file"))
+  public async uploadFile(
+    @CurrentTenant() tenantId: string,
+    @Headers("x-user-id") userId: string,
+    @UploadedFile() file: Express.Multer.File,
+    @Body() dto: UploadImportDto,
+  ): Promise<ImportJobSnapshot> {
+    if (file === undefined) {
+      throw new BadRequestException("No file uploaded");
+    }
+    return this.importService.upload(
+      tenantId,
+      userId,
+      file.buffer,
+      file.originalname,
+      dto,
+    );
+  }
+
+  @Get(":jobId")
+  public async getJob(
+    @CurrentTenant() tenantId: string,
+    @Param("jobId") jobId: string,
+  ): Promise<ImportJobSnapshot> {
+    return this.importService.getJob(tenantId, jobId);
+  }
+
+  @Get(":jobId/errors")
+  public async getErrorReport(
+    @CurrentTenant() tenantId: string,
+    @Param("jobId") jobId: string,
+    @Res() response: Response,
+  ): Promise<void> {
+    const reportJson = await this.importService.getErrorReport(tenantId, jobId);
+    response.setHeader("Content-Type", "application/json");
+    response.send(reportJson);
+  }
+
+  @Post(":jobId/commit")
+  public async commit(
+    @CurrentTenant() tenantId: string,
+    @Param("jobId") jobId: string,
+  ): Promise<ImportJobSnapshot> {
+    return this.importService.commitJob(tenantId, jobId);
+  }
+}

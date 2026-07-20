@@ -81,11 +81,11 @@ Legenda: `[x]` concluído e verificado · `[~]` em execução · `[ ]` pendente 
 
 - [x] Implementar agregado de embalagem e transições explícitas.
 - [x] Implementar lote e repositório Prisma transacional.
-- [ ] Validar CSV/XLSX por contrato e duplicidade.
-- [ ] Gerar prévia e relatório de erros por linha.
-- [ ] Disponibilizar cadastro manual com as mesmas regras.
-- [ ] Persistir hashes distintos para QR externo e interno.
-- [ ] Comprovar reprocessamento e versão otimista no PostgreSQL.
+- [x] Validar CSV/XLSX por contrato e duplicidade.
+- [x] Gerar prévia e relatório de erros por linha.
+- [x] Disponibilizar cadastro manual com as mesmas regras.
+- [x] Persistir hashes distintos para QR externo e interno.
+- [x] Comprovar reprocessamento e versão otimista no PostgreSQL.
 
 ## Evidência mais recente
 
