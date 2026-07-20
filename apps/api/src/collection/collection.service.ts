@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { DatabaseService } from "../common/database/database.service.js";
 import { CollectionQueue } from "./collection-queue.js";
 import { LedgerService } from "../ledger/ledger.service.js";
@@ -41,7 +45,7 @@ export class CollectionService {
     const request = await this.database.client.collectionRequest.create({
       data: {
         condominiumId,
-        scheduledFor,
+        scheduledFor: scheduledFor ?? null,
         status: "PENDING",
         tenantId,
       },
@@ -65,7 +69,7 @@ export class CollectionService {
     }
 
     // Loop until we find a valid pending request or the queue is empty
-    while (true) {
+    for (;;) {
       const requestId = await this.queue.pop(tenantId);
       if (requestId === null) {
         return null;

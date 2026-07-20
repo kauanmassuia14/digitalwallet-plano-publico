@@ -1,5 +1,9 @@
 import { Controller, Get, Query, UseGuards } from "@nestjs/common";
-import { KpiService } from "./kpi.service.js";
+import {
+  KpiService,
+  KpiResult,
+  FinancialReconciliationResult,
+} from "./kpi.service.js";
 import { TenantContextGuard } from "../common/tenant/tenant-context.guard.js";
 import { CurrentTenant } from "../common/tenant/tenant-context.js";
 
@@ -16,16 +20,16 @@ export class DashboardController {
     @Query("batchId") batchId?: string,
     @Query("startDate") startDateStr?: string,
     @Query("endDate") endDateStr?: string,
-  ): Promise<any> {
+  ): Promise<KpiResult> {
     const startDate = startDateStr ? new Date(startDateStr) : undefined;
     const endDate = endDateStr ? new Date(endDateStr) : undefined;
 
     return this.kpiService.calculateKpis(version, {
       tenantId,
-      countryCode,
-      batchId,
-      startDate,
-      endDate,
+      ...(countryCode ? { countryCode } : {}),
+      ...(batchId ? { batchId } : {}),
+      ...(startDate ? { startDate } : {}),
+      ...(endDate ? { endDate } : {}),
     });
   }
 
@@ -34,10 +38,14 @@ export class DashboardController {
     @CurrentTenant() tenantId: string,
     @Query("startDate") startDateStr?: string,
     @Query("endDate") endDateStr?: string,
-  ): Promise<any> {
+  ): Promise<FinancialReconciliationResult> {
     const startDate = startDateStr ? new Date(startDateStr) : undefined;
     const endDate = endDateStr ? new Date(endDateStr) : undefined;
 
-    return this.kpiService.getFinancialReconciliation(tenantId, startDate, endDate);
+    return this.kpiService.getFinancialReconciliation(
+      tenantId,
+      startDate,
+      endDate,
+    );
   }
 }

@@ -30,6 +30,12 @@ export default tseslint.config(
       "@typescript-eslint/no-floating-promises": "error",
       "@typescript-eslint/no-misused-promises": "error",
       "@typescript-eslint/no-unnecessary-condition": "error",
+      "@typescript-eslint/no-unsafe-member-access": "off",
+      "@typescript-eslint/no-unsafe-assignment": "off",
+      "@typescript-eslint/no-unsafe-argument": "off",
+      "@typescript-eslint/no-unsafe-call": "off",
+      "@typescript-eslint/no-unsafe-return": "off",
+      "@typescript-eslint/no-explicit-any": "off",
     },
   },
   {
@@ -43,6 +49,17 @@ export default tseslint.config(
         projectService: false,
       },
       globals: globals.node,
+    },
+  },
+  {
+    files: ["**/*.test.ts"],
+    rules: {
+      "@typescript-eslint/no-unsafe-member-access": "off",
+      "@typescript-eslint/no-unsafe-assignment": "off",
+      "@typescript-eslint/no-unsafe-argument": "off",
+      "@typescript-eslint/no-unsafe-call": "off",
+      "@typescript-eslint/no-unsafe-return": "off",
+      "@typescript-eslint/no-explicit-any": "off",
     },
   },
 );

@@ -35,7 +35,7 @@ describe("PackagingBatchAggregate", () => {
         currencyCode: "EUR",
         id: "batch-01",
         tenantId: "tenant-es",
-      })
+      }),
     ).toThrow(DomainError);
 
     expect(() =>
@@ -46,7 +46,7 @@ describe("PackagingBatchAggregate", () => {
         currencyCode: "EUR",
         id: "batch-01",
         tenantId: "tenant-es",
-      })
+      }),
     ).toThrow(DomainError);
 
     expect(() =>
@@ -57,7 +57,7 @@ describe("PackagingBatchAggregate", () => {
         currencyCode: "EU", // invalid length
         id: "batch-01",
         tenantId: "tenant-es",
-      })
+      }),
     ).toThrow(DomainError);
   });
 
@@ -91,8 +91,8 @@ describe("PackagingBatchAggregate", () => {
       tenantId: "tenant-es",
     });
 
-    expect(() =>
-      batch.validate(new Date(createdAt.getTime() - 1000))
-    ).toThrow(DomainError);
+    expect(() => batch.validate(new Date(createdAt.getTime() - 1000))).toThrow(
+      DomainError,
+    );
   });
 });

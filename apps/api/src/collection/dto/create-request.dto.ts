@@ -6,6 +6,9 @@ export class CreateRequestDto {
   public condominiumId!: string;
 
   @IsOptional()
-  @IsDateString({}, { message: "scheduledFor must be a valid ISO-8601 date string" })
+  @IsDateString(
+    {},
+    { message: "scheduledFor must be a valid ISO-8601 date string" },
+  )
   public scheduledFor?: string;
 }

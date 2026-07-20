@@ -15,6 +15,34 @@ const packagingId1 = "33333333-3333-4333-8333-333333333333";
 const packagingId2 = "33333333-3333-4333-8333-333333333334";
 const packagingId3 = "33333333-3333-4333-8333-333333333335";
 
+interface KpiResponseBody {
+  mintedCount: number;
+  collectedCount: number;
+  recycledCount: number;
+  totalCollectedWeightGrams: number;
+  returnRate: number;
+  co2SavedKg: number;
+  redemptionRate: number;
+  activeUsersCount: number;
+}
+
+interface FinancialTotals {
+  totalEarnedCents: number;
+  totalCashedOutCents: number;
+  totalCurrentBalanceCents: number;
+  discrepancyCents: number;
+  isReconciled: boolean;
+}
+
+interface LedgerValidation {
+  isValid: boolean;
+}
+
+interface ReconResponseBody {
+  financialTotals: FinancialTotals;
+  ledgerValidation: LedgerValidation;
+}
+
 function httpServer(app: INestApplication): any {
   return app.getHttpServer();
 }
@@ -47,16 +75,40 @@ describe("Dashboard and Versioned KPIs E2E", () => {
 
   it("calculates versioned KPIs v1 and v2 with correct math", async () => {
     // 1. Process Earn reward for packagingId1 (amount: 100) -> status: SETTLED
-    await rewardsService.earn(tenantEs, userEs, packagingId1, 100, "idem-kpi-earn-1");
+    await rewardsService.earn(
+      tenantEs,
+      userEs,
+      packagingId1,
+      100,
+      "idem-kpi-earn-1",
+    );
 
     // 2. Process Earn reward for packagingId2 (amount: 200) -> status: SETTLED
-    await rewardsService.earn(tenantEs, userEs, packagingId2, 200, "idem-kpi-earn-2");
+    await rewardsService.earn(
+      tenantEs,
+      userEs,
+      packagingId2,
+      200,
+      "idem-kpi-earn-2",
+    );
 
     // 3. Request a cashout (amount: 50) -> status: SETTLED (successful sandbox cashout)
-    await rewardsService.cashout(tenantEs, userEs, 50, "valid_dest", "idem-kpi-cashout-1");
+    await rewardsService.cashout(
+      tenantEs,
+      userEs,
+      50,
+      "valid_dest",
+      "idem-kpi-cashout-1",
+    );
 
     // 4. Request a cashout that fails (amount: 30) -> status: FAILED (failed sandbox cashout, refunded)
-    await rewardsService.cashout(tenantEs, userEs, 30, "FAIL_KEY", "idem-kpi-cashout-2");
+    await rewardsService.cashout(
+      tenantEs,
+      userEs,
+      30,
+      "FAIL_KEY",
+      "idem-kpi-cashout-2",
+    );
 
     // 5. Query KPI version v1
     const resV1 = await request(httpServer(app))
@@ -66,18 +118,19 @@ describe("Dashboard and Versioned KPIs E2E", () => {
       .query({ version: "v1" })
       .expect(200);
 
-    expect(resV1.body.mintedCount).toBe(3); // packagingId1, packagingId2, packagingId3
-    expect(resV1.body.collectedCount).toBe(2); // packagingId1, packagingId2 are COLLECTED
-    expect(resV1.body.recycledCount).toBe(0); // none are RECYCLED yet
-    expect(resV1.body.totalCollectedWeightGrams).toBe(100.0); // 50g + 50g
+    const bodyV1 = resV1.body as KpiResponseBody;
+    expect(bodyV1.mintedCount).toBe(3); // packagingId1, packagingId2, packagingId3
+    expect(bodyV1.collectedCount).toBe(2); // packagingId1, packagingId2 are COLLECTED
+    expect(bodyV1.recycledCount).toBe(0); // none are RECYCLED yet
+    expect(bodyV1.totalCollectedWeightGrams).toBe(100.0); // 50g + 50g
 
     // v1 returnRate = (collectedCount / mintedCount) * 100 = (2 / 3) * 100 = 66.6666...
-    expect(resV1.body.returnRate).toBeCloseTo(66.67, 1);
+    expect(bodyV1.returnRate).toBeCloseTo(66.67, 1);
     // v1 co2SavedKg = weight * 0.0025 = 100 * 0.0025 = 0.25
-    expect(resV1.body.co2SavedKg).toBe(0.25);
+    expect(bodyV1.co2SavedKg).toBe(0.25);
     // v1 redemptionRate = (cashedOut / earned) * 100 = (50 / 300) * 100 = 16.666...
-    expect(resV1.body.redemptionRate).toBeCloseTo(16.67, 1);
-    expect(resV1.body.activeUsersCount).toBe(1);
+    expect(bodyV1.redemptionRate).toBeCloseTo(16.67, 1);
+    expect(bodyV1.activeUsersCount).toBe(1);
 
     // 6. Transition packagingId1 to RECYCLED
     await database.client.packaging.update({
@@ -93,10 +146,11 @@ describe("Dashboard and Versioned KPIs E2E", () => {
       .query({ version: "v2" })
       .expect(200);
 
+    const bodyV2 = resV2.body as KpiResponseBody;
     // v2 returnRate = (recycledCount / mintedCount) * 100 = (1 / 3) * 100 = 33.333...
-    expect(resV2.body.returnRate).toBeCloseTo(33.33, 1);
+    expect(bodyV2.returnRate).toBeCloseTo(33.33, 1);
     // v2 co2SavedKg = weight * 0.0030 = 100 * 0.0030 = 0.30
-    expect(resV2.body.co2SavedKg).toBe(0.30);
+    expect(bodyV2.co2SavedKg).toBe(0.3);
   });
 
   it("filters KPIs by countryCode, batchId and date ranges", async () => {
@@ -110,14 +164,27 @@ describe("Dashboard and Versioned KPIs E2E", () => {
       })
       .expect(200);
 
-    expect(resFiltered.body.mintedCount).toBe(3);
+    const body = resFiltered.body as KpiResponseBody;
+    expect(body.mintedCount).toBe(3);
   });
 
   it("exports audit-ready financial reconciliation showing 0 discrepancy and valid ledger", async () => {
     // 1. Earn 100
-    await rewardsService.earn(tenantEs, userEs, packagingId1, 100, "idem-recon-earn-1");
+    await rewardsService.earn(
+      tenantEs,
+      userEs,
+      packagingId1,
+      100,
+      "idem-recon-earn-1",
+    );
     // 2. Cashout 40 (succeeds)
-    await rewardsService.cashout(tenantEs, userEs, 40, "valid_dest", "idem-recon-cashout-1");
+    await rewardsService.cashout(
+      tenantEs,
+      userEs,
+      40,
+      "valid_dest",
+      "idem-recon-cashout-1",
+    );
 
     // 3. Export reconciliation
     const reconRes = await request(httpServer(app))
@@ -126,12 +193,13 @@ describe("Dashboard and Versioned KPIs E2E", () => {
       .set("x-tenant-id", tenantEs)
       .expect(200);
 
-    expect(reconRes.body.financialTotals.totalEarnedCents).toBe(100);
-    expect(reconRes.body.financialTotals.totalCashedOutCents).toBe(40);
-    expect(reconRes.body.financialTotals.totalCurrentBalanceCents).toBe(60);
-    expect(reconRes.body.financialTotals.discrepancyCents).toBe(0);
-    expect(reconRes.body.financialTotals.isReconciled).toBe(true);
-    expect(reconRes.body.ledgerValidation.isValid).toBe(true);
+    const reconBody = reconRes.body as ReconResponseBody;
+    expect(reconBody.financialTotals.totalEarnedCents).toBe(100);
+    expect(reconBody.financialTotals.totalCashedOutCents).toBe(40);
+    expect(reconBody.financialTotals.totalCurrentBalanceCents).toBe(60);
+    expect(reconBody.financialTotals.discrepancyCents).toBe(0);
+    expect(reconBody.financialTotals.isReconciled).toBe(true);
+    expect(reconBody.ledgerValidation.isValid).toBe(true);
   });
 });
 
@@ -153,7 +221,12 @@ async function resetDatabase(database: DatabaseService): Promise<void> {
 async function seedBaseData(database: DatabaseService): Promise<void> {
   await database.client.tenant.createMany({
     data: [
-      { countryCodes: ["ES"], id: tenantEs, name: "Pilot Spain", slug: "pilot-es" },
+      {
+        countryCodes: ["ES"],
+        id: tenantEs,
+        name: "Pilot Spain",
+        slug: "pilot-es",
+      },
     ],
   });
 
@@ -164,9 +237,7 @@ async function seedBaseData(database: DatabaseService): Promise<void> {
   });
 
   await database.client.tenantMembership.createMany({
-    data: [
-      { role: "OPERATOR", tenantId: tenantEs, userId: userEs },
-    ],
+    data: [{ role: "OPERATOR", tenantId: tenantEs, userId: userEs }],
   });
 
   await database.client.packagingBatch.createMany({

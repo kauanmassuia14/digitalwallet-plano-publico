@@ -22,7 +22,10 @@ export class DatabaseService implements OnModuleInit, OnApplicationShutdown {
   public constructor() {
     const connectionString = process.env.DATABASE_URL;
 
-    if (connectionString === undefined || connectionString.trim().length === 0) {
+    if (
+      connectionString === undefined ||
+      connectionString.trim().length === 0
+    ) {
       throw new TypeError("DATABASE_URL is required to start the API");
     }
 

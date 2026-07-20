@@ -34,10 +34,12 @@ export class HealthController {
       },
     },
   })
-  public async readiness(): Promise<Readonly<{
-    checks: Readonly<{ database: string; process: string }>;
-    status: string;
-  }>> {
+  public async readiness(): Promise<
+    Readonly<{
+      checks: Readonly<{ database: string; process: string }>;
+      status: string;
+    }>
+  > {
     await this.database.client.$queryRaw(Prisma.sql`SELECT 1`);
 
     return {

@@ -11,13 +11,9 @@ import {
   UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
+
 import { FileInterceptor } from "@nestjs/platform-express";
-import {
-  ApiConsumes,
-  ApiHeader,
-  ApiOkResponse,
-  ApiTags,
-} from "@nestjs/swagger";
+import { ApiConsumes, ApiHeader, ApiTags } from "@nestjs/swagger";
 import type { Response } from "express";
 import type { ImportJobSnapshot } from "@digitalwallet/domain";
 
@@ -29,8 +25,16 @@ import { ImportService } from "./import.service.js";
 @ApiTags("Imports")
 @Controller({ path: "imports", version: "1" })
 @UseGuards(TenantContextGuard)
-@ApiHeader({ name: "x-user-id", required: true, description: "Authenticated User UUID" })
-@ApiHeader({ name: "x-tenant-id", required: false, description: "Tenant UUID context" })
+@ApiHeader({
+  name: "x-user-id",
+  required: true,
+  description: "Authenticated User UUID",
+})
+@ApiHeader({
+  name: "x-tenant-id",
+  required: false,
+  description: "Tenant UUID context",
+})
 export class ImportController {
   public constructor(private readonly importService: ImportService) {}
 
@@ -40,8 +44,8 @@ export class ImportController {
   public async uploadFile(
     @CurrentTenant() tenantId: string,
     @Headers("x-user-id") userId: string,
-    @UploadedFile() file: Express.Multer.File,
     @Body() dto: UploadImportDto,
+    @UploadedFile() file?: Express.Multer.File,
   ): Promise<ImportJobSnapshot> {
     if (file === undefined) {
       throw new BadRequestException("No file uploaded");

@@ -43,7 +43,11 @@ function requireNonBlank(value: string, field: string): string {
   return normalized;
 }
 
-function requireExactLength(value: string, length: number, field: string): string {
+function requireExactLength(
+  value: string,
+  length: number,
+  field: string,
+): string {
   const normalized = value.trim().toUpperCase();
 
   if (normalized.length !== length) {
@@ -70,11 +74,17 @@ function requireValidDate(value: Date, field: string): Date {
 export class PackagingBatchAggregate {
   private constructor(private readonly state: PackagingBatchSnapshot) {}
 
-  public static create(input: CreatePackagingBatchInput): PackagingBatchAggregate {
+  public static create(
+    input: CreatePackagingBatchInput,
+  ): PackagingBatchAggregate {
     const createdAt = requireValidDate(input.createdAt, "createdAt");
     const code = requireNonBlank(input.code, "code");
     const countryCode = requireExactLength(input.countryCode, 2, "countryCode");
-    const currencyCode = requireExactLength(input.currencyCode, 3, "currencyCode");
+    const currencyCode = requireExactLength(
+      input.currencyCode,
+      3,
+      "currencyCode",
+    );
 
     return new PackagingBatchAggregate({
       code,
@@ -89,7 +99,9 @@ export class PackagingBatchAggregate {
     });
   }
 
-  public static rehydrate(snapshot: PackagingBatchSnapshot): PackagingBatchAggregate {
+  public static rehydrate(
+    snapshot: PackagingBatchSnapshot,
+  ): PackagingBatchAggregate {
     if (!PACKAGING_BATCH_STATUSES.includes(snapshot.status)) {
       throw new DomainError("INVALID_ARGUMENT", "status is not supported", {
         status: snapshot.status,
@@ -110,7 +122,11 @@ export class PackagingBatchAggregate {
       code: requireNonBlank(snapshot.code, "code"),
       countryCode: requireExactLength(snapshot.countryCode, 2, "countryCode"),
       createdAt,
-      currencyCode: requireExactLength(snapshot.currencyCode, 3, "currencyCode"),
+      currencyCode: requireExactLength(
+        snapshot.currencyCode,
+        3,
+        "currencyCode",
+      ),
       id: requireNonBlank(snapshot.id, "id"),
       importJobId: snapshot.importJobId,
       status: snapshot.status,

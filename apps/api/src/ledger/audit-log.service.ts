@@ -22,8 +22,12 @@ export class AuditLogService {
   public constructor(private readonly database: DatabaseService) {}
 
   public async createLog(params: CreateAuditLogParams): Promise<any> {
-    const encryptedBefore = params.before ? this.encryptionHelper.encrypt(params.before) : null;
-    const encryptedAfter = params.after ? this.encryptionHelper.encrypt(params.after) : null;
+    const encryptedBefore = params.before
+      ? this.encryptionHelper.encrypt(params.before)
+      : null;
+    const encryptedAfter = params.after
+      ? this.encryptionHelper.encrypt(params.after)
+      : null;
 
     return this.database.client.auditLog.create({
       data: {
@@ -35,8 +39,8 @@ export class AuditLogService {
         resourceId: params.resourceId,
         requestId: params.requestId,
         correlationId: params.correlationId,
-        before: encryptedBefore as any,
-        after: encryptedAfter as any,
+        before: encryptedBefore,
+        after: encryptedAfter,
       },
     });
   }

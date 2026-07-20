@@ -1,0 +1,66 @@
+name: Consumer Mobile Build Pipeline
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/consumer/**"
+      - ".github/workflows/mobile-pipeline.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "apps/consumer/**"
+
+jobs:
+  build:
+    name: Build Flavor (${{ matrix.flavor }}) on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        flavor: [dev, staging, prod]
+        exclude:
+          # Only build iOS on macOS runner
+          - os: ubuntu-latest
+            flavor: dev
+          - os: ubuntu-latest
+            flavor: staging
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/setup-java@v3
+        with:
+          distribution: "zulu"
+          java-version: "17"
+
+      - name: Set up Flutter SDK
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          flutter-version: "3.10.x"
+
+      - name: Install Dependencies
+        run: |
+          cd apps/consumer
+          flutter pub get
+
+      - name: Run Dart Analyzer
+        run: |
+          cd apps/consumer
+          flutter analyze
+
+      - name: Build Android App Bundle (AAB)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          cd apps/consumer
+          flutter build appbundle --flavor ${{ matrix.flavor }} --release -t lib/main.dart
+
+      - name: Build iOS IPA
+        if: matrix.os == 'macos-latest'
+        run: |
+          cd apps/consumer
+          flutter build ipa --flavor ${{ matrix.flavor }} --release --no-codesign -t lib/main.dart

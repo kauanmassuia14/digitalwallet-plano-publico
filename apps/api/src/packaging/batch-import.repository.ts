@@ -87,7 +87,9 @@ export class InMemoryBatchImportRepository extends BatchImportRepository {
     return Promise.resolve(this.copyJob(next));
   }
 
-  public createBatch(batch: PackagingBatchAggregate): Promise<PackagingBatchSnapshot> {
+  public createBatch(
+    batch: PackagingBatchAggregate,
+  ): Promise<PackagingBatchSnapshot> {
     const snapshot = batch.snapshot();
     const codeKey = this.codeKey(snapshot.tenantId, snapshot.code);
 
@@ -130,7 +132,9 @@ export class InMemoryBatchImportRepository extends BatchImportRepository {
     return Promise.resolve(this.copyBatch(snapshot));
   }
 
-  public saveBatch(batch: PackagingBatchAggregate): Promise<PackagingBatchSnapshot> {
+  public saveBatch(
+    batch: PackagingBatchAggregate,
+  ): Promise<PackagingBatchSnapshot> {
     const next = batch.snapshot();
     const current = this.batches.get(next.id);
 
@@ -155,9 +159,11 @@ export class InMemoryBatchImportRepository extends BatchImportRepository {
     await this.saveBatch(batch);
     for (const pkg of packagings) {
       const snap = pkg.snapshot();
-      const serialKey = `${snap.tenantId}:${snap.serial}`;
       for (const existing of this.packagings.values()) {
-        if (existing.tenantId === snap.tenantId && existing.serial === snap.serial) {
+        if (
+          existing.tenantId === snap.tenantId &&
+          existing.serial === snap.serial
+        ) {
           throw new DomainError(
             "PACKAGING_SERIAL_ALREADY_EXISTS",
             `A packaging with serial ${snap.serial} already exists`,

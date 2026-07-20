@@ -4,7 +4,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "noEmit": true,
-    "types": ["node"]
+    "types": ["node", "express", "multer"]
   },
   "include": ["src/**/*.ts", "test/**/*.ts", "vitest.config.ts"]
 }

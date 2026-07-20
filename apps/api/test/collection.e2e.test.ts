@@ -37,7 +37,6 @@ describe("Collection Matchmaking E2E", () => {
     database = app.get(DatabaseService);
     redis = app.get(RedisService);
 
-
     // Clean up Redis keys for test tenants
     await redis.client.del(`tenant:${tenantEs}:collections:queue`);
     await redis.client.del(`tenant:${tenantPt}:collections:queue`);
@@ -80,7 +79,9 @@ describe("Collection Matchmaking E2E", () => {
     expect(requestObj.condominiumId).toBe(condoEs);
 
     // Check Redis Queue length
-    const queueLen = await redis.client.llen(`tenant:${tenantEs}:collections:queue`);
+    const queueLen = await redis.client.llen(
+      `tenant:${tenantEs}:collections:queue`,
+    );
     expect(queueLen).toBe(1);
 
     // 2. Match with Cooperative
@@ -100,7 +101,9 @@ describe("Collection Matchmaking E2E", () => {
     expect(matchedRequest.cooperativeId).toBe(coopEs);
 
     // Check Redis Queue is now empty
-    const queueLenAfter = await redis.client.llen(`tenant:${tenantEs}:collections:queue`);
+    const queueLenAfter = await redis.client.llen(
+      `tenant:${tenantEs}:collections:queue`,
+    );
     expect(queueLenAfter).toBe(0);
 
     // 3. Complete the request
@@ -132,7 +135,9 @@ describe("Collection Matchmaking E2E", () => {
       .send({ condominiumId: condoEs2 })
       .expect(201);
 
-    const queueLen = await redis.client.llen(`tenant:${tenantEs}:collections:queue`);
+    const queueLen = await redis.client.llen(
+      `tenant:${tenantEs}:collections:queue`,
+    );
     expect(queueLen).toBe(2);
 
     // 3. First match should return the first request (FIFO order)
@@ -187,7 +192,9 @@ describe("Collection Matchmaking E2E", () => {
     expect(cancelRes.body.status).toBe("CANCELLED");
 
     // Queue length should be 0 (removed from Redis)
-    const queueLen = await redis.client.llen(`tenant:${tenantEs}:collections:queue`);
+    const queueLen = await redis.client.llen(
+      `tenant:${tenantEs}:collections:queue`,
+    );
     expect(queueLen).toBe(0);
 
     // Match should return null
@@ -265,8 +272,18 @@ async function resetDatabase(database: DatabaseService): Promise<void> {
 async function seedBaseData(database: DatabaseService): Promise<void> {
   await database.client.tenant.createMany({
     data: [
-      { countryCodes: ["ES"], id: tenantEs, name: "Pilot Spain", slug: "pilot-es" },
-      { countryCodes: ["PT"], id: tenantPt, name: "Pilot Portugal", slug: "pilot-pt" },
+      {
+        countryCodes: ["ES"],
+        id: tenantEs,
+        name: "Pilot Spain",
+        slug: "pilot-es",
+      },
+      {
+        countryCodes: ["PT"],
+        id: tenantPt,
+        name: "Pilot Portugal",
+        slug: "pilot-pt",
+      },
     ],
   });
 
@@ -286,9 +303,27 @@ async function seedBaseData(database: DatabaseService): Promise<void> {
 
   await database.client.condominium.createMany({
     data: [
-      { address: "Calle Mayor 1", id: condoEs, name: "Condominium ES 1", slug: "condo-es-1", tenantId: tenantEs },
-      { address: "Calle Mayor 2", id: condoEs2, name: "Condominium ES 2", slug: "condo-es-2", tenantId: tenantEs },
-      { address: "Av da Liberdade 10", id: condoPt, name: "Condominium PT", slug: "condo-pt", tenantId: tenantPt },
+      {
+        address: "Calle Mayor 1",
+        id: condoEs,
+        name: "Condominium ES 1",
+        slug: "condo-es-1",
+        tenantId: tenantEs,
+      },
+      {
+        address: "Calle Mayor 2",
+        id: condoEs2,
+        name: "Condominium ES 2",
+        slug: "condo-es-2",
+        tenantId: tenantEs,
+      },
+      {
+        address: "Av da Liberdade 10",
+        id: condoPt,
+        name: "Condominium PT",
+        slug: "condo-pt",
+        tenantId: tenantPt,
+      },
     ],
   });
 

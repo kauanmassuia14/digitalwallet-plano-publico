@@ -57,11 +57,19 @@ describe("Cryptographic Ledger and Reconciliation E2E", () => {
   });
 
   it("appends entries to the ledger, chains them, and validates the healthy chain", async () => {
-    const entry1 = await ledgerService.appendEntry({ action: "MINT", serial: "SN-001" });
-    expect(entry1.prevHash).toBe("0000000000000000000000000000000000000000000000000000000000000000");
+    const entry1 = await ledgerService.appendEntry({
+      action: "MINT",
+      serial: "SN-001",
+    });
+    expect(entry1.prevHash).toBe(
+      "0000000000000000000000000000000000000000000000000000000000000000",
+    );
     expect(entry1.rowHash).toBeDefined();
 
-    const entry2 = await ledgerService.appendEntry({ action: "TRANSFER", serial: "SN-001" });
+    const entry2 = await ledgerService.appendEntry({
+      action: "TRANSFER",
+      serial: "SN-001",
+    });
     expect(entry2.prevHash).toBe(entry1.rowHash);
 
     const validateRes = await request(httpServer(app))
@@ -72,12 +80,15 @@ describe("Cryptographic Ledger and Reconciliation E2E", () => {
   });
 
   it("detects chain broken when prevHash is tampered", async () => {
-    const entry1 = await ledgerService.appendEntry({ val: 10 });
+    await ledgerService.appendEntry({ val: 10 });
     const entry2 = await ledgerService.appendEntry({ val: 20 });
 
     await database.client.auditLedger.update({
       where: { id: entry2.id },
-      data: { prevHash: "1111111111111111111111111111111111111111111111111111111111111111" },
+      data: {
+        prevHash:
+          "1111111111111111111111111111111111111111111111111111111111111111",
+      },
     });
 
     const validateRes = await request(httpServer(app))
@@ -174,10 +185,16 @@ describe("Cryptographic Ledger and Reconciliation E2E", () => {
     });
 
     expect(ledgerEntry).toBeDefined();
-    const tamperedPayload = { ...(ledgerEntry!.payload as any), condominiumId: "wrong-condo-id" };
-    
+    const tamperedPayload = {
+      ...(ledgerEntry!.payload as any),
+      condominiumId: "wrong-condo-id",
+    };
+
     // Recalculate rowHash for the tampered payload so it matches, but details mismatch
-    const tamperedRowHash = ledgerService.calculateRowHash(ledgerEntry!.prevHash, tamperedPayload);
+    const tamperedRowHash = ledgerService.calculateRowHash(
+      ledgerEntry!.prevHash,
+      tamperedPayload,
+    );
 
     await database.client.auditLedger.update({
       where: { id: ledgerEntry!.id },
@@ -196,7 +213,9 @@ describe("Cryptographic Ledger and Reconciliation E2E", () => {
 
     expect(reconcileRes2.body.reconciledCount).toBe(0);
     expect(reconcileRes2.body.discrepancyCount).toBe(1);
-    expect(reconcileRes2.body.discrepancies[0].reason).toContain("Discrepancy in collection participants");
+    expect(reconcileRes2.body.discrepancies[0].reason).toContain(
+      "Discrepancy in collection participants",
+    );
   });
 });
 
@@ -216,8 +235,18 @@ async function resetDatabase(database: DatabaseService): Promise<void> {
 async function seedBaseData(database: DatabaseService): Promise<void> {
   await database.client.tenant.createMany({
     data: [
-      { countryCodes: ["ES"], id: tenantEs, name: "Pilot Spain", slug: "pilot-es" },
-      { countryCodes: ["PT"], id: tenantPt, name: "Pilot Portugal", slug: "pilot-pt" },
+      {
+        countryCodes: ["ES"],
+        id: tenantEs,
+        name: "Pilot Spain",
+        slug: "pilot-es",
+      },
+      {
+        countryCodes: ["PT"],
+        id: tenantPt,
+        name: "Pilot Portugal",
+        slug: "pilot-pt",
+      },
     ],
   });
 
@@ -237,7 +266,13 @@ async function seedBaseData(database: DatabaseService): Promise<void> {
 
   await database.client.condominium.createMany({
     data: [
-      { address: "Calle Mayor 1", id: condoEs, name: "Condominium ES 1", slug: "condo-es-1", tenantId: tenantEs },
+      {
+        address: "Calle Mayor 1",
+        id: condoEs,
+        name: "Condominium ES 1",
+        slug: "condo-es-1",
+        tenantId: tenantEs,
+      },
     ],
   });
 

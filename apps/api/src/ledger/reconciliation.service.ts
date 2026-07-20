@@ -19,10 +19,13 @@ export class ReconciliationService {
     private readonly ledgerService: LedgerService,
   ) {}
 
-  public async reconcileTenantCollections(tenantId: string): Promise<ReconciliationReport> {
-    const completedRequests = await this.database.client.collectionRequest.findMany({
-      where: { tenantId, status: "COMPLETED" },
-    });
+  public async reconcileTenantCollections(
+    tenantId: string,
+  ): Promise<ReconciliationReport> {
+    const completedRequests =
+      await this.database.client.collectionRequest.findMany({
+        where: { tenantId, status: "COMPLETED" },
+      });
 
     const ledgerEntries = await this.database.client.auditLedger.findMany({
       orderBy: { createdAt: "asc" },
@@ -44,7 +47,8 @@ export class ReconciliationService {
       if (!matchingEntry) {
         reconciledDiscrepancies.push({
           requestId: request.id,
-          reason: "No corresponding AuditLedger entry found for completion event",
+          reason:
+            "No corresponding AuditLedger entry found for completion event",
         });
         continue;
       }
@@ -58,16 +62,23 @@ export class ReconciliationService {
         reconciledDiscrepancies.push({
           requestId: request.id,
           reason: "AuditLedger rowHash mismatch (data was modified)",
-          details: { expected: matchingEntry.rowHash, recalculated: recalculatedHash },
+          details: {
+            expected: matchingEntry.rowHash,
+            recalculated: recalculatedHash,
+          },
         });
         continue;
       }
 
       const payload = matchingEntry.payload as any;
-      if (payload.condominiumId !== request.condominiumId || payload.cooperativeId !== request.cooperativeId) {
+      if (
+        payload.condominiumId !== request.condominiumId ||
+        payload.cooperativeId !== request.cooperativeId
+      ) {
         reconciledDiscrepancies.push({
           requestId: request.id,
-          reason: "Discrepancy in collection participants between request and ledger",
+          reason:
+            "Discrepancy in collection participants between request and ledger",
           details: { request, ledger: payload },
         });
         continue;

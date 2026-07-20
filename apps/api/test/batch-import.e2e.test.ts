@@ -90,7 +90,10 @@ describe("PrismaBatchImportRepository E2E", () => {
     expect(foundById).toBeDefined();
     expect(foundById?.code).toBe("BATCH-TEST-E2E");
 
-    const foundByCode = await repository.findBatchByCode(tenantEs, "BATCH-TEST-E2E");
+    const foundByCode = await repository.findBatchByCode(
+      tenantEs,
+      "BATCH-TEST-E2E",
+    );
     expect(foundByCode?.id).toBe(batchId);
   });
 
@@ -125,13 +128,16 @@ describe("PrismaBatchImportRepository E2E", () => {
     await repository.createBatch(batch);
 
     // 2. Prepare transition updates and packagings to import
-    const runningJob = ImportJobAggregate.rehydrate((await repository.findImportJobById(tenantEs, jobId))!);
-    const readyJob = runningJob.ready(
-      { acceptedRows: 2, rejectedRows: 0, totalRows: 2 },
-      new Date(),
-    ).commit(new Date());
+    const runningJob = ImportJobAggregate.rehydrate(
+      (await repository.findImportJobById(tenantEs, jobId))!,
+    );
+    const readyJob = runningJob
+      .ready({ acceptedRows: 2, rejectedRows: 0, totalRows: 2 }, new Date())
+      .commit(new Date());
 
-    const runningBatch = PackagingBatchAggregate.rehydrate((await repository.findBatchById(tenantEs, batchId))!);
+    const runningBatch = PackagingBatchAggregate.rehydrate(
+      (await repository.findBatchById(tenantEs, batchId))!,
+    );
     const importedBatch = runningBatch.import(new Date());
 
     const pkg1 = PackagingAggregate.create({
@@ -230,13 +236,16 @@ describe("PrismaBatchImportRepository E2E", () => {
       },
     });
 
-    const runningJob = ImportJobAggregate.rehydrate((await repository.findImportJobById(tenantEs, jobId))!);
-    const readyJob = runningJob.ready(
-      { acceptedRows: 2, rejectedRows: 0, totalRows: 2 },
-      new Date(),
-    ).commit(new Date());
+    const runningJob = ImportJobAggregate.rehydrate(
+      (await repository.findImportJobById(tenantEs, jobId))!,
+    );
+    const readyJob = runningJob
+      .ready({ acceptedRows: 2, rejectedRows: 0, totalRows: 2 }, new Date())
+      .commit(new Date());
 
-    const runningBatch = PackagingBatchAggregate.rehydrate((await repository.findBatchById(tenantEs, batchId))!);
+    const runningBatch = PackagingBatchAggregate.rehydrate(
+      (await repository.findBatchById(tenantEs, batchId))!,
+    );
     const importedBatch = runningBatch.import(new Date());
 
     const pkg1 = PackagingAggregate.create({
@@ -270,7 +279,7 @@ describe("PrismaBatchImportRepository E2E", () => {
 
     // Expect transaction to fail due to duplicate serial
     await expect(
-      repository.importPackagings(readyJob, importedBatch, [pkg1, pkg2])
+      repository.importPackagings(readyJob, importedBatch, [pkg1, pkg2]),
     ).rejects.toThrow(DomainError);
 
     // Verify transaction rolled back:
@@ -303,7 +312,12 @@ async function resetDatabase(database: DatabaseService): Promise<void> {
 
 async function seedBaseData(database: DatabaseService): Promise<void> {
   await database.client.tenant.create({
-    data: { countryCodes: ["ES"], id: tenantEs, name: "Pilot Spain", slug: "pilot-es" },
+    data: {
+      countryCodes: ["ES"],
+      id: tenantEs,
+      name: "Pilot Spain",
+      slug: "pilot-es",
+    },
   });
   await database.client.user.create({
     data: { email: "es@example.com", externalSubject: "auth0|es", id: userEs },

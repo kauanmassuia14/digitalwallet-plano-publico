@@ -1,7 +1,6 @@
 import type { INestApplication } from "@nestjs/common";
 import { Test } from "@nestjs/testing";
 import { createHash } from "node:crypto";
-import { Server } from "node:http";
 import request from "supertest";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
@@ -304,14 +303,8 @@ async function transition(
   return response.body as PackagingResponse;
 }
 
-function httpServer(app: INestApplication): Server {
-  const candidate: unknown = app.getHttpServer();
-
-  if (!(candidate instanceof Server)) {
-    throw new TypeError("Nest did not expose a Node HTTP server");
-  }
-
-  return candidate;
+function httpServer(app: INestApplication): any {
+  return app.getHttpServer();
 }
 
 function packagingPayload(
@@ -356,20 +349,32 @@ async function resetDatabase(database: DatabaseService): Promise<void> {
   ]);
 }
 
-async function seedTenantsAndBatches(
-  database: DatabaseService,
-): Promise<void> {
+async function seedTenantsAndBatches(database: DatabaseService): Promise<void> {
   await database.client.tenant.createMany({
     data: [
-      { countryCodes: ["ES"], id: tenantEs, name: "Pilot Spain", slug: "pilot-es" },
-      { countryCodes: ["PT"], id: tenantPt, name: "Pilot Portugal", slug: "pilot-pt" },
+      {
+        countryCodes: ["ES"],
+        id: tenantEs,
+        name: "Pilot Spain",
+        slug: "pilot-es",
+      },
+      {
+        countryCodes: ["PT"],
+        id: tenantPt,
+        name: "Pilot Portugal",
+        slug: "pilot-pt",
+      },
     ],
   });
   await database.client.user.createMany({
     data: [
       { email: "es@example.com", externalSubject: "auth0|es", id: userEs },
       { email: "pt@example.com", externalSubject: "auth0|pt", id: userPt },
-      { email: "both@example.com", externalSubject: "auth0|both", id: userBoth },
+      {
+        email: "both@example.com",
+        externalSubject: "auth0|both",
+        id: userBoth,
+      },
     ],
   });
   await database.client.tenantMembership.createMany({

@@ -3,7 +3,8 @@ import * as crypto from "node:crypto";
 import { DatabaseService } from "../common/database/database.service.js";
 import { KmsService } from "./kms.service.js";
 
-const GENESIS_HASH = "0000000000000000000000000000000000000000000000000000000000000000";
+const GENESIS_HASH =
+  "0000000000000000000000000000000000000000000000000000000000000000";
 
 @Injectable()
 export class LedgerService {
@@ -46,10 +47,7 @@ export class LedgerService {
   public async appendEntry(payload: any): Promise<any> {
     return this.database.client.$transaction(async (tx) => {
       const lastEntry = await tx.auditLedger.findFirst({
-        orderBy: [
-          { createdAt: "desc" },
-          { id: "desc" },
-        ],
+        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
       });
 
       const prevHash = lastEntry ? lastEntry.rowHash : GENESIS_HASH;
@@ -60,7 +58,7 @@ export class LedgerService {
         data: {
           prevHash,
           rowHash,
-          payload: payload as any,
+          payload,
           signature,
         },
       });
@@ -76,6 +74,9 @@ export class LedgerService {
 
     for (let i = 0; i < entries.length; i++) {
       const entry = entries[i];
+      if (!entry) {
+        continue;
+      }
 
       if (entry.prevHash !== expectedPrevHash) {
         return {
@@ -84,7 +85,10 @@ export class LedgerService {
         };
       }
 
-      const calculatedHash = this.calculateRowHash(entry.prevHash, entry.payload);
+      const calculatedHash = this.calculateRowHash(
+        entry.prevHash,
+        entry.payload,
+      );
       if (entry.rowHash !== calculatedHash) {
         return {
           isValid: false,
@@ -92,7 +96,10 @@ export class LedgerService {
         };
       }
 
-      const isSignatureValid = this.kmsService.verify(entry.rowHash, entry.signature);
+      const isSignatureValid = this.kmsService.verify(
+        entry.rowHash,
+        entry.signature,
+      );
       if (!isSignatureValid) {
         return {
           isValid: false,

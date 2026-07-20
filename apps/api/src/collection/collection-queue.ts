@@ -10,7 +10,10 @@ export class CollectionQueue {
   }
 
   public async push(tenantId: string, requestId: string): Promise<number> {
-    return this.redisService.client.rpush(this.getQueueKey(tenantId), requestId);
+    return this.redisService.client.rpush(
+      this.getQueueKey(tenantId),
+      requestId,
+    );
   }
 
   public async pop(tenantId: string): Promise<string | null> {
@@ -18,7 +21,11 @@ export class CollectionQueue {
   }
 
   public async remove(tenantId: string, requestId: string): Promise<number> {
-    return this.redisService.client.lrem(this.getQueueKey(tenantId), 0, requestId);
+    return this.redisService.client.lrem(
+      this.getQueueKey(tenantId),
+      0,
+      requestId,
+    );
   }
 
   public async getLength(tenantId: string): Promise<number> {

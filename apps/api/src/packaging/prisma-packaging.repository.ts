@@ -147,10 +147,7 @@ export class PrismaPackagingRepository extends PackagingRepository {
     snapshot: PackagingSnapshot,
   ): Readonly<
     Partial<
-      Pick<
-        PackagingRecord,
-        "circulatedAt" | "collectedAt" | "recycledAt"
-      >
+      Pick<PackagingRecord, "circulatedAt" | "collectedAt" | "recycledAt">
     >
   > {
     switch (snapshot.status) {

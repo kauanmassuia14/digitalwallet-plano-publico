@@ -8,23 +8,23 @@ Legenda: `[x]` concluído e verificado · `[~]` em execução · `[ ]` pendente 
 
 ## Visão rápida
 
-| Fase                             | Estado      | Progresso | Próxima evidência              |
-| -------------------------------- | ----------- | --------: | ------------------------------ |
-| F00 · Fundação reproduzível      | Concluída   |       6/6 | gate local reproduzido         |
-| W01 · Escopo e jornadas          | Em execução |       4/6 | fórmulas de KPI versionadas    |
-| W02 · Arquitetura, dados e risco | Em execução |       2/7 | mapa de dados + threat model   |
-| W03 · Banco, API e CI            | Em execução |       5/7 | baseline de IaC dev/stage      |
-| W04 · Identidade e tenancy       | Em execução |       1/8 | adaptador de identidade real   |
-| W05 · Catálogo e importação      | Concluída   |       7/7 | lote e importação transacional |
-| W06 · Coleta e Ledger            | Em execução |       0/7 | Ledger e matchmaking de coletas|
-| W07 · Métricas e Reconciliação   | Pendente    |       0/7 | crédito concorrente único      |
-| W08 · App consumidor             | Pendente    |       0/7 | builds Android/iOS instaláveis |
-| W09 · QR e carteira              | Pendente    |       0/7 | E2E mobile crítico verde       |
-| W10 · App Coop offline           | Pendente    |       0/7 | teste offline de oito horas    |
-| W11 · Hardening e UAT            | Pendente    |       0/7 | release candidate aprovado     |
-| W12 · Piloto Espanha             | Pendente    |       0/7 | aceite operacional Espanha     |
-| W13 · Piloto Portugal            | Pendente    |       0/7 | aceite operacional Portugal    |
-| W14 · Hypercare                  | Pendente    |       0/7 | relatório e decisão go/no-go   |
+| Fase                             | Estado      | Progresso | Próxima evidência               |
+| -------------------------------- | ----------- | --------: | ------------------------------- |
+| F00 · Fundação reproduzível      | Concluída   |       6/6 | gate local reproduzido          |
+| W01 · Escopo e jornadas          | Em execução |       4/6 | fórmulas de KPI versionadas     |
+| W02 · Arquitetura, dados e risco | Em execução |       2/7 | mapa de dados + threat model    |
+| W03 · Banco, API e CI            | Em execução |       5/7 | baseline de IaC dev/stage       |
+| W04 · Identidade e tenancy       | Em execução |       1/8 | adaptador de identidade real    |
+| W05 · Catálogo e importação      | Concluída   |       7/7 | lote e importação transacional  |
+| W06 · Coleta e Ledger            | Em execução |       0/7 | Ledger e matchmaking de coletas |
+| W07 · Métricas e Reconciliação   | Pendente    |       0/7 | crédito concorrente único       |
+| W08 · App consumidor             | Pendente    |       0/7 | builds Android/iOS instaláveis  |
+| W09 · QR e carteira              | Pendente    |       0/7 | E2E mobile crítico verde        |
+| W10 · App Coop offline           | Pendente    |       0/7 | teste offline de oito horas     |
+| W11 · Hardening e UAT            | Pendente    |       0/7 | release candidate aprovado      |
+| W12 · Piloto Espanha             | Pendente    |       0/7 | aceite operacional Espanha      |
+| W13 · Piloto Portugal            | Pendente    |       0/7 | aceite operacional Portugal     |
+| W14 · Hypercare                  | Pendente    |       0/7 | relatório e decisão go/no-go    |
 
 ## Checks da execução atual
 

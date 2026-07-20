@@ -9,7 +9,7 @@ export interface CashoutResult {
 @Injectable()
 export class CashoutAdapter {
   public async processCashout(
-    amountCents: number,
+    _amountCents: number,
     destinationKey: string,
   ): Promise<CashoutResult> {
     // Simulating external gateway latency

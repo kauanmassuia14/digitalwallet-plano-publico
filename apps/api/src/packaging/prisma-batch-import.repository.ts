@@ -22,7 +22,9 @@ export class PrismaBatchImportRepository extends BatchImportRepository {
     super();
   }
 
-  public async createImportJob(job: ImportJobAggregate): Promise<ImportJobSnapshot> {
+  public async createImportJob(
+    job: ImportJobAggregate,
+  ): Promise<ImportJobSnapshot> {
     const snapshot = job.snapshot();
     const created = await this.database.client.importJob.create({
       data: {
@@ -57,7 +59,9 @@ export class PrismaBatchImportRepository extends BatchImportRepository {
     return record === null ? undefined : this.toJobSnapshot(record);
   }
 
-  public async saveImportJob(job: ImportJobAggregate): Promise<ImportJobSnapshot> {
+  public async saveImportJob(
+    job: ImportJobAggregate,
+  ): Promise<ImportJobSnapshot> {
     const snapshot = job.snapshot();
     const record = await this.database.client.importJob.update({
       data: {
@@ -73,7 +77,9 @@ export class PrismaBatchImportRepository extends BatchImportRepository {
     return this.toJobSnapshot(record);
   }
 
-  public async createBatch(batch: PackagingBatchAggregate): Promise<PackagingBatchSnapshot> {
+  public async createBatch(
+    batch: PackagingBatchAggregate,
+  ): Promise<PackagingBatchSnapshot> {
     const snapshot = batch.snapshot();
     try {
       const created = await this.database.client.packagingBatch.create({
@@ -91,7 +97,10 @@ export class PrismaBatchImportRepository extends BatchImportRepository {
       });
       return this.toBatchSnapshot(created);
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2002"
+      ) {
         throw new DomainError(
           "BATCH_CODE_ALREADY_EXISTS",
           `A batch with code ${snapshot.code} already exists for this tenant`,
@@ -122,7 +131,9 @@ export class PrismaBatchImportRepository extends BatchImportRepository {
     return record === null ? undefined : this.toBatchSnapshot(record);
   }
 
-  public async saveBatch(batch: PackagingBatchAggregate): Promise<PackagingBatchSnapshot> {
+  public async saveBatch(
+    batch: PackagingBatchAggregate,
+  ): Promise<PackagingBatchSnapshot> {
     const snapshot = batch.snapshot();
     const record = await this.database.client.packagingBatch.update({
       data: {
@@ -188,12 +199,15 @@ export class PrismaBatchImportRepository extends BatchImportRepository {
           data: packagingData,
         });
       } catch (error) {
-        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+        if (
+          error instanceof Prisma.PrismaClientKnownRequestError &&
+          error.code === "P2002"
+        ) {
           const target = Array.isArray(error.meta?.target)
             ? error.meta.target.map(String)
             : [];
           const isSerialConflict = target.some(
-            (t) => t.includes("serial") || t.includes("tenantId_serial_key")
+            (t) => t.includes("serial") || t.includes("tenantId_serial_key"),
           );
           if (isSerialConflict) {
             throw new DomainError(
@@ -233,7 +247,9 @@ export class PrismaBatchImportRepository extends BatchImportRepository {
     };
   }
 
-  private toBatchSnapshot(record: PackagingBatchRecord): PackagingBatchSnapshot {
+  private toBatchSnapshot(
+    record: PackagingBatchRecord,
+  ): PackagingBatchSnapshot {
     return {
       code: record.code,
       countryCode: record.countryCode,

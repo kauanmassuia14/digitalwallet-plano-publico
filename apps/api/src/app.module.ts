@@ -22,5 +22,3 @@ import { DashboardModule } from "./dashboard/dashboard.module.js";
   ],
 })
 export class AppModule {}
-
-

@@ -11,7 +11,9 @@
       "default": "./dist/src/index.js"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "generate": "prisma generate --config prisma.config.ts",

@@ -4,3 +4,5 @@ coverage
 packages/database/generated
 pnpm-lock.yaml
 index.html
+apps/consumer
+

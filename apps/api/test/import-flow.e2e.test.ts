@@ -59,7 +59,9 @@ describe("Import Flow API E2E", () => {
       .field("currencyCode", "EUR")
       .expect(400);
 
-    expect(response.body.error.message).toContain("Missing required CSV header");
+    expect(response.body.error.message).toContain(
+      "Missing required CSV header",
+    );
   });
 
   it("validates line items, reports partial errors, and commits accepted rows only", async () => {
@@ -101,8 +103,6 @@ describe("Import Flow API E2E", () => {
     // - Line 6: Duplicate external QR hash within file (rejected)
     const validQr1 = "1".repeat(64);
     const validQr2 = "2".repeat(64);
-    const dbQr1 = "d".repeat(64);
-    const dbQr2 = "c".repeat(64);
 
     const csvData = [
       "serial,materialCode,expectedWeightGrams,unitCostCents,rewardCents,externalQrHash,internalQrHash",
@@ -144,16 +144,22 @@ describe("Import Flow API E2E", () => {
 
     // Verify specific error reports by line
     const errWeight = errors.find((e: any) => e.line === 3);
-    expect(errWeight.errors).toContain("ExpectedWeightGrams must be a finite number greater than zero");
+    expect(errWeight.errors).toContain(
+      "ExpectedWeightGrams must be a finite number greater than zero",
+    );
 
     const errFileDup = errors.find((e: any) => e.line === 4);
     expect(errFileDup.errors[0]).toContain("Duplicate serial within the file");
 
     const errDbDup = errors.find((e: any) => e.line === 5);
-    expect(errDbDup.errors[0]).toContain("Serial already exists in the database");
+    expect(errDbDup.errors[0]).toContain(
+      "Serial already exists in the database",
+    );
 
     const errQrDup = errors.find((e: any) => e.line === 6);
-    expect(errQrDup.errors[0]).toContain("Duplicate external QR hash within the file");
+    expect(errQrDup.errors[0]).toContain(
+      "Duplicate external QR hash within the file",
+    );
 
     // 4. Commit the import job
     const commitResponse = await request(httpServer(app))
@@ -178,7 +184,8 @@ describe("Import Flow API E2E", () => {
   });
 
   it("enforces tenant isolation on import lookup and error download", async () => {
-    const csvData = "serial,materialCode,expectedWeightGrams,unitCostCents,rewardCents,externalQrHash,internalQrHash\n" +
+    const csvData =
+      "serial,materialCode,expectedWeightGrams,unitCostCents,rewardCents,externalQrHash,internalQrHash\n" +
       `OK-SERIAL-PT,PET,400.5,50,60,${"a".repeat(64)},${"b".repeat(64)}`;
 
     const uploadResponse = await request(httpServer(app))
@@ -224,8 +231,18 @@ async function resetDatabase(database: DatabaseService): Promise<void> {
 async function seedBaseData(database: DatabaseService): Promise<void> {
   await database.client.tenant.createMany({
     data: [
-      { countryCodes: ["ES"], id: tenantEs, name: "Pilot Spain", slug: "pilot-es" },
-      { countryCodes: ["PT"], id: tenantPt, name: "Pilot Portugal", slug: "pilot-pt" },
+      {
+        countryCodes: ["ES"],
+        id: tenantEs,
+        name: "Pilot Spain",
+        slug: "pilot-es",
+      },
+      {
+        countryCodes: ["PT"],
+        id: tenantPt,
+        name: "Pilot Portugal",
+        slug: "pilot-pt",
+      },
     ],
   });
   await database.client.user.createMany({

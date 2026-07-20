@@ -13,6 +13,33 @@ const batchId = "22222222-2222-4222-8222-222222222222";
 const packagingId1 = "33333333-3333-4333-8333-333333333333";
 const packagingId2 = "33333333-3333-4333-8333-333333333334";
 
+interface BalanceBody {
+  balanceCents: number;
+}
+
+interface TransactionBody {
+  id: string;
+  type: string;
+  status: string;
+  amountCents: number;
+  providerReference?: string;
+  failureCode?: string;
+  reversalOfId?: string;
+}
+
+interface ErrorMessage {
+  message: string;
+}
+
+interface ErrorResponse {
+  error: ErrorMessage;
+}
+
+interface LedgerPayload {
+  eventType?: string;
+  packagingId?: string;
+}
+
 function httpServer(app: INestApplication): any {
   return app.getHttpServer();
 }
@@ -48,7 +75,8 @@ describe("Rewards and Cashout E2E", () => {
       .set("x-tenant-id", tenantEs)
       .expect(200);
 
-    expect(res.body.balanceCents).toBe(0);
+    const body = res.body as BalanceBody;
+    expect(body.balanceCents).toBe(0);
 
     const history = await request(httpServer(app))
       .get("/api/v1/rewards/transactions")
@@ -56,7 +84,8 @@ describe("Rewards and Cashout E2E", () => {
       .set("x-tenant-id", tenantEs)
       .expect(200);
 
-    expect(history.body).toHaveLength(0);
+    const list = history.body as TransactionBody[];
+    expect(list).toHaveLength(0);
   });
 
   it("earns rewards, prevents double-crediting package, and registers in the Ledger", async () => {
@@ -73,9 +102,10 @@ describe("Rewards and Cashout E2E", () => {
       })
       .expect(201);
 
-    expect(earnRes.body.amountCents).toBe(150);
-    expect(earnRes.body.type).toBe("EARN");
-    expect(earnRes.body.status).toBe("SETTLED");
+    const earnBody = earnRes.body as TransactionBody;
+    expect(earnBody.amountCents).toBe(150);
+    expect(earnBody.type).toBe("EARN");
+    expect(earnBody.status).toBe("SETTLED");
 
     // Check balance
     const balRes = await request(httpServer(app))
@@ -84,7 +114,8 @@ describe("Rewards and Cashout E2E", () => {
       .set("x-tenant-id", tenantEs)
       .expect(200);
 
-    expect(balRes.body.balanceCents).toBe(150);
+    const balBody = balRes.body as BalanceBody;
+    expect(balBody.balanceCents).toBe(150);
 
     // 2. Prevent double-crediting the same package (W07.2)
     const duplicateRes = await request(httpServer(app))
@@ -99,15 +130,17 @@ describe("Rewards and Cashout E2E", () => {
       })
       .expect(400);
 
-    expect(duplicateRes.body.error.message).toContain("already credited");
+    const dupBody = duplicateRes.body as ErrorResponse;
+    expect(dupBody.error.message).toContain("already credited");
 
     // 3. Verify cryptographic Ledger row was appended in the same transaction
     const ledgerEntries = await database.client.auditLedger.findMany({
       orderBy: { createdAt: "desc" },
     });
     expect(ledgerEntries.length).toBeGreaterThan(0);
-    expect((ledgerEntries[0].payload as any).eventType).toBe("REWARD_EARNED");
-    expect((ledgerEntries[0].payload as any).packagingId).toBe(packagingId1);
+    const ledgerPayload = ledgerEntries[0]!.payload as LedgerPayload;
+    expect(ledgerPayload.eventType).toBe("REWARD_EARNED");
+    expect(ledgerPayload.packagingId).toBe(packagingId1);
   });
 
   it("handles cashout success, failure/refund, and insufficient balance", async () => {
@@ -136,10 +169,11 @@ describe("Rewards and Cashout E2E", () => {
       })
       .expect(201);
 
-    expect(cashoutRes1.body.amountCents).toBe(100);
-    expect(cashoutRes1.body.type).toBe("CASHOUT");
-    expect(cashoutRes1.body.status).toBe("SETTLED");
-    expect(cashoutRes1.body.providerReference).toBeDefined();
+    const cashoutBody1 = cashoutRes1.body as TransactionBody;
+    expect(cashoutBody1.amountCents).toBe(100);
+    expect(cashoutBody1.type).toBe("CASHOUT");
+    expect(cashoutBody1.status).toBe("SETTLED");
+    expect(cashoutBody1.providerReference).toBeDefined();
 
     // Verify balance dropped to 100 cents
     const balRes1 = await request(httpServer(app))
@@ -148,7 +182,8 @@ describe("Rewards and Cashout E2E", () => {
       .set("x-tenant-id", tenantEs)
       .expect(200);
 
-    expect(balRes1.body.balanceCents).toBe(100);
+    const balBody1 = balRes1.body as BalanceBody;
+    expect(balBody1.balanceCents).toBe(100);
 
     // 2. Request cashout that fails in sandbox (reverted/refunded)
     const cashoutRes2 = await request(httpServer(app))
@@ -162,9 +197,10 @@ describe("Rewards and Cashout E2E", () => {
       })
       .expect(201);
 
-    expect(cashoutRes2.body.type).toBe("CASHOUT");
-    expect(cashoutRes2.body.status).toBe("FAILED");
-    expect(cashoutRes2.body.failureCode).toBe("INSUFFICIENT_PROVIDER_LIQUIDITY");
+    const cashoutBody2 = cashoutRes2.body as TransactionBody;
+    expect(cashoutBody2.type).toBe("CASHOUT");
+    expect(cashoutBody2.status).toBe("FAILED");
+    expect(cashoutBody2.failureCode).toBe("INSUFFICIENT_PROVIDER_LIQUIDITY");
 
     // Verify balance was refunded (still 100 cents)
     const balRes2 = await request(httpServer(app))
@@ -173,7 +209,8 @@ describe("Rewards and Cashout E2E", () => {
       .set("x-tenant-id", tenantEs)
       .expect(200);
 
-    expect(balRes2.body.balanceCents).toBe(100);
+    const balBody2 = balRes2.body as BalanceBody;
+    expect(balBody2.balanceCents).toBe(100);
 
     // 3. Insufficient balance test
     await request(httpServer(app))
@@ -202,7 +239,8 @@ describe("Rewards and Cashout E2E", () => {
       })
       .expect(201);
 
-    const transactionId = earnRes.body.id;
+    const earnBody = earnRes.body as TransactionBody;
+    const transactionId = earnBody.id;
 
     // 2. Perform reversal
     const reverseRes = await request(httpServer(app))
@@ -215,9 +253,10 @@ describe("Rewards and Cashout E2E", () => {
       })
       .expect(201);
 
-    expect(reverseRes.body.type).toBe("REVERSAL");
-    expect(reverseRes.body.reversalOfId).toBe(transactionId);
-    expect(reverseRes.body.amountCents).toBe(100);
+    const revBody = reverseRes.body as TransactionBody;
+    expect(revBody.type).toBe("REVERSAL");
+    expect(revBody.reversalOfId).toBe(transactionId);
+    expect(revBody.amountCents).toBe(100);
 
     // 3. Check balance is back to 0
     const balRes = await request(httpServer(app))
@@ -226,7 +265,8 @@ describe("Rewards and Cashout E2E", () => {
       .set("x-tenant-id", tenantEs)
       .expect(200);
 
-    expect(balRes.body.balanceCents).toBe(0);
+    const balBody = balRes.body as BalanceBody;
+    expect(balBody.balanceCents).toBe(0);
 
     // 4. Prevent duplicate reversal
     await request(httpServer(app))
@@ -258,7 +298,12 @@ async function resetDatabase(database: DatabaseService): Promise<void> {
 async function seedBaseData(database: DatabaseService): Promise<void> {
   await database.client.tenant.createMany({
     data: [
-      { countryCodes: ["ES"], id: tenantEs, name: "Pilot Spain", slug: "pilot-es" },
+      {
+        countryCodes: ["ES"],
+        id: tenantEs,
+        name: "Pilot Spain",
+        slug: "pilot-es",
+      },
     ],
   });
 
@@ -269,9 +314,7 @@ async function seedBaseData(database: DatabaseService): Promise<void> {
   });
 
   await database.client.tenantMembership.createMany({
-    data: [
-      { role: "OPERATOR", tenantId: tenantEs, userId: userEs },
-    ],
+    data: [{ role: "OPERATOR", tenantId: tenantEs, userId: userEs }],
   });
 
   await database.client.packagingBatch.createMany({

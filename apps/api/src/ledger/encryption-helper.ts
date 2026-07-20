@@ -6,7 +6,8 @@ export class EncryptionHelper {
   private key: Buffer;
 
   constructor() {
-    const secret = process.env.AUDIT_LOG_SECRET || "default-audit-log-secret-32bytes!";
+    const secret =
+      process.env.AUDIT_LOG_SECRET || "default-audit-log-secret-32bytes!";
     this.key = crypto.createHash("sha256").update(secret).digest();
   }
 
@@ -17,7 +18,7 @@ export class EncryptionHelper {
     const plaintext = JSON.stringify(data);
     const iv = crypto.randomBytes(12);
     const cipher = crypto.createCipheriv(ALGORITHM, this.key, iv);
-    
+
     let encrypted = cipher.update(plaintext, "utf8", "hex");
     encrypted += cipher.final("hex");
     const tag = cipher.getAuthTag().toString("hex");
@@ -46,7 +47,7 @@ export class EncryptionHelper {
       let decrypted = decipher.update(encryptedData.content, "hex", "utf8");
       decrypted += decipher.final("utf8");
       return JSON.parse(decrypted);
-    } catch (e) {
+    } catch {
       return { _decryptionError: true, raw: encryptedData };
     }
   }

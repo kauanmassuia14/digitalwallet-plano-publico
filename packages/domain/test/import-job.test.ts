@@ -51,7 +51,9 @@ describe("ImportJobAggregate", () => {
       tenantId: "tenant-es",
     });
 
-    const validating = job.startValidating(new Date(createdAt.getTime() + 1000));
+    const validating = job.startValidating(
+      new Date(createdAt.getTime() + 1000),
+    );
     expect(validating.snapshot().status).toBe("VALIDATING");
 
     const ready = validating.ready(
@@ -68,7 +70,10 @@ describe("ImportJobAggregate", () => {
     const committed = ready.commit(new Date(createdAt.getTime() + 3000));
     expect(committed.snapshot().status).toBe("COMMITTED");
 
-    const rejected = ready.reject("reports/err.json", new Date(createdAt.getTime() + 4000));
+    const rejected = ready.reject(
+      "reports/err.json",
+      new Date(createdAt.getTime() + 4000),
+    );
     expect(rejected.snapshot()).toMatchObject({
       errorReportKey: "reports/err.json",
       status: "REJECTED",
@@ -88,7 +93,7 @@ describe("ImportJobAggregate", () => {
         originalFileName: "file.csv",
         sourceEventId: "evt-01",
         tenantId: "tenant-es",
-      })
+      }),
     ).toThrow(DomainError);
   });
 });

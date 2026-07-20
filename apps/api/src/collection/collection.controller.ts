@@ -10,7 +10,10 @@ import {
 } from "@nestjs/common";
 import { TenantContextGuard } from "../common/tenant/tenant-context.guard.js";
 import type { TenantAwareRequest } from "../common/tenant/tenant-context.js";
-import { CollectionService, type CollectionRequestResponse } from "./collection.service.js";
+import {
+  CollectionService,
+  type CollectionRequestResponse,
+} from "./collection.service.js";
 import { CreateRequestDto } from "./dto/create-request.dto.js";
 import { MatchRequestDto } from "./dto/match-request.dto.js";
 
@@ -25,7 +28,9 @@ export class CollectionController {
     @Req() req: TenantAwareRequest,
     @Body() dto: CreateRequestDto,
   ): Promise<CollectionRequestResponse> {
-    const scheduledFor = dto.scheduledFor ? new Date(dto.scheduledFor) : undefined;
+    const scheduledFor = dto.scheduledFor
+      ? new Date(dto.scheduledFor)
+      : undefined;
     return this.collectionService.createRequest(
       req.tenantId!,
       dto.condominiumId,
@@ -39,7 +44,10 @@ export class CollectionController {
     @Req() req: TenantAwareRequest,
     @Body() dto: MatchRequestDto,
   ): Promise<CollectionRequestResponse | null> {
-    return this.collectionService.matchCollection(req.tenantId!, dto.cooperativeId);
+    return this.collectionService.matchCollection(
+      req.tenantId!,
+      dto.cooperativeId,
+    );
   }
 
   @Post("requests/:id/complete")

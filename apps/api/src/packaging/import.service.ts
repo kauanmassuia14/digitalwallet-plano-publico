@@ -8,7 +8,6 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import {
-  DomainError,
   ImportJobAggregate,
   type ImportJobSnapshot,
   PackagingAggregate,
@@ -58,7 +57,10 @@ export class ImportService {
       throw new ConflictException("This file has already been uploaded");
     }
 
-    const existingBatch = await this.repository.findBatchByCode(tenantId, dto.batchCode);
+    const existingBatch = await this.repository.findBatchByCode(
+      tenantId,
+      dto.batchCode,
+    );
     if (existingBatch !== undefined) {
       throw new ConflictException(
         `A batch with code ${dto.batchCode} already exists for this tenant`,
@@ -103,7 +105,10 @@ export class ImportService {
     return this.validateJob(tenantId, jobId);
   }
 
-  public async getJob(tenantId: string, jobId: string): Promise<ImportJobSnapshot> {
+  public async getJob(
+    tenantId: string,
+    jobId: string,
+  ): Promise<ImportJobSnapshot> {
     const job = await this.repository.findImportJobById(tenantId, jobId);
     if (job === undefined) {
       throw new NotFoundException("Import job not found");
@@ -111,7 +116,10 @@ export class ImportService {
     return job;
   }
 
-  public async getErrorReport(tenantId: string, jobId: string): Promise<string> {
+  public async getErrorReport(
+    tenantId: string,
+    jobId: string,
+  ): Promise<string> {
     const job = await this.getJob(tenantId, jobId);
     if (job.errorReportKey === null) {
       throw new NotFoundException("No error report found for this job");
@@ -124,7 +132,10 @@ export class ImportService {
     }
   }
 
-  public async commitJob(tenantId: string, jobId: string): Promise<ImportJobSnapshot> {
+  public async commitJob(
+    tenantId: string,
+    jobId: string,
+  ): Promise<ImportJobSnapshot> {
     const jobSnap = await this.repository.findImportJobById(tenantId, jobId);
     if (jobSnap === undefined) {
       throw new NotFoundException("Import job not found");
@@ -144,7 +155,10 @@ export class ImportService {
     }
 
     // Parse and validate again to retrieve accepted aggregates
-    const filePath = join(this.uploadsDir, `${tenantId}_${jobSnap.fileHash}.csv`);
+    const filePath = join(
+      this.uploadsDir,
+      `${tenantId}_${jobSnap.fileHash}.csv`,
+    );
     let fileContent = "";
     try {
       fileContent = await fs.readFile(filePath, "utf8");
@@ -173,19 +187,26 @@ export class ImportService {
       currencyCode: batchSnap.currencyCode,
       id: batchSnap.id,
       importJobId: batchSnap.importJobId,
-      status: batchSnap.status as any,
+      status: batchSnap.status,
       tenantId: batchSnap.tenantId,
       updatedAt: batchSnap.updatedAt,
     });
     const importedBatch = batch.import(new Date());
 
     // Transactional save
-    await this.repository.importPackagings(committedJob, importedBatch, acceptedPackagings);
+    await this.repository.importPackagings(
+      committedJob,
+      importedBatch,
+      acceptedPackagings as PackagingAggregate[],
+    );
 
     return committedJob.snapshot();
   }
 
-  private async validateJob(tenantId: string, jobId: string): Promise<ImportJobSnapshot> {
+  private async validateJob(
+    tenantId: string,
+    jobId: string,
+  ): Promise<ImportJobSnapshot> {
     const jobSnap = await this.repository.findImportJobById(tenantId, jobId);
     if (jobSnap === undefined) {
       throw new NotFoundException("Import job not found");
@@ -204,15 +225,15 @@ export class ImportService {
     await this.repository.saveImportJob(validatingJob);
 
     // Read CSV file
-    const filePath = join(this.uploadsDir, `${tenantId}_${jobSnap.fileHash}.csv`);
+    const filePath = join(
+      this.uploadsDir,
+      `${tenantId}_${jobSnap.fileHash}.csv`,
+    );
     const fileContent = await fs.readFile(filePath, "utf8");
 
     // Perform validation
-    const { acceptedPackagings, rejectedRows, totalRows } = await this.parseAndValidate(
-      tenantId,
-      batchSnap.id,
-      fileContent,
-    );
+    const { acceptedPackagings, rejectedRows, totalRows } =
+      await this.parseAndValidate(tenantId, batchSnap.id, fileContent);
 
     const acceptedRows = acceptedPackagings.length;
     const errorsCount = rejectedRows.length;
@@ -227,7 +248,7 @@ export class ImportService {
       currencyCode: batchSnap.currencyCode,
       id: batchSnap.id,
       importJobId: batchSnap.importJobId,
-      status: batchSnap.status as any,
+      status: batchSnap.status,
       tenantId: batchSnap.tenantId,
       updatedAt: batchSnap.updatedAt,
     });
@@ -282,14 +303,17 @@ export class ImportService {
     readonly rejectedRows: readonly RowValidationError[];
     readonly totalRows: number;
   }> {
-    const lines = csvContent.split(/\r?\n/).map((l) => l.trim()).filter((l) => l.length > 0);
+    const lines = csvContent
+      .split(/\r?\n/)
+      .map((l) => l.trim())
+      .filter((l) => l.length > 0);
 
     if (lines.length <= 1) {
       throw new BadRequestException("CSV file is empty or has no data rows");
     }
 
     // 1. Parse headers
-    const headers = lines[0].split(",").map((h) => h.trim().toLowerCase());
+    const headers = lines[0]!.split(",").map((h) => h.trim().toLowerCase());
     const requiredHeaders = [
       "serial",
       "materialcode",
@@ -350,18 +374,28 @@ export class ImportService {
         select: { serial: true },
       }),
       this.database.client.packaging.findMany({
-        where: { tenantId, externalQrHash: { in: Array.from(fileExternalHashes) } },
+        where: {
+          tenantId,
+          externalQrHash: { in: Array.from(fileExternalHashes) },
+        },
         select: { externalQrHash: true },
       }),
       this.database.client.packaging.findMany({
-        where: { tenantId, internalQrHash: { in: Array.from(fileInternalHashes) } },
+        where: {
+          tenantId,
+          internalQrHash: { in: Array.from(fileInternalHashes) },
+        },
         select: { internalQrHash: true },
       }),
     ]);
 
     const existingSerialsInDb = new Set(dbSerials.map((s) => s.serial));
-    const existingExternalHashesInDb = new Set(dbExternalHashes.map((h) => h.externalQrHash));
-    const existingInternalHashesInDb = new Set(dbInternalHashes.map((h) => h.internalQrHash));
+    const existingExternalHashesInDb = new Set(
+      dbExternalHashes.map((h) => h.externalQrHash),
+    );
+    const existingInternalHashesInDb = new Set(
+      dbInternalHashes.map((h) => h.internalQrHash),
+    );
 
     // Sets to track duplicates within the file itself
     const processedSerils = new Set<string>();
@@ -381,7 +415,9 @@ export class ImportService {
 
       const weight = parseFloat(r.expectedWeightGrams);
       if (Number.isNaN(weight) || weight <= 0) {
-        rowErrors.push("ExpectedWeightGrams must be a finite number greater than zero");
+        rowErrors.push(
+          "ExpectedWeightGrams must be a finite number greater than zero",
+        );
       }
 
       const unitCost = parseInt(r.unitCostCents, 10);
@@ -415,10 +451,14 @@ export class ImportService {
           rowErrors.push(`Duplicate serial within the file: ${r.serial}`);
         }
         if (processedExternalHashes.has(extHash)) {
-          rowErrors.push(`Duplicate external QR hash within the file: ${extHash}`);
+          rowErrors.push(
+            `Duplicate external QR hash within the file: ${extHash}`,
+          );
         }
         if (processedInternalHashes.has(intHash)) {
-          rowErrors.push(`Duplicate internal QR hash within the file: ${intHash}`);
+          rowErrors.push(
+            `Duplicate internal QR hash within the file: ${intHash}`,
+          );
         }
 
         // Database-level duplicity check
@@ -426,10 +466,14 @@ export class ImportService {
           rowErrors.push(`Serial already exists in the database: ${r.serial}`);
         }
         if (existingExternalHashesInDb.has(extHash)) {
-          rowErrors.push(`External QR hash already exists in the database: ${extHash}`);
+          rowErrors.push(
+            `External QR hash already exists in the database: ${extHash}`,
+          );
         }
         if (existingInternalHashesInDb.has(intHash)) {
-          rowErrors.push(`Internal QR hash already exists in the database: ${intHash}`);
+          rowErrors.push(
+            `Internal QR hash already exists in the database: ${intHash}`,
+          );
         }
       }
 
@@ -455,7 +499,9 @@ export class ImportService {
           });
           acceptedPackagings.push(pkg);
         } catch (err: any) {
-          rowErrors.push(err.message || "Failed to instantiate domain aggregate");
+          rowErrors.push(
+            err.message || "Failed to instantiate domain aggregate",
+          );
         }
       }
 

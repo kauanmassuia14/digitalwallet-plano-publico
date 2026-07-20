@@ -2,7 +2,10 @@ import { Controller, Get, Post, UseGuards } from "@nestjs/common";
 import { LedgerService } from "./ledger.service.js";
 import { KmsService } from "./kms.service.js";
 import { AuditLogService } from "./audit-log.service.js";
-import { ReconciliationService, ReconciliationReport } from "./reconciliation.service.js";
+import {
+  ReconciliationService,
+  ReconciliationReport,
+} from "./reconciliation.service.js";
 import { TenantContextGuard } from "../common/tenant/tenant-context.guard.js";
 import { CurrentTenant } from "../common/tenant/tenant-context.js";
 
@@ -33,7 +36,9 @@ export class LedgerController {
 
   @Post("reconcile")
   @UseGuards(TenantContextGuard)
-  public async reconcile(@CurrentTenant() tenantId: string): Promise<ReconciliationReport> {
+  public async reconcile(
+    @CurrentTenant() tenantId: string,
+  ): Promise<ReconciliationReport> {
     return this.reconciliationService.reconcileTenantCollections(tenantId);
   }
 }

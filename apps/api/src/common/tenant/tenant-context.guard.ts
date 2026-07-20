@@ -81,7 +81,7 @@ export class TenantContextGuard implements CanActivate {
       request.tenantId = tenantId;
     } else {
       if (user.memberships.length === 1) {
-        request.tenantId = user.memberships[0].tenantId;
+        request.tenantId = user.memberships[0]!.tenantId;
       } else if (user.memberships.length > 1) {
         throw new DomainError(
           "TENANT_CONTEXT_REQUIRED",

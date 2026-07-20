@@ -1,4 +1,5 @@
 import { Injectable, BadRequestException } from "@nestjs/common";
+import { Prisma } from "@digitalwallet/database";
 import { DatabaseService } from "../common/database/database.service.js";
 import { LedgerService } from "../ledger/ledger.service.js";
 
@@ -25,6 +26,28 @@ export interface KpiResult {
   activeUsersCount: number;
 }
 
+export interface FinancialReconciliationResult {
+  tenantId: string;
+  exportedAt: Date;
+  filters: {
+    startDate?: Date;
+    endDate?: Date;
+  };
+  financialTotals: {
+    totalEarnedCents: number;
+    totalCashedOutCents: number;
+    totalReversedCents: number;
+    totalCurrentBalanceCents: number;
+    discrepancyCents: number;
+    isReconciled: boolean;
+  };
+  ledgerValidation: {
+    isValid: boolean;
+    error: string | null;
+    totalChainEntries: number;
+  };
+}
+
 @Injectable()
 export class KpiService {
   public constructor(
@@ -32,15 +55,21 @@ export class KpiService {
     private readonly ledgerService: LedgerService,
   ) {}
 
-  public async calculateKpis(version: string, filters: KpiFilters): Promise<KpiResult> {
+  public async calculateKpis(
+    version: string,
+    filters: KpiFilters,
+  ): Promise<KpiResult> {
     const { tenantId, countryCode, batchId, startDate, endDate } = filters;
 
-    const dateFilter = startDate || endDate ? {
-      ...(startDate ? { gte: startDate } : {}),
-      ...(endDate ? { lte: endDate } : {}),
-    } : undefined;
+    const dateFilter =
+      startDate || endDate
+        ? {
+            ...(startDate ? { gte: startDate } : {}),
+            ...(endDate ? { lte: endDate } : {}),
+          }
+        : undefined;
 
-    const packagingWhere: any = {
+    const packagingWhere: Prisma.PackagingWhereInput = {
       tenantId,
       ...(dateFilter ? { createdAt: dateFilter } : {}),
       ...(batchId ? { batchId } : {}),
@@ -69,7 +98,7 @@ export class KpiService {
       where: {
         tenantId,
         type: "COLLECTED",
-        ...(startDate || endDate ? { occurredAt: dateFilter } : {}),
+        ...(dateFilter ? { occurredAt: dateFilter } : {}),
         packaging: {
           ...(batchId ? { batchId } : {}),
           ...(countryCode ? { batch: { countryCode } } : {}),
@@ -84,38 +113,45 @@ export class KpiService {
       return sum + Number(e.actualWeightGrams || 0);
     }, 0);
 
-    const txWhere: any = {
+    const txWhere: Prisma.RewardTransactionWhereInput = {
       tenantId,
       ...(dateFilter ? { createdAt: dateFilter } : {}),
-      ...(batchId || countryCode ? {
-        packaging: {
-          ...(batchId ? { batchId } : {}),
-          ...(countryCode ? { batch: { countryCode } } : {}),
-        }
-      } : {}),
+      ...(batchId || countryCode
+        ? {
+            packaging: {
+              ...(batchId ? { batchId } : {}),
+              ...(countryCode ? { batch: { countryCode } } : {}),
+            },
+          }
+        : {}),
     };
 
-    const rewardTransactions = await this.database.client.rewardTransaction.findMany({
-      where: txWhere,
-      select: {
-        type: true,
-        status: true,
-        amountCents: true,
-        accountId: true,
-      },
-    });
+    const rewardTransactions =
+      await this.database.client.rewardTransaction.findMany({
+        where: txWhere,
+        select: {
+          type: true,
+          status: true,
+          amountCents: true,
+          accountId: true,
+        },
+      });
 
     let totalEarnedCents = 0;
     let totalCashedOutCents = 0;
     let totalReversedCents = 0;
     const activeUsersSet = new Set<string>();
 
-    const accountIds = Array.from(new Set(rewardTransactions.map(t => t.accountId)));
+    const accountIds = Array.from(
+      new Set(rewardTransactions.map((t) => t.accountId)),
+    );
     const accounts = await this.database.client.rewardAccount.findMany({
       where: { id: { in: accountIds } },
       select: { id: true, userId: true },
     });
-    const accountUserMap = new Map<string, string>(accounts.map(a => [a.id, a.userId]));
+    const accountUserMap = new Map<string, string>(
+      accounts.map((a) => [a.id, a.userId]),
+    );
 
     for (const tx of rewardTransactions) {
       const amount = Number(tx.amountCents);
@@ -129,7 +165,7 @@ export class KpiService {
           totalEarnedCents += amount;
         } else if (tx.type === "CASHOUT") {
           totalCashedOutCents += amount;
-        } else if (tx.type === "REVERSAL") {
+        } else {
           totalReversedCents += amount;
         }
       }
@@ -144,13 +180,18 @@ export class KpiService {
     if (version === "v1") {
       returnRate = mintedCount > 0 ? (collectedCount / mintedCount) * 100 : 0;
       co2SavedKg = totalCollectedWeightGrams * 0.0025;
-      redemptionRate = totalEarnedCents > 0 ? (totalCashedOutCents / totalEarnedCents) * 100 : 0;
+      redemptionRate =
+        totalEarnedCents > 0
+          ? (totalCashedOutCents / totalEarnedCents) * 100
+          : 0;
     } else if (version === "v2") {
       returnRate = mintedCount > 0 ? (recycledCount / mintedCount) * 100 : 0;
-      co2SavedKg = totalCollectedWeightGrams * 0.0030;
-      redemptionRate = (totalEarnedCents - totalReversedCents) > 0 
-        ? (totalCashedOutCents / (totalEarnedCents - totalReversedCents)) * 100 
-        : 0;
+      co2SavedKg = totalCollectedWeightGrams * 0.003;
+      redemptionRate =
+        totalEarnedCents - totalReversedCents > 0
+          ? (totalCashedOutCents / (totalEarnedCents - totalReversedCents)) *
+            100
+          : 0;
     } else {
       throw new BadRequestException(`Unsupported KPI version: ${version}`);
     }
@@ -175,11 +216,14 @@ export class KpiService {
     tenantId: string,
     startDate?: Date,
     endDate?: Date,
-  ): Promise<any> {
-    const dateFilter = startDate || endDate ? {
-      ...(startDate ? { gte: startDate } : {}),
-      ...(endDate ? { lte: endDate } : {}),
-    } : undefined;
+  ): Promise<FinancialReconciliationResult> {
+    const dateFilter =
+      startDate || endDate
+        ? {
+            ...(startDate ? { gte: startDate } : {}),
+            ...(endDate ? { lte: endDate } : {}),
+          }
+        : undefined;
 
     const txs = await this.database.client.rewardTransaction.findMany({
       where: {
@@ -204,7 +248,7 @@ export class KpiService {
           totalEarnedCents += amount;
         } else if (tx.type === "CASHOUT") {
           totalCashedOutCents += amount;
-        } else if (tx.type === "REVERSAL") {
+        } else {
           totalReversedCents += amount;
         }
       }
@@ -215,8 +259,15 @@ export class KpiService {
       select: { balanceCents: true },
     });
 
-    const totalCurrentBalanceCents = accounts.reduce((sum, a) => sum + Number(a.balanceCents), 0);
-    const discrepancy = totalEarnedCents - totalReversedCents - totalCashedOutCents - totalCurrentBalanceCents;
+    const totalCurrentBalanceCents = accounts.reduce(
+      (sum, a) => sum + Number(a.balanceCents),
+      0,
+    );
+    const discrepancy =
+      totalEarnedCents -
+      totalReversedCents -
+      totalCashedOutCents -
+      totalCurrentBalanceCents;
 
     const totalChainEntries = await this.database.client.auditLedger.count();
     const chainValidation = await this.ledgerService.validateChain();
@@ -224,7 +275,10 @@ export class KpiService {
     return {
       tenantId,
       exportedAt: new Date(),
-      filters: { startDate, endDate },
+      filters: {
+        ...(startDate ? { startDate } : {}),
+        ...(endDate ? { endDate } : {}),
+      },
       financialTotals: {
         totalEarnedCents,
         totalCashedOutCents,

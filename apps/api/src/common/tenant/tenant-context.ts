@@ -1,6 +1,6 @@
 import { createParamDecorator, type ExecutionContext } from "@nestjs/common";
 
-import { TenantMembershipRole } from "@digitalwallet/database";
+import type { TenantMembershipRole } from "@digitalwallet/database";
 
 export interface AuthenticatedUser {
   readonly id: string;

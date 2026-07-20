@@ -1,8 +1,12 @@
-import { Injectable, BadRequestException, ConflictException, NotFoundException } from "@nestjs/common";
+import {
+  Injectable,
+  BadRequestException,
+  NotFoundException,
+} from "@nestjs/common";
 import { DatabaseService } from "../common/database/database.service.js";
 import { CashoutAdapter } from "./cashout-adapter.js";
 import { LedgerService } from "../ledger/ledger.service.js";
-import type { RewardTransaction, RewardAccount } from "@prisma/client";
+import type { RewardTransaction, RewardAccount } from "@digitalwallet/database";
 
 @Injectable()
 export class RewardsService {
@@ -12,7 +16,10 @@ export class RewardsService {
     private readonly ledgerService: LedgerService,
   ) {}
 
-  public async getAccount(tenantId: string, userId: string): Promise<RewardAccount> {
+  public async getAccount(
+    tenantId: string,
+    userId: string,
+  ): Promise<RewardAccount> {
     let account = await this.database.client.rewardAccount.findUnique({
       where: { tenantId_userId: { tenantId, userId } },
     });
@@ -24,7 +31,10 @@ export class RewardsService {
     return account;
   }
 
-  public async getTransactions(tenantId: string, accountId: string): Promise<RewardTransaction[]> {
+  public async getTransactions(
+    tenantId: string,
+    accountId: string,
+  ): Promise<RewardTransaction[]> {
     return this.database.client.rewardTransaction.findMany({
       where: { tenantId, accountId },
       orderBy: { createdAt: "desc" },
@@ -52,7 +62,9 @@ export class RewardsService {
         where: { packagingId },
       });
       if (existingForPackage) {
-        throw new BadRequestException("Packaging already credited with rewards");
+        throw new BadRequestException(
+          "Packaging already credited with rewards",
+        );
       }
 
       // 3. Get and Lock account
@@ -176,12 +188,23 @@ export class RewardsService {
       return rewardTx;
     });
 
-    const adapterResult = await this.cashoutAdapter.processCashout(amountCents, destinationKey);
+    const adapterResult = await this.cashoutAdapter.processCashout(
+      amountCents,
+      destinationKey,
+    );
 
     if (adapterResult.success) {
-      return this.settleCashout(tenantId, transaction.id, adapterResult.providerReference!);
+      return this.settleCashout(
+        tenantId,
+        transaction.id,
+        adapterResult.providerReference!,
+      );
     } else {
-      return this.failCashout(tenantId, transaction.id, adapterResult.failureCode!);
+      return this.failCashout(
+        tenantId,
+        transaction.id,
+        adapterResult.failureCode!,
+      );
     }
   }
 
@@ -196,7 +219,9 @@ export class RewardsService {
       });
 
       if (!rewardTx || rewardTx.status !== "PENDING") {
-        throw new BadRequestException("Transaction not found or not in PENDING state");
+        throw new BadRequestException(
+          "Transaction not found or not in PENDING state",
+        );
       }
 
       const updated = await tx.rewardTransaction.update({
@@ -230,7 +255,9 @@ export class RewardsService {
       });
 
       if (!rewardTx || rewardTx.status !== "PENDING") {
-        throw new BadRequestException("Transaction not found or not in PENDING state");
+        throw new BadRequestException(
+          "Transaction not found or not in PENDING state",
+        );
       }
 
       const account = await tx.rewardAccount.findUnique({
@@ -295,7 +322,9 @@ export class RewardsService {
         throw new NotFoundException("Original transaction not found");
       }
       if (originalTx.type !== "EARN" || originalTx.status !== "SETTLED") {
-        throw new BadRequestException("Only settled EARN transactions can be reversed");
+        throw new BadRequestException(
+          "Only settled EARN transactions can be reversed",
+        );
       }
 
       const alreadyReversed = await tx.rewardTransaction.findUnique({

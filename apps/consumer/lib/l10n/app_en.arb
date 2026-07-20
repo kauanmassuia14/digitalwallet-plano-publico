@@ -1,0 +1,17 @@
+{
+  "@@locale": "en",
+  "appTitle": "DigitalWallet",
+  "onboardingTitle": "Recycling Rewards Wallet",
+  "onboardingSubtitle": "Verify your circular packaging contributions and earn digital rewards easily.",
+  "termsAndConditions": "I agree to the Terms of Service and Privacy Policy.",
+  "termsError": "You must accept the terms to proceed.",
+  "loginTitle": "Welcome Back",
+  "loginSubtitle": "Login using your identity credentials.",
+  "emailLabel": "Email",
+  "emailHint": "Enter your email address",
+  "loginButton": "Log In",
+  "loggingIn": "Logging in...",
+  "genericError": "An error occurred. Please try again.",
+  "emptyStateNoTransactions": "No transactions found yet.",
+  "offlineWarning": "You are currently offline. Showing cached data."
+}

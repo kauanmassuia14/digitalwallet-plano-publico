@@ -1,0 +1,17 @@
+{
+  "@@locale": "es",
+  "appTitle": "DigitalWallet",
+  "onboardingTitle": "Cartera de Recompensas de Reciclaje",
+  "onboardingSubtitle": "Verifique sus aportaciones de envases circulares y obtenga recompensas digitales fácilmente.",
+  "termsAndConditions": "Acepto los Términos de Servicio y la Política de Privacidad.",
+  "termsError": "Debe aceptar los términos para continuar.",
+  "loginTitle": "Bienvenido de nuevo",
+  "loginSubtitle": "Inicie sesión con sus credenciales de identidad.",
+  "emailLabel": "Correo electrónico",
+  "emailHint": "Ingrese su dirección de correo electrónico",
+  "loginButton": "Iniciar sesión",
+  "loggingIn": "Iniciando sesión...",
+  "genericError": "Ocurrió un error. Por favor intente de nuevo.",
+  "emptyStateNoTransactions": "No se encontraron transacciones todavía.",
+  "offlineWarning": "Actualmente no tiene conexión. Mostrando datos locales."
+}

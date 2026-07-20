@@ -94,15 +94,24 @@ export class ImportJobAggregate {
 
     return new ImportJobAggregate({
       acceptedRows: 0,
-      contractVersion: requireNonBlank(input.contractVersion, "contractVersion"),
+      contractVersion: requireNonBlank(
+        input.contractVersion,
+        "contractVersion",
+      ),
       createdAt,
-      createdByUserId: requireNonBlank(input.createdByUserId, "createdByUserId"),
+      createdByUserId: requireNonBlank(
+        input.createdByUserId,
+        "createdByUserId",
+      ),
       errorReportKey: null,
       expiresAt,
       fileHash: requireNonBlank(input.fileHash, "fileHash"),
       id: requireNonBlank(input.id, "id"),
       objectKey: requireNonBlank(input.objectKey, "objectKey"),
-      originalFileName: requireNonBlank(input.originalFileName, "originalFileName"),
+      originalFileName: requireNonBlank(
+        input.originalFileName,
+        "originalFileName",
+      ),
       rejectedRows: 0,
       sourceEventId: requireNonBlank(input.sourceEventId, "sourceEventId"),
       status: "UPLOADED",
@@ -131,17 +140,34 @@ export class ImportJobAggregate {
     }
 
     return new ImportJobAggregate({
-      acceptedRows: requireNonNegativeInteger(snapshot.acceptedRows, "acceptedRows"),
-      contractVersion: requireNonBlank(snapshot.contractVersion, "contractVersion"),
+      acceptedRows: requireNonNegativeInteger(
+        snapshot.acceptedRows,
+        "acceptedRows",
+      ),
+      contractVersion: requireNonBlank(
+        snapshot.contractVersion,
+        "contractVersion",
+      ),
       createdAt,
-      createdByUserId: requireNonBlank(snapshot.createdByUserId, "createdByUserId"),
-      errorReportKey: snapshot.errorReportKey ? requireNonBlank(snapshot.errorReportKey, "errorReportKey") : null,
+      createdByUserId: requireNonBlank(
+        snapshot.createdByUserId,
+        "createdByUserId",
+      ),
+      errorReportKey: snapshot.errorReportKey
+        ? requireNonBlank(snapshot.errorReportKey, "errorReportKey")
+        : null,
       expiresAt,
       fileHash: requireNonBlank(snapshot.fileHash, "fileHash"),
       id: requireNonBlank(snapshot.id, "id"),
       objectKey: requireNonBlank(snapshot.objectKey, "objectKey"),
-      originalFileName: requireNonBlank(snapshot.originalFileName, "originalFileName"),
-      rejectedRows: requireNonNegativeInteger(snapshot.rejectedRows, "rejectedRows"),
+      originalFileName: requireNonBlank(
+        snapshot.originalFileName,
+        "originalFileName",
+      ),
+      rejectedRows: requireNonNegativeInteger(
+        snapshot.rejectedRows,
+        "rejectedRows",
+      ),
       sourceEventId: requireNonBlank(snapshot.sourceEventId, "sourceEventId"),
       status: snapshot.status,
       tenantId: requireNonBlank(snapshot.tenantId, "tenantId"),
@@ -170,8 +196,14 @@ export class ImportJobAggregate {
     const next = this.transitionTo("READY", occurredAt);
     return new ImportJobAggregate({
       ...next.state,
-      acceptedRows: requireNonNegativeInteger(metrics.acceptedRows, "acceptedRows"),
-      rejectedRows: requireNonNegativeInteger(metrics.rejectedRows, "rejectedRows"),
+      acceptedRows: requireNonNegativeInteger(
+        metrics.acceptedRows,
+        "acceptedRows",
+      ),
+      rejectedRows: requireNonNegativeInteger(
+        metrics.rejectedRows,
+        "rejectedRows",
+      ),
       totalRows: requireNonNegativeInteger(metrics.totalRows, "totalRows"),
     });
   }
@@ -180,7 +212,10 @@ export class ImportJobAggregate {
     return this.transitionTo("COMMITTED", occurredAt);
   }
 
-  public reject(errorReportKey: string | null, occurredAt: Date): ImportJobAggregate {
+  public reject(
+    errorReportKey: string | null,
+    occurredAt: Date,
+  ): ImportJobAggregate {
     const next = this.transitionTo("REJECTED", occurredAt);
     return new ImportJobAggregate({
       ...next.state,

@@ -1,7 +1,11 @@
 import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
 import { RewardsService } from "./rewards.service.js";
 import { TenantContextGuard } from "../common/tenant/tenant-context.guard.js";
-import { CurrentTenant, CurrentUser, AuthenticatedUser } from "../common/tenant/tenant-context.js";
+import {
+  CurrentTenant,
+  CurrentUser,
+  AuthenticatedUser,
+} from "../common/tenant/tenant-context.js";
 import { EarnDto } from "./dto/earn.dto.js";
 import { CashoutDto } from "./dto/cashout.dto.js";
 import { ReverseDto } from "./dto/reverse.dto.js";

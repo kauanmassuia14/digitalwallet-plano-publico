@@ -9,7 +9,12 @@ import { LedgerController } from "./ledger.controller.js";
 @Module({
   imports: [DatabaseModule],
   controllers: [LedgerController],
-  providers: [KmsService, LedgerService, AuditLogService, ReconciliationService],
+  providers: [
+    KmsService,
+    LedgerService,
+    AuditLogService,
+    ReconciliationService,
+  ],
   exports: [LedgerService, AuditLogService, ReconciliationService],
 })
 export class LedgerModule {}
