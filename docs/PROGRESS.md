@@ -94,19 +94,18 @@ Legenda: `[x]` concluído e verificado · `[~]` em execução · `[ ]` pendente 
 - [x] Desenvolver rotina de encadeamento criptográfico no Ledger (Row Chaining).
 - [x] Implementar assinatura digital de transações de triagem com chaves RSA/KMS.
 - [x] Escrever testes de integridade para a cadeia de hashes do Ledger.
-- [ ] Configurar geração e criptografia de logs de auditoria e relatórios.
-- [ ] Reconciliar dados de coletas físicas com a folha de auditoria final.
+- [x] Configurar geração e criptografia de logs de auditoria e relatórios.
+- [x] Reconciliar dados de coletas físicas com a folha de auditoria final.
 
 ## Evidência mais recente
 
-- Snapshot: `2026-07-15T21:11:02-03:00`.
-- Lockfile criado com versões fixadas e scripts de instalação explicitamente
-  permitidos ou negados.
-- PostgreSQL 17 saudável; migração `20260716000948_init` aplicada e status em dia.
-- Prisma schema válido e client `7.8.0` gerado.
-- TypeScript, ESLint e build verdes.
-- 13 testes de domínio e 6 testes E2E verdes.
-- Relatório: [`docs/evidence/2026-07-15-foundation.md`](./evidence/2026-07-15-foundation.md).
+- Snapshot: `2026-07-20T19:54:00-03:00`.
+- Redis matchmaking de coletas das cooperativas funcional com fila FIFO e testes E2E.
+- Cryptographic AuditLedger com row chaining SHA-256, assinaturas RSA/KMS e testes de integridade contra adulteração.
+- Logs de auditoria criptografados com AES-256-GCM em repouso e descriptografados transparente via API.
+- Rotina de reconciliação de coletas físicas com folha de auditoria criptográfica.
+- 27 testes (23 unitários de domínio e 4 E2E de integração/API) 100% verdes no monorepo.
+- Prisma schema válido, client `7.8.0` e TypeScript build saudáveis.
 
 ## Dependências externas conhecidas
 

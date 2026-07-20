@@ -251,6 +251,8 @@ describe("Collection Matchmaking E2E", () => {
 
 async function resetDatabase(database: DatabaseService): Promise<void> {
   await database.client.$transaction([
+    database.client.auditLog.deleteMany({}),
+    database.client.auditLedger.deleteMany({}),
     database.client.collectionRequest.deleteMany({}),
     database.client.condominium.deleteMany({}),
     database.client.cooperative.deleteMany({}),

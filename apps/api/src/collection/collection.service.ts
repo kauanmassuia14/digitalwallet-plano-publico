@@ -1,6 +1,8 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { DatabaseService } from "../common/database/database.service.js";
 import { CollectionQueue } from "./collection-queue.js";
+import { LedgerService } from "../ledger/ledger.service.js";
+import { AuditLogService } from "../ledger/audit-log.service.js";
 
 export interface CollectionRequestResponse {
   id: string;
@@ -19,6 +21,8 @@ export class CollectionService {
   public constructor(
     private readonly database: DatabaseService,
     private readonly queue: CollectionQueue,
+    private readonly ledgerService: LedgerService,
+    private readonly auditLogService: AuditLogService,
   ) {}
 
   public async createRequest(
@@ -108,6 +112,30 @@ export class CollectionService {
         status: "COMPLETED",
       },
       where: { id: requestId },
+    });
+
+    // 1. Write cryptographic record to global AuditLedger
+    await this.ledgerService.appendEntry({
+      eventType: "COLLECTION_COMPLETED",
+      requestId: updated.id,
+      tenantId: updated.tenantId,
+      condominiumId: updated.condominiumId,
+      cooperativeId: updated.cooperativeId,
+      completedAt: updated.completedAt,
+    });
+
+    // 2. Write AES-encrypted audit log
+    await this.auditLogService.createLog({
+      tenantId: updated.tenantId,
+      actorType: "SYSTEM",
+      actorId: "system",
+      action: "COMPLETE_COLLECTION",
+      resourceType: "CollectionRequest",
+      resourceId: updated.id,
+      requestId: `req-${updated.id}`,
+      correlationId: `corr-${updated.id}`,
+      before: request,
+      after: updated,
     });
 
     return updated;
