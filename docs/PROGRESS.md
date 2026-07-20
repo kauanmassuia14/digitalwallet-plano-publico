@@ -15,8 +15,8 @@ Legenda: `[x]` concluído e verificado · `[~]` em execução · `[ ]` pendente 
 | W02 · Arquitetura, dados e risco | Em execução |       2/7 | mapa de dados + threat model   |
 | W03 · Banco, API e CI            | Em execução |       5/7 | baseline de IaC dev/stage      |
 | W04 · Identidade e tenancy       | Em execução |       1/8 | adaptador de identidade real   |
-| W05 · Catálogo e importação      | Em execução |       1/7 | lote e importação transacional |
-| W06 · Coleta e Ledger            | Pendente    |       0/7 | Ledger e matchmaking de coletas|
+| W05 · Catálogo e importação      | Concluída   |       7/7 | lote e importação transacional |
+| W06 · Coleta e Ledger            | Em execução |       0/7 | Ledger e matchmaking de coletas|
 | W07 · Métricas e Reconciliação   | Pendente    |       0/7 | crédito concorrente único      |
 | W08 · App consumidor             | Pendente    |       0/7 | builds Android/iOS instaláveis |
 | W09 · QR e carteira              | Pendente    |       0/7 | E2E mobile crítico verde       |
@@ -86,6 +86,16 @@ Legenda: `[x]` concluído e verificado · `[~]` em execução · `[ ]` pendente 
 - [x] Disponibilizar cadastro manual com as mesmas regras.
 - [x] Persistir hashes distintos para QR externo e interno.
 - [x] Comprovar reprocessamento e versão otimista no PostgreSQL.
+
+### W06 · Coleta e Ledger
+
+- [x] Modelar tabelas de solicitações e atribuições de coletas no Prisma.
+- [ ] Implementar fila Redis para o matchmaking de coletas das cooperativas.
+- [ ] Desenvolver rotina de encadeamento criptográfico no Ledger (Row Chaining).
+- [ ] Implementar assinatura digital de transações de triagem com chaves RSA/KMS.
+- [ ] Escrever testes de integridade para a cadeia de hashes do Ledger.
+- [ ] Configurar geração e criptografia de logs de auditoria e relatórios.
+- [ ] Reconciliar dados de coletas físicas com a folha de auditoria final.
 
 ## Evidência mais recente
 
