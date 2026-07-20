@@ -14,6 +14,10 @@ const tenantPt = "22222222-2222-4222-8222-222222222222";
 const batchEs = "33333333-3333-4333-8333-333333333333";
 const batchPt = "44444444-4444-4444-8444-444444444444";
 
+const userEs = "55555555-5555-4555-8555-555555555555";
+const userPt = "66666666-6666-4666-8666-666666666666";
+const userBoth = "77777777-7777-4777-8777-777777777777";
+
 interface PackagingResponse {
   readonly expectedWeightGrams: number;
   readonly id: string;
@@ -76,21 +80,53 @@ describe("DigitalWallet API", () => {
   });
 
   it("requires a valid local tenant context for domain endpoints", async () => {
-    const missing = await request(httpServer(app))
+    const missingUser = await request(httpServer(app))
       .post("/api/v1/packaging")
-      .send(packagingPayload(tenantEs, "ES-001"))
-      .expect(400);
-    const invalid = await request(httpServer(app))
-      .post("/api/v1/packaging")
-      .set("x-tenant-id", "not-a-uuid")
       .send(packagingPayload(tenantEs, "ES-001"))
       .expect(400);
 
-    expect((missing.body as ErrorResponse).error.code).toBe(
+    const invalidUser = await request(httpServer(app))
+      .post("/api/v1/packaging")
+      .set("x-user-id", "not-a-uuid")
+      .send(packagingPayload(tenantEs, "ES-001"))
+      .expect(400);
+
+    const userNotFound = await request(httpServer(app))
+      .post("/api/v1/packaging")
+      .set("x-user-id", "88888888-8888-8888-8888-888888888888")
+      .send(packagingPayload(tenantEs, "ES-001"))
+      .expect(400);
+
+    expect((missingUser.body as ErrorResponse).error.code).toBe(
       "TENANT_CONTEXT_REQUIRED",
     );
-    expect((invalid.body as ErrorResponse).error.code).toBe(
+    expect((invalidUser.body as ErrorResponse).error.code).toBe(
       "TENANT_CONTEXT_INVALID",
+    );
+    expect((userNotFound.body as ErrorResponse).error.code).toBe(
+      "TENANT_CONTEXT_INVALID",
+    );
+  });
+
+  it("resolves tenant automatically if user has a single membership", async () => {
+    const response = await request(httpServer(app))
+      .post("/api/v1/packaging")
+      .set("x-user-id", userEs)
+      .send(packagingPayload(tenantEs, "AUTO-001"))
+      .expect(201);
+
+    expect((response.body as PackagingResponse).tenantId).toBe(tenantEs);
+  });
+
+  it("requires x-tenant-id if user has multiple memberships", async () => {
+    const response = await request(httpServer(app))
+      .post("/api/v1/packaging")
+      .set("x-user-id", userBoth)
+      .send(packagingPayload(tenantEs, "AUTO-002"))
+      .expect(400);
+
+    expect((response.body as ErrorResponse).error.code).toBe(
+      "TENANT_CONTEXT_REQUIRED",
     );
   });
 
@@ -99,11 +135,13 @@ describe("DigitalWallet API", () => {
 
     await request(httpServer(app))
       .get(`/api/v1/packaging/${created.id}`)
+      .set("x-user-id", userPt)
       .set("x-tenant-id", tenantPt)
       .expect(404);
 
     const visible = await request(httpServer(app))
       .get(`/api/v1/packaging/${created.id}`)
+      .set("x-user-id", userEs)
       .set("x-tenant-id", tenantEs)
       .expect(200);
 
@@ -115,6 +153,7 @@ describe("DigitalWallet API", () => {
 
     const duplicate = await request(httpServer(app))
       .post("/api/v1/packaging")
+      .set("x-user-id", userEs)
       .set("x-tenant-id", tenantEs)
       .send(packagingPayload(tenantEs, "SHARED-001"))
       .expect(409);
@@ -128,6 +167,7 @@ describe("DigitalWallet API", () => {
   it("rejects a batch that belongs to another tenant", async () => {
     const response = await request(httpServer(app))
       .post("/api/v1/packaging")
+      .set("x-user-id", userEs)
       .set("x-tenant-id", tenantEs)
       .send({
         ...packagingPayload(tenantEs, "CROSS-TENANT-BATCH"),
@@ -154,6 +194,7 @@ describe("DigitalWallet API", () => {
 
     const rejected = await request(httpServer(app))
       .post(`/api/v1/packaging/${created.id}/transitions`)
+      .set("x-user-id", userEs)
       .set("x-tenant-id", tenantEs)
       .send({
         actualWeightGrams: 526,
@@ -183,6 +224,7 @@ describe("DigitalWallet API", () => {
   it("rejects properties outside the versioned input contract", async () => {
     const response = await request(httpServer(app))
       .post("/api/v1/packaging")
+      .set("x-user-id", userEs)
       .set("x-tenant-id", tenantEs)
       .send({
         ...packagingPayload(tenantEs, "ES-EXTRA"),
@@ -203,10 +245,12 @@ describe("DigitalWallet API", () => {
     const responses = await Promise.all([
       request(httpServer(app))
         .post(`/api/v1/packaging/${created.id}/transitions`)
+        .set("x-user-id", userEs)
         .set("x-tenant-id", tenantEs)
         .send(command),
       request(httpServer(app))
         .post(`/api/v1/packaging/${created.id}/transitions`)
+        .set("x-user-id", userEs)
         .set("x-tenant-id", tenantEs)
         .send(command),
     ]);
@@ -217,6 +261,7 @@ describe("DigitalWallet API", () => {
 
     const persisted = await request(httpServer(app))
       .get(`/api/v1/packaging/${created.id}`)
+      .set("x-user-id", userEs)
       .set("x-tenant-id", tenantEs)
       .expect(200);
     expect(persisted.body as PackagingResponse).toMatchObject({
@@ -231,8 +276,10 @@ async function createPackaging(
   tenantId: string,
   serial: string,
 ): Promise<PackagingResponse> {
+  const userId = tenantId === tenantEs ? userEs : userPt;
   const response = await request(httpServer(app))
     .post("/api/v1/packaging")
+    .set("x-user-id", userId)
     .set("x-tenant-id", tenantId)
     .send(packagingPayload(tenantId, serial))
     .expect(201);
@@ -246,8 +293,10 @@ async function transition(
   packagingId: string,
   body: Readonly<Record<string, unknown>>,
 ): Promise<PackagingResponse> {
+  const userId = tenantId === tenantEs ? userEs : userPt;
   const response = await request(httpServer(app))
     .post(`/api/v1/packaging/${packagingId}/transitions`)
+    .set("x-user-id", userId)
     .set("x-tenant-id", tenantId)
     .send(body)
     .expect(200);
@@ -262,8 +311,6 @@ function httpServer(app: INestApplication): Server {
     throw new TypeError("Nest did not expose a Node HTTP server");
   }
 
-  // Nest exposes this boundary as `any`; instanceof verifies the runtime shape.
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   return candidate;
 }
 
@@ -297,6 +344,12 @@ async function resetDatabase(database: DatabaseService): Promise<void> {
     database.client.packagingBatch.deleteMany({
       where: { tenantId: { in: [tenantEs, tenantPt] } },
     }),
+    database.client.tenantMembership.deleteMany({
+      where: { userId: { in: [userEs, userPt, userBoth] } },
+    }),
+    database.client.user.deleteMany({
+      where: { id: { in: [userEs, userPt, userBoth] } },
+    }),
     database.client.tenant.deleteMany({
       where: { id: { in: [tenantEs, tenantPt] } },
     }),
@@ -310,6 +363,21 @@ async function seedTenantsAndBatches(
     data: [
       { countryCodes: ["ES"], id: tenantEs, name: "Pilot Spain", slug: "pilot-es" },
       { countryCodes: ["PT"], id: tenantPt, name: "Pilot Portugal", slug: "pilot-pt" },
+    ],
+  });
+  await database.client.user.createMany({
+    data: [
+      { email: "es@example.com", externalSubject: "auth0|es", id: userEs },
+      { email: "pt@example.com", externalSubject: "auth0|pt", id: userPt },
+      { email: "both@example.com", externalSubject: "auth0|both", id: userBoth },
+    ],
+  });
+  await database.client.tenantMembership.createMany({
+    data: [
+      { role: "OPERATOR", tenantId: tenantEs, userId: userEs },
+      { role: "OPERATOR", tenantId: tenantPt, userId: userPt },
+      { role: "OPERATOR", tenantId: tenantEs, userId: userBoth },
+      { role: "OPERATOR", tenantId: tenantPt, userId: userBoth },
     ],
   });
   await database.client.packagingBatch.createMany({

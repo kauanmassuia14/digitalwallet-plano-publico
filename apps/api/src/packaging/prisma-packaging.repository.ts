@@ -37,6 +37,21 @@ export class PrismaPackagingRepository extends PackagingRepository {
       );
     }
 
+    const serialExists = await this.database.client.packaging.count({
+      where: {
+        tenantId: snapshot.tenantId,
+        serial: snapshot.serial,
+      },
+    });
+
+    if (serialExists > 0) {
+      throw new DomainError(
+        "PACKAGING_SERIAL_ALREADY_EXISTS",
+        "A packaging with this serial already exists for the tenant",
+        { serial: snapshot.serial },
+      );
+    }
+
     try {
       const created = await this.database.client.packaging.create({
         data: {

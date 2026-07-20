@@ -69,7 +69,7 @@ Legenda: `[x]` concluído e verificado · `[~]` em execução · `[ ]` pendente 
 ### W04 · Identidade, tenancy e auditoria
 
 - [ ] Validar token do provedor real e normalizar o principal.
-- [~] Substituir o header local por tenant derivado de membership autenticada.
+- [x] Substituir o header local por tenant derivado de membership autenticada.
 - [ ] Implementar RBAC de operação, suporte e administração.
 - [ ] Persistir auditoria append-only.
 - [ ] Implementar idempotência para comandos mutáveis.
