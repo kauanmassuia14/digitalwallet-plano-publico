@@ -91,9 +91,9 @@ Legenda: `[x]` concluído e verificado · `[~]` em execução · `[ ]` pendente 
 
 - [x] Modelar tabelas de solicitações e atribuições de coletas no Prisma.
 - [x] Implementar fila Redis para o matchmaking de coletas das cooperativas.
-- [ ] Desenvolver rotina de encadeamento criptográfico no Ledger (Row Chaining).
-- [ ] Implementar assinatura digital de transações de triagem com chaves RSA/KMS.
-- [ ] Escrever testes de integridade para a cadeia de hashes do Ledger.
+- [x] Desenvolver rotina de encadeamento criptográfico no Ledger (Row Chaining).
+- [x] Implementar assinatura digital de transações de triagem com chaves RSA/KMS.
+- [x] Escrever testes de integridade para a cadeia de hashes do Ledger.
 - [ ] Configurar geração e criptografia de logs de auditoria e relatórios.
 - [ ] Reconciliar dados de coletas físicas com a folha de auditoria final.
 
