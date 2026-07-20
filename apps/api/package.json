@@ -1,0 +1,36 @@
+{
+  "name": "@digitalwallet/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/main.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsx watch src/main.ts",
+    "prebuild": "pnpm --filter @digitalwallet/domain --filter @digitalwallet/database build",
+    "pretest": "pnpm --filter @digitalwallet/domain --filter @digitalwallet/database build",
+    "pretypecheck": "pnpm --filter @digitalwallet/domain --filter @digitalwallet/database build",
+    "start": "node dist/main.js",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@digitalwallet/database": "workspace:*",
+    "@digitalwallet/domain": "workspace:*",
+    "@nestjs/common": "11.1.28",
+    "@nestjs/core": "11.1.28",
+    "@nestjs/platform-express": "11.1.28",
+    "@nestjs/swagger": "11.4.5",
+    "class-transformer": "0.5.1",
+    "class-validator": "0.15.1",
+    "dotenv": "17.4.2",
+    "reflect-metadata": "0.2.2",
+    "rxjs": "7.8.2"
+  },
+  "devDependencies": {
+    "@nestjs/testing": "11.1.28",
+    "@types/supertest": "7.2.1",
+    "supertest": "7.2.2",
+    "tsx": "4.23.1"
+  }
+}

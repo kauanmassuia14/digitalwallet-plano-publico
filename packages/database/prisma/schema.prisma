@@ -1,0 +1,397 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum TenantMembershipRole {
+  OPERATOR
+  SUPPORT
+  ADMIN
+}
+
+enum PackagingStatus {
+  MINTED
+  IN_CIRCULATION
+  COLLECTED
+  RECYCLED
+}
+
+enum PackagingBatchStatus {
+  DRAFT
+  VALIDATED
+  IMPORTED
+  FAILED
+}
+
+enum ImportJobStatus {
+  UPLOADED
+  VALIDATING
+  READY
+  COMMITTED
+  REJECTED
+  EXPIRED
+}
+
+enum PackagingEventType {
+  MINTED
+  IN_CIRCULATION
+  COLLECTED
+  RECYCLED
+}
+
+enum RewardTransactionType {
+  EARN
+  CASHOUT
+  REVERSAL
+}
+
+enum TransactionStatus {
+  PENDING
+  SETTLED
+  FAILED
+}
+
+enum IdempotencyStatus {
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+}
+
+enum OutboxStatus {
+  PENDING
+  PROCESSING
+  PUBLISHED
+  FAILED
+}
+
+enum AuditActorType {
+  USER
+  SYSTEM
+  DEVICE
+}
+
+model Tenant {
+  id                 String              @id @default(uuid()) @db.Uuid
+  name               String
+  slug               String              @unique
+  countryCodes       String[]            @default([])
+  subscriptionActive Boolean             @default(true)
+  monthlyFeeCents    Int                 @default(25000)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  memberships        TenantMembership[]
+  packagingBatches   PackagingBatch[]
+  packaging          Packaging[]
+  packagingEvents    PackagingEvent[]
+  importJobs         ImportJob[]
+  rewardAccounts     RewardAccount[]
+  rewardTransactions RewardTransaction[]
+  idempotencyRecords IdempotencyRecord[]
+  outboxEvents       OutboxEvent[]
+  auditLogs          AuditLog[]
+  condominiums       Condominium[]
+  cooperatives       Cooperative[]
+  collectionRequests CollectionRequest[]
+
+  @@index([createdAt])
+}
+
+model User {
+  id                 String              @id @default(uuid()) @db.Uuid
+  externalSubject    String              @unique
+  email              String?             @unique
+  locale             String              @default("en") @db.VarChar(10)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  memberships        TenantMembership[]
+  importJobs         ImportJob[]
+  rewardAccounts     RewardAccount[]
+
+  @@index([createdAt])
+}
+
+model TenantMembership {
+  id        String               @id @default(uuid()) @db.Uuid
+  tenantId  String               @db.Uuid
+  userId    String               @db.Uuid
+  role      TenantMembershipRole
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+  tenant    Tenant               @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user      User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, userId])
+  @@index([userId, role])
+}
+
+model ImportJob {
+  id               String          @id @default(uuid()) @db.Uuid
+  tenantId         String          @db.Uuid
+  createdByUserId  String          @db.Uuid
+  contractVersion  String          @db.VarChar(64)
+  sourceEventId    String          @db.VarChar(128)
+  originalFileName String
+  objectKey        String          @unique
+  fileHash         String          @db.Char(64)
+  status           ImportJobStatus @default(UPLOADED)
+  totalRows        Int             @default(0)
+  acceptedRows     Int             @default(0)
+  rejectedRows     Int             @default(0)
+  errorReportKey   String?
+  expiresAt        DateTime
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  tenant           Tenant          @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  createdBy        User            @relation(fields: [createdByUserId], references: [id], onDelete: Restrict)
+  batch            PackagingBatch?
+
+  @@unique([tenantId, sourceEventId])
+  @@index([tenantId, status, createdAt])
+  @@index([expiresAt, status])
+}
+
+model PackagingBatch {
+  id           String               @id @default(uuid()) @db.Uuid
+  tenantId     String               @db.Uuid
+  importJobId  String?              @unique @db.Uuid
+  code         String               @db.VarChar(64)
+  countryCode  String               @db.Char(2)
+  currencyCode String               @db.Char(3)
+  status       PackagingBatchStatus @default(DRAFT)
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  tenant       Tenant               @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  importJob    ImportJob?           @relation(fields: [importJobId], references: [id], onDelete: Restrict)
+  packaging    Packaging[]
+
+  @@unique([tenantId, code])
+  @@unique([tenantId, id])
+  @@index([tenantId, status, createdAt])
+}
+
+model Packaging {
+  id                  String              @id @default(uuid()) @db.Uuid
+  tenantId            String              @db.Uuid
+  batchId             String              @db.Uuid
+  condominiumId       String?             @db.Uuid
+  cooperativeId       String?             @db.Uuid
+  serial              String              @db.VarChar(128)
+  status              PackagingStatus     @default(MINTED)
+  materialCode        String              @db.VarChar(64)
+  expectedWeightGrams Decimal             @db.Decimal(10, 2)
+  unitCostCents       Int
+  rewardCents         Int
+  externalQrHash      String              @unique @db.Char(64)
+  internalQrHash      String              @unique @db.Char(64)
+  version             Int                 @default(0)
+  mintedAt            DateTime            @default(now())
+  circulatedAt        DateTime?
+  collectedAt         DateTime?
+  recycledAt          DateTime?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  tenant              Tenant              @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  batch               PackagingBatch      @relation(fields: [tenantId, batchId], references: [tenantId, id], onDelete: Restrict)
+  condominium         Condominium?        @relation(fields: [condominiumId], references: [id], onDelete: SetNull)
+  cooperative         Cooperative?        @relation(fields: [cooperativeId], references: [id], onDelete: SetNull)
+  events              PackagingEvent[]
+  rewardTransaction   RewardTransaction?
+
+  @@unique([tenantId, serial])
+  @@index([tenantId, batchId, status])
+  @@index([tenantId, status, updatedAt])
+}
+
+model PackagingEvent {
+  id                  String             @id @default(uuid()) @db.Uuid
+  tenantId            String             @db.Uuid
+  packagingId         String             @db.Uuid
+  type                PackagingEventType
+  actorType           AuditActorType
+  actorId             String             @db.VarChar(128)
+  idempotencyKey      String             @db.VarChar(128)
+  actualWeightGrams   Decimal?           @db.Decimal(10, 2)
+  payload             Json?
+  chainTransactionHash String?            @unique @db.VarChar(66)
+  occurredAt          DateTime
+  recordedAt          DateTime           @default(now())
+  tenant              Tenant             @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  packaging           Packaging          @relation(fields: [packagingId], references: [id], onDelete: Restrict)
+
+  @@unique([tenantId, idempotencyKey])
+  @@index([packagingId, occurredAt])
+  @@index([tenantId, type, occurredAt])
+}
+
+model RewardAccount {
+  id           String              @id @default(uuid()) @db.Uuid
+  tenantId     String              @db.Uuid
+  userId       String              @db.Uuid
+  balanceCents BigInt              @default(0)
+  version      Int                 @default(0)
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  tenant       Tenant              @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  user         User                @relation(fields: [userId], references: [id], onDelete: Restrict)
+  transactions RewardTransaction[]
+
+  @@unique([tenantId, userId])
+  @@index([tenantId, updatedAt])
+}
+
+model RewardTransaction {
+  id                    String                @id @default(uuid()) @db.Uuid
+  tenantId              String                @db.Uuid
+  accountId             String                @db.Uuid
+  packagingId           String?               @unique @db.Uuid
+  reversalOfId          String?               @unique @db.Uuid
+  type                  RewardTransactionType
+  status                TransactionStatus     @default(PENDING)
+  amountCents           BigInt
+  idempotencyKey        String                @db.VarChar(128)
+  externalReference     String?               @unique
+  providerReference     String?               @unique
+  chainTransactionHash  String?               @unique @db.VarChar(66)
+  settledAt             DateTime?
+  failedAt              DateTime?
+  failureCode           String?               @db.VarChar(64)
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+  tenant                Tenant                @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  account               RewardAccount         @relation(fields: [accountId], references: [id], onDelete: Restrict)
+  packaging             Packaging?            @relation(fields: [packagingId], references: [id], onDelete: Restrict)
+  reversalOf            RewardTransaction?    @relation("RewardReversal", fields: [reversalOfId], references: [id], onDelete: Restrict)
+  reversedBy            RewardTransaction?    @relation("RewardReversal")
+
+  @@unique([tenantId, idempotencyKey])
+  @@index([accountId, status, createdAt])
+  @@index([tenantId, type, status, createdAt])
+}
+
+model IdempotencyRecord {
+  id             String            @id @default(uuid()) @db.Uuid
+  tenantId       String            @db.Uuid
+  key            String            @db.VarChar(128)
+  requestHash    String            @db.Char(64)
+  status         IdempotencyStatus @default(IN_PROGRESS)
+  responseStatus Int?
+  responseBody   Json?
+  expiresAt      DateTime
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  tenant         Tenant            @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+
+  @@unique([tenantId, key])
+  @@index([expiresAt, status])
+}
+
+model OutboxEvent {
+  id               String       @id @default(uuid()) @db.Uuid
+  tenantId         String       @db.Uuid
+  aggregateType    String       @db.VarChar(64)
+  aggregateId      String       @db.Uuid
+  aggregateVersion Int
+  eventType        String       @db.VarChar(128)
+  payload          Json
+  status           OutboxStatus @default(PENDING)
+  attempts         Int          @default(0)
+  availableAt      DateTime     @default(now())
+  lockedAt         DateTime?
+  publishedAt      DateTime?
+  lastError        String?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  tenant           Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+
+  @@unique([aggregateType, aggregateId, aggregateVersion, eventType])
+  @@index([status, availableAt])
+  @@index([tenantId, eventType, createdAt])
+}
+
+model AuditLog {
+  id            String         @id @default(uuid()) @db.Uuid
+  tenantId      String         @db.Uuid
+  actorType     AuditActorType
+  actorId       String         @db.VarChar(128)
+  action        String         @db.VarChar(128)
+  resourceType  String         @db.VarChar(64)
+  resourceId    String         @db.VarChar(128)
+  requestId     String         @db.VarChar(128)
+  correlationId String         @db.VarChar(128)
+  before        Json?
+  after         Json?
+  occurredAt    DateTime       @default(now())
+  tenant        Tenant         @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+
+  @@index([tenantId, resourceType, resourceId, occurredAt])
+  @@index([correlationId])
+}
+
+enum RequestStatus {
+  PENDING
+  ASSIGNED
+  COMPLETED
+  CANCELLED
+}
+
+model Condominium {
+  id                 String              @id @default(uuid()) @db.Uuid
+  tenantId           String              @db.Uuid
+  name               String
+  slug               String              @unique
+  address            String
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  tenant             Tenant              @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  collectionRequests CollectionRequest[]
+  packages           Packaging[]
+
+  @@index([tenantId, createdAt])
+}
+
+model Cooperative {
+  id                 String              @id @default(uuid()) @db.Uuid
+  tenantId           String              @db.Uuid
+  name               String
+  slug               String              @unique
+  pixKey             String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  tenant             Tenant              @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  collectionRequests CollectionRequest[]
+  packages           Packaging[]
+
+  @@index([tenantId, createdAt])
+}
+
+model CollectionRequest {
+  id             String            @id @default(uuid()) @db.Uuid
+  tenantId       String            @db.Uuid
+  condominiumId  String            @db.Uuid
+  cooperativeId  String?           @db.Uuid
+  status         RequestStatus     @default(PENDING)
+  scheduledFor   DateTime?
+  completedAt    DateTime?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  tenant         Tenant            @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  condominium    Condominium       @relation(fields: [condominiumId], references: [id], onDelete: Cascade)
+  cooperative    Cooperative?      @relation(fields: [cooperativeId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId, status, createdAt])
+}
+
+model AuditLedger {
+  id             String            @id @default(uuid()) @db.Uuid
+  prevHash       String            @db.VarChar(64)
+  rowHash        String            @unique @db.VarChar(64)
+  payload        Json
+  signature      String
+  createdAt      DateTime          @default(now())
+
+  @@index([createdAt])
+}

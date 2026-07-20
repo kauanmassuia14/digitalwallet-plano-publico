@@ -1,0 +1,16 @@
+node_modules/
+dist/
+coverage/
+.pnpm-store/
+
+.env
+.env.*
+!.env.example
+
+packages/database/generated/
+packages/database/prisma/dev.db*
+
+.DS_Store
+.idea/
+.vscode/
+*.log

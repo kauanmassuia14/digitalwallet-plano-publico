@@ -1,0 +1,28 @@
+name: quality
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - name: Enable the pinned pnpm version
+        run: corepack enable pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Validate repository
+        env:
+          DATABASE_URL: postgresql://digitalwallet:digitalwallet_local_only@localhost:55432/digitalwallet?schema=public
+        run: pnpm validate

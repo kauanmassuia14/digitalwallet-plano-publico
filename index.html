@@ -1,0 +1,2910 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Plano de engenharia, infraestrutura e viabilidade de negócios da DigitalWallet. Conectando Fábricas, Condomínios e Cooperativas.">
+  <meta name="theme-color" content="#052e16">
+  <title>DigitalWallet | Plano de Engenharia e Viabilidade B2B/B2C</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            forest: '#052e16',
+            emerald: '#22c55e',
+            mint: '#f0fdf4',
+            slateink: '#1e293b',
+            amberx: '#f59e0b',
+            cyanx: '#0891b2'
+          },
+          fontFamily: {
+            sans: ['Manrope', 'sans-serif'],
+            mono: ['IBM Plex Mono', 'monospace']
+          },
+          boxShadow: {
+            panel: '0 18px 45px rgba(5, 46, 22, 0.08)',
+            lift: '0 12px 28px rgba(5, 46, 22, 0.14)'
+          }
+        }
+      }
+    };
+  </script>
+  <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js" defer></script>
+
+  <style>
+    :root {
+      --forest: #052e16;
+      --emerald: #22c55e;
+      --mint: #f0fdf4;
+      --slate: #1e293b;
+      --line: #d8e6dc;
+      --amber: #f59e0b;
+      --cyan: #0891b2;
+    }
+
+    * { box-sizing: border-box; }
+    html { overflow-x: clip; scroll-behavior: smooth; scroll-padding-top: 84px; }
+    body {
+      margin: 0;
+      overflow-x: clip;
+      color: var(--slate);
+      background: #ffffff;
+      font-family: 'Manrope', sans-serif;
+      text-rendering: optimizeLegibility;
+    }
+
+    ::selection { color: #052e16; background: #86efac; }
+    :focus-visible { outline: 3px solid #22c55e; outline-offset: 3px; }
+    .font-mono { font-variant-numeric: tabular-nums; }
+
+    .scroll-progress {
+      transform-origin: left center;
+      transform: scaleX(0);
+      transition: transform 80ms linear;
+    }
+
+    .section-index {
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(5, 46, 22, 0.22);
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0;
+      line-height: 0.82;
+      user-select: none;
+    }
+
+    .dark-index {
+      -webkit-text-stroke-color: rgba(255, 255, 255, 0.22);
+    }
+
+    .section-rule { position: relative; }
+    .section-rule::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 72px;
+      height: 3px;
+      background: var(--emerald);
+    }
+
+    .blueprint-lines {
+      background-image:
+        linear-gradient(rgba(34, 197, 94, 0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(34, 197, 94, 0.08) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+
+    .hero-scanline {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .hero-scanline::after {
+      content: '';
+      position: absolute;
+      top: 12%;
+      left: -8%;
+      width: 116%;
+      height: 1px;
+      background: rgba(134, 239, 172, 0.22);
+      animation: scan 9s linear infinite;
+    }
+
+    @keyframes scan {
+      0% { transform: translateY(0); opacity: 0; }
+      8% { opacity: 1; }
+      92% { opacity: 1; }
+      100% { transform: translateY(620px); opacity: 0; }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity 650ms ease, transform 650ms ease;
+    }
+    .reveal.is-visible { opacity: 1; transform: translateY(0); }
+
+    .tab-button[aria-selected="true"],
+    .scenario-button[aria-pressed="true"],
+    .cost-mode-button[aria-pressed="true"] {
+      color: #ffffff;
+      border-color: var(--forest);
+      background: var(--forest);
+    }
+
+    .flow-node circle,
+    .flow-node .flow-node-ring {
+      transition: fill 350ms ease, stroke 350ms ease, opacity 350ms ease;
+    }
+    .flow-node.is-complete circle { fill: #22c55e; stroke: #22c55e; }
+    .flow-node.is-active circle { fill: #052e16; stroke: #22c55e; }
+    .flow-node.is-pending circle { fill: #ffffff; stroke: #cbd5e1; }
+    .flow-node.is-active .flow-node-ring { opacity: 1; }
+    .flow-node.is-complete .flow-node-ring,
+    .flow-node.is-pending .flow-node-ring { opacity: 0; }
+    #flow-progress {
+      transition: stroke-dashoffset 500ms ease;
+      stroke-dasharray: 690;
+      stroke-dashoffset: 690;
+    }
+
+    .stage-button[aria-current="step"] {
+      color: var(--forest);
+      border-color: var(--emerald);
+      background: #dcfce7;
+      box-shadow: inset 0 -3px 0 #22c55e;
+    }
+    .stage-button[data-complete="true"] {
+      color: #166534;
+      border-color: #bbf7d0;
+      background: #f0fdf4;
+    }
+
+    .qr-grid {
+      display: grid;
+      grid-template-columns: repeat(17, minmax(0, 1fr));
+      width: 100%;
+      aspect-ratio: 1;
+      gap: 1px;
+      padding: 8px;
+      background: #ffffff;
+      border: 1px solid #d8e6dc;
+    }
+    .qr-cell { background: transparent; }
+    .qr-cell.on { background: #052e16; }
+    .qr-cell.accent { background: #22c55e; }
+    .qr-secure-wrap { position: relative; }
+    .qr-secure-wrap.is-locked .qr-grid { filter: blur(7px); opacity: 0.5; }
+    .qr-secure-wrap.is-locked .qr-lock { display: flex; }
+    .qr-lock {
+      display: none;
+      position: absolute;
+      inset: 0;
+      align-items: center;
+      justify-content: center;
+      background: rgba(240, 253, 244, 0.7);
+      backdrop-filter: blur(2px);
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 4px;
+      accent-color: var(--emerald);
+      cursor: pointer;
+    }
+
+    .metric-bar {
+      transform-origin: bottom center;
+      transition: y 500ms ease, height 500ms ease;
+    }
+
+    #score-ring {
+      transition: stroke-dashoffset 650ms ease, stroke 350ms ease;
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+    }
+
+    .failure-detail[hidden] { display: none; }
+    .failure-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+    .failure-toggle svg { transition: transform 200ms ease; }
+    .cost-row.is-disabled { opacity: 0.38; }
+
+    .timeline-phase[aria-current="step"] {
+      border-color: var(--emerald);
+      background: var(--forest);
+      color: #ffffff;
+    }
+    .timeline-phase[aria-current="step"] .timeline-dot {
+      border-color: #86efac;
+      background: #22c55e;
+    }
+    .timeline-phase[data-status="completed"][aria-current="false"] {
+      border-color: rgba(74, 222, 128, 0.42);
+      background: rgba(34, 197, 94, 0.08);
+    }
+    .timeline-phase[data-status="active"][aria-current="false"] {
+      border-color: rgba(34, 197, 94, 0.72);
+      background: rgba(255, 255, 255, 0.06);
+    }
+    .timeline-phase[data-status="blocked"][aria-current="false"] {
+      border-color: rgba(245, 158, 11, 0.45);
+      background: rgba(245, 158, 11, 0.06);
+    }
+    .timeline-phase[data-status="completed"] .timeline-dot {
+      border-color: #86efac;
+      background: #22c55e;
+    }
+    .timeline-phase[data-status="active"] .timeline-dot {
+      border-color: #4ade80;
+      background: #052e16;
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.12);
+    }
+    .timeline-phase[data-status="blocked"] .timeline-dot {
+      border-color: #fbbf24;
+      background: #78350f;
+    }
+    .timeline-scroll {
+      scrollbar-color: rgba(74, 222, 128, 0.75) rgba(255, 255, 255, 0.06);
+      scrollbar-width: thin;
+    }
+    .plan-progress-fill {
+      transform-origin: left center;
+      transition: width 700ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .task-state {
+      display: grid;
+      width: 24px;
+      height: 24px;
+      flex: 0 0 24px;
+      place-items: center;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .task-state[data-state="done"] {
+      border-color: #4ade80;
+      color: #052e16;
+      background: #4ade80;
+    }
+    .task-state[data-state="active"] {
+      border-color: #86efac;
+      color: #86efac;
+      background: rgba(34, 197, 94, 0.12);
+    }
+    .task-state[data-state="blocked"] {
+      border-color: #fbbf24;
+      color: #fbbf24;
+      background: rgba(245, 158, 11, 0.08);
+    }
+
+    .code-panel {
+      tab-size: 2;
+      scrollbar-color: #4ade80 #052e16;
+      scrollbar-width: thin;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .reveal { opacity: 1; transform: none; }
+    }
+
+    @media (max-width: 767px) {
+      .comparison-table {
+        width: 100%;
+        min-width: 0 !important;
+        table-layout: fixed;
+      }
+      .comparison-table th,
+      .comparison-table td {
+        padding: 12px;
+        overflow-wrap: anywhere;
+      }
+      .comparison-table th:first-child { width: 34%; }
+      .comparison-table .comparison-mvp,
+      .comparison-table .comparison-final { width: auto; }
+
+      .risk-table,
+      .risk-table tbody,
+      .cost-table,
+      .cost-table tbody {
+        display: block;
+        width: 100%;
+        min-width: 0 !important;
+      }
+      .risk-table thead,
+      .cost-table thead { display: none; }
+
+      .risk-table .failure-row {
+        display: grid;
+        grid-template-columns: 44px minmax(0, 1fr) 36px;
+        column-gap: 12px;
+        padding: 18px 14px;
+      }
+      .risk-table .failure-row[hidden],
+      .risk-table .failure-detail[hidden] { display: none !important; }
+      .risk-table .failure-row td { padding: 0; }
+      .risk-table .failure-row td:nth-child(1) { grid-column: 1; grid-row: 1; }
+      .risk-table .failure-row td:nth-child(2) { grid-column: 2; grid-row: 1; }
+      .risk-table .failure-row td:nth-child(3) {
+        grid-column: 2;
+        grid-row: 2;
+        margin-top: 8px;
+      }
+      .risk-table .failure-row td:nth-child(4),
+      .risk-table .failure-row td:nth-child(5) {
+        grid-column: 1 / -1;
+        margin-top: 16px;
+        padding-top: 14px;
+        border-top: 1px solid #dcfce7;
+      }
+      .risk-table .failure-row td:nth-child(4)::before,
+      .risk-table .failure-row td:nth-child(5)::before {
+        display: block;
+        margin-bottom: 6px;
+        color: #15803d;
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 9px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+      }
+      .risk-table .failure-row td:nth-child(4)::before { content: 'IMPACTO REAL'; }
+      .risk-table .failure-row td:nth-child(5)::before { content: 'CONTROLE DE ENGENHARIA'; }
+      .risk-table .failure-row td:nth-child(6) {
+        grid-column: 3;
+        grid-row: 1;
+      }
+      .risk-table .failure-detail,
+      .risk-table .failure-detail td { display: block; width: 100%; }
+
+      .cost-table .cost-row {
+        display: grid;
+        grid-template-columns: 40px minmax(0, 1fr) 112px;
+        column-gap: 10px;
+        padding: 18px 14px;
+      }
+      .cost-table .cost-row td { padding: 0; }
+      .cost-table .cost-row td:nth-child(1) { grid-column: 1; grid-row: 1; }
+      .cost-table .cost-row td:nth-child(2) { grid-column: 2; grid-row: 1; }
+      .cost-table .cost-row td:nth-child(3) {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        margin-top: 14px;
+        padding-top: 12px;
+        border-top: 1px solid #dcfce7;
+      }
+      .cost-table .cost-row td:nth-child(4) {
+        grid-column: 3;
+        grid-row: 1;
+        align-self: start;
+        overflow-wrap: anywhere;
+      }
+    }
+
+    @media print {
+      .no-print, nav, .scroll-progress { display: none !important; }
+      html { scroll-padding-top: 0; }
+      body { background: #fff; font-size: 9pt; }
+      section { break-inside: avoid; padding-top: 32px !important; padding-bottom: 32px !important; }
+      .reveal { opacity: 1 !important; transform: none !important; }
+      .shadow-panel, .shadow-lift { box-shadow: none !important; }
+      .failure-detail[hidden] { display: table-row !important; }
+    }
+  </style>
+</head>
+
+<body class="antialiased">
+  <a href="#conteudo" class="fixed left-3 top-3 z-[100] -translate-y-24 bg-forest px-4 py-3 text-sm font-bold text-white transition focus:translate-y-0">
+    Ir para o conteúdo
+  </a>
+
+  <div id="scrollProgress" class="scroll-progress fixed inset-x-0 top-0 z-[70] h-1 bg-emerald" aria-hidden="true"></div>
+
+  <nav class="sticky top-0 z-50 border-b border-emerald-950/10 bg-white/95 backdrop-blur" aria-label="Navegação principal">
+    <div class="mx-auto flex h-[72px] max-w-[1440px] items-center justify-between px-4 sm:px-6 lg:px-10">
+      <a href="#visao-geral" class="flex items-center gap-3" aria-label="DigitalWallet, início">
+        <span class="grid h-10 w-10 place-items-center bg-forest font-mono text-xs font-semibold text-emerald">DW</span>
+        <span>
+          <span class="block text-sm font-extrabold tracking-normal text-forest">DigitalWallet</span>
+          <span class="block font-mono text-[10px] uppercase tracking-[0.16em] text-slate-500">Engineering plan / EU</span>
+        </span>
+      </a>
+
+      <div class="hidden items-center gap-1 xl:flex">
+        <a class="nav-link border-b-2 border-transparent px-2 py-2 font-mono text-[11px] font-medium text-slate-500 hover:text-forest" href="#stack">02 Stack</a>
+        <a class="nav-link border-b-2 border-transparent px-2 py-2 font-mono text-[11px] font-medium text-slate-500 hover:text-forest" href="#dados">03 Dados</a>
+        <a class="nav-link border-b-2 border-transparent px-2 py-2 font-mono text-[11px] font-medium text-slate-500 hover:text-forest" href="#blockchain">04 Rastreabilidade</a>
+        <a class="nav-link border-b-2 border-transparent px-2 py-2 font-mono text-[11px] font-medium text-slate-500 hover:text-forest" href="#metricas">05 Métricas</a>
+        <a class="nav-link border-b-2 border-transparent px-2 py-2 font-mono text-[11px] font-medium text-slate-500 hover:text-forest" href="#schema">06 Schema</a>
+        <a class="nav-link border-b-2 border-transparent px-2 py-2 font-mono text-[11px] font-medium text-slate-500 hover:text-forest" href="#riscos">07 Riscos</a>
+        <a class="nav-link border-b-2 border-transparent px-2 py-2 font-mono text-[11px] font-medium text-slate-500 hover:text-forest" href="#custos">08 Custos</a>
+        <a class="nav-link border-b-2 border-transparent px-2 py-2 font-mono text-[11px] font-medium text-slate-500 hover:text-forest" href="#cronograma">09 Prazo</a>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button id="printButton" type="button" class="hidden h-10 items-center gap-2 border border-slate-200 px-3 text-xs font-bold text-slate-700 transition hover:border-forest hover:text-forest sm:flex" title="Imprimir ou salvar como PDF">
+          <i data-lucide="printer" class="h-4 w-4" aria-hidden="true"></i>
+          Imprimir
+        </button>
+        <button id="menuButton" type="button" class="grid h-10 w-10 place-items-center border border-slate-200 text-forest xl:hidden" aria-label="Abrir navegação" aria-expanded="false" aria-controls="mobileMenu">
+          <i data-lucide="menu" class="h-5 w-5" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+
+    <div id="mobileMenu" class="hidden border-t border-slate-100 bg-white px-4 py-4 xl:hidden">
+      <div class="mx-auto grid max-w-[1440px] grid-cols-2 gap-2 sm:grid-cols-4">
+        <a class="border border-slate-200 px-3 py-2 text-xs font-semibold" href="#stack">02 Stack</a>
+        <a class="border border-slate-200 px-3 py-2 text-xs font-semibold" href="#dados">03 Dados</a>
+        <a class="border border-slate-200 px-3 py-2 text-xs font-semibold" href="#blockchain">04 Rastreabilidade</a>
+        <a class="border border-slate-200 px-3 py-2 text-xs font-semibold" href="#metricas">05 Métricas</a>
+        <a class="border border-slate-200 px-3 py-2 text-xs font-semibold" href="#schema">06 Schema</a>
+        <a class="border border-slate-200 px-3 py-2 text-xs font-semibold" href="#riscos">07 Riscos</a>
+        <a class="border border-slate-200 px-3 py-2 text-xs font-semibold" href="#custos">08 Custos</a>
+        <a class="border border-slate-200 px-3 py-2 text-xs font-semibold" href="#cronograma">09 Prazo</a>
+      </div>
+    </div>
+  </nav>
+
+  <main id="conteudo">
+    <!-- 01 / Visão geral -->
+    <section id="visao-geral" class="relative overflow-hidden bg-forest text-white">
+      <div class="hero-scanline" aria-hidden="true"></div>
+      <div class="absolute -right-8 top-28 hidden font-mono text-[220px] font-semibold leading-none text-white/[0.035] lg:block" aria-hidden="true">38</div>
+
+      <div class="relative mx-auto max-w-[1440px] px-4 pb-12 pt-14 sm:px-6 sm:pb-16 sm:pt-20 lg:px-10 lg:pb-20">
+        <div class="grid items-end gap-12 lg:grid-cols-12">
+          <div class="lg:col-span-7">
+            <div class="mb-8 flex flex-wrap items-center gap-3">
+              <span class="border border-emerald/40 bg-emerald/10 px-3 py-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-green-200">Plano mestre · MVP internacional</span>
+              <span class="flex items-center gap-2 font-mono text-[11px] text-green-100/70">
+                <span class="h-2 w-2 bg-emerald"></span>
+                Documento operacional
+              </span>
+            </div>
+
+            <p class="mb-5 font-mono text-xs font-semibold uppercase tracking-[0.18em] text-emerald">01 — Visão geral</p>
+            <h1 class="max-w-5xl text-4xl font-extrabold leading-[1.04] tracking-normal sm:text-5xl lg:text-7xl">
+              DigitalWallet: Economia Circular em 3 Etapas
+            </h1>
+            <p class="mt-7 max-w-3xl text-base leading-8 text-green-50/80 sm:text-lg">
+              Conectamos Fábricas, Condomínios e Cooperativas de reciclagem para viabilizar a rastreabilidade e a compensação financeira de embalagens pós-consumo, eliminando a complexidade de totens físicos offline e blockchain.
+            </p>
+
+            <div class="mt-9 flex flex-wrap gap-3">
+              <a href="#cronograma" class="inline-flex h-12 items-center gap-2 bg-emerald px-5 text-sm font-extrabold text-forest transition hover:bg-green-300">
+                <i data-lucide="calendar-range" class="h-4 w-4" aria-hidden="true"></i>
+                Ver plano de 14 semanas
+              </a>
+              <a href="#metricas" class="inline-flex h-12 items-center gap-2 border border-white/25 px-5 text-sm font-bold text-white transition hover:border-emerald hover:text-green-200">
+                <i data-lucide="gauge" class="h-4 w-4" aria-hidden="true"></i>
+                Simular Métricas e Margem
+              </a>
+            </div>
+          </div>
+
+          <aside class="border border-white/15 bg-white/[0.055] p-5 backdrop-blur-sm sm:p-7 lg:col-span-5" aria-label="Briefing do piloto">
+            <div class="flex items-start justify-between gap-6 border-b border-white/15 pb-5">
+              <div>
+                <p class="font-mono text-[10px] uppercase tracking-[0.18em] text-green-200/75">Assinatura do Piloto</p>
+                <p class="mt-2 text-2xl font-extrabold">€250 / mês</p>
+                <p class="mt-1 text-sm text-green-50/65">Mensalidade por Fábrica na plataforma</p>
+              </div>
+              <div class="grid h-12 w-12 shrink-0 place-items-center border border-emerald/40 text-emerald">
+                <i data-lucide="recycle" class="h-6 w-6" aria-hidden="true"></i>
+              </div>
+            </div>
+
+            <dl class="divide-y divide-white/10">
+              <div class="grid grid-cols-[92px_1fr] gap-4 py-4">
+                <dt class="font-mono text-[10px] uppercase tracking-[0.15em] text-green-200/65">Mercados</dt>
+                <dd class="flex flex-wrap gap-2 text-sm font-semibold">
+                  <span class="border border-white/15 px-2 py-1">ES · 1 Fábrica</span>
+                  <span class="border border-white/15 px-2 py-1">PT · 1 Fábrica</span>
+                </dd>
+              </div>
+              <div class="grid grid-cols-[92px_1fr] gap-4 py-4">
+                <dt class="font-mono text-[10px] uppercase tracking-[0.15em] text-green-200/65">App</dt>
+                <dd class="text-sm leading-6 text-green-50/85">iOS + Android para Condomínios e Cooperativas em Flutter único</dd>
+              </div>
+              <div class="grid grid-cols-[92px_1fr] gap-4 py-4">
+                <dt class="font-mono text-[10px] uppercase tracking-[0.15em] text-green-200/65">Idiomas</dt>
+                <dd class="text-sm leading-6 text-green-50/85">Español · Português · English via arquivos i18n</dd>
+              </div>
+              <div class="grid grid-cols-[92px_1fr] gap-4 pt-4">
+                <dt class="font-mono text-[10px] uppercase tracking-[0.15em] text-green-200/65">Princípio</dt>
+                <dd class="text-sm leading-6 text-green-50/85">Ledger transacional e trilha de auditoria criptográfica baseada em hashes encadeados no PostgreSQL.</dd>
+              </div>
+            </dl>
+          </aside>
+        </div>
+
+        <div class="mt-14 grid border-y border-white/15 sm:grid-cols-3">
+          <div class="border-b border-white/15 py-5 sm:border-b-0 sm:border-r sm:px-6">
+            <p class="font-mono text-[10px] uppercase tracking-[0.16em] text-green-200/60">Horizonte</p>
+            <p class="mt-2 text-xl font-extrabold">14 semanas</p>
+            <p class="mt-1 text-xs text-green-50/60">Do descobrimento ao hypercare em produção</p>
+          </div>
+          <div class="border-b border-white/15 py-5 sm:border-b-0 sm:border-r sm:px-6">
+            <p class="font-mono text-[10px] uppercase tracking-[0.16em] text-green-200/60">Modelo Comercial</p>
+            <p class="mt-2 text-xl font-extrabold">€250 / mês</p>
+            <p class="mt-1 text-xs text-green-50/60">Assinatura fixa por fábrica parceira</p>
+          </div>
+          <div class="py-5 sm:px-6">
+            <p class="font-mono text-[10px] uppercase tracking-[0.16em] text-green-200/60">Rastreamento</p>
+            <p class="mt-2 text-xl font-extrabold">Matchmaking</p>
+            <p class="mt-1 text-xs text-green-50/60">App de coleta de Condomínio a Cooperativa</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 / Stack -->
+    <section id="stack" class="bg-white py-20 sm:py-24">
+      <div class="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10">
+        <header class="section-rule grid gap-8 pt-8 lg:grid-cols-12">
+          <div class="lg:col-span-2">
+            <span class="section-index font-mono text-7xl font-semibold sm:text-8xl">02</span>
+          </div>
+          <div class="lg:col-span-7">
+            <p class="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-green-700">Engenharia do software</p>
+            <h2 class="mt-3 text-3xl font-extrabold tracking-normal text-forest sm:text-5xl">Stack enxuta. Contratos claros. Escala sem reescrita.</h2>
+          </div>
+          <p class="max-w-md text-sm leading-7 text-slate-600 lg:col-span-3 lg:pt-6">
+            Uma única base mobile para os atores de campo, backend modular, banco transacional maduro e uma trilha de auditoria criptográfica. Cada camada tem responsabilidade explícita.
+          </p>
+        </header>
+
+        <div class="mt-12 grid gap-px overflow-hidden border border-emerald-950/10 bg-emerald-950/10 md:grid-cols-2 xl:grid-cols-4">
+          <article class="group bg-white p-6 transition hover:bg-mint reveal">
+            <div class="flex items-start justify-between">
+              <span class="font-mono text-xs font-semibold text-green-700">01 / MOBILE</span>
+              <i data-lucide="smartphone" class="h-6 w-6 text-emerald" aria-hidden="true"></i>
+            </div>
+            <h3 class="mt-10 text-2xl font-extrabold text-forest">Flutter <span class="font-mono text-sm font-medium text-slate-400">/ Dart</span></h3>
+            <p class="mt-4 text-sm leading-7 text-slate-600">Aplicativo único, fluido e compilado nativamente para iOS e Android. Utilizado pelas cooperativas para escaneamento e registro de coletas regionais, e pelos condomínios para solicitações.</p>
+            <div class="mt-6 border-t border-green-200 pt-4">
+              <p class="font-mono text-[10px] uppercase tracking-[0.14em] text-slate-400">Decisão operacional</p>
+              <p class="mt-2 text-xs font-semibold leading-5 text-slate-700">i18n por ARB · câmera/QR · secure storage · fila local</p>
+            </div>
+          </article>
+
+          <article class="group bg-white p-6 transition hover:bg-mint reveal">
+            <div class="flex items-start justify-between">
+              <span class="font-mono text-xs font-semibold text-green-700">02 / API</span>
+              <i data-lucide="braces" class="h-6 w-6 text-emerald" aria-hidden="true"></i>
+            </div>
+            <h3 class="mt-10 text-2xl font-extrabold text-forest">NestJS <span class="font-mono text-sm font-medium text-slate-400">/ TypeScript</span></h3>
+            <p class="mt-4 text-sm leading-7 text-slate-600">Arquitetura modular, injeção de dependências e contratos tipados. Evita acoplamento entre cadastros de lotes, roteamento de coletas, carteira e relatórios B2B.</p>
+            <div class="mt-6 border-t border-green-200 pt-4">
+              <p class="font-mono text-[10px] uppercase tracking-[0.14em] text-slate-400">Módulos-base</p>
+              <p class="mt-2 text-xs font-semibold leading-5 text-slate-700">Auth · Tenants · Packaging · Matchmaking · Rewards</p>
+            </div>
+          </article>
+
+          <article class="group bg-white p-6 transition hover:bg-mint reveal">
+            <div class="flex items-start justify-between">
+              <span class="font-mono text-xs font-semibold text-green-700">03 / DATA</span>
+              <i data-lucide="database" class="h-6 w-6 text-emerald" aria-hidden="true"></i>
+            </div>
+            <h3 class="mt-10 text-2xl font-extrabold text-forest">PostgreSQL <span class="font-mono text-sm font-medium text-slate-400">/ Prisma</span></h3>
+            <p class="mt-4 text-sm leading-7 text-slate-600">Transações ACID para saldos de cooperativas, solicitações e transações. Prisma mantém o schema legível e gera cliente tipado integrado às migrações.</p>
+            <div class="mt-6 border-t border-green-200 pt-4">
+              <p class="font-mono text-[10px] uppercase tracking-[0.14em] text-slate-400">Garantias</p>
+              <p class="mt-2 text-xs font-semibold leading-5 text-slate-700">Unique QR · concorrência de coletas · índices por tenant</p>
+            </div>
+          </article>
+
+          <article class="group bg-white p-6 transition hover:bg-mint reveal">
+            <div class="flex items-start justify-between">
+              <span class="font-mono text-xs font-semibold text-green-700">04 / TRUST</span>
+              <i data-lucide="blocks" class="h-6 w-6 text-emerald" aria-hidden="true"></i>
+            </div>
+            <h3 class="mt-10 text-2xl font-extrabold text-forest">Audit Ledger <span class="font-mono text-sm font-medium text-slate-400">/ Row Chaining</span></h3>
+            <p class="mt-4 text-sm leading-7 text-slate-600">Trilha de auditoria criptográfica no banco de dados. Cada transação possui um hash que depende da anterior, assinado pela chave privada da plataforma.</p>
+            <div class="mt-6 border-t border-green-200 pt-4">
+              <p class="font-mono text-[10px] uppercase tracking-[0.14em] text-slate-400">Garantias de auditoria</p>
+              <p class="mt-2 text-xs font-semibold leading-5 text-slate-700">Assinatura digital · encadeamento de hash · auditoria B2B</p>
+            </div>
+          </article>
+        </div>
+
+        <div class="blueprint-lines mt-10 border border-green-200 bg-mint p-5 sm:p-8">
+          <div class="flex flex-col gap-6 lg:flex-row lg:items-center">
+            <div class="lg:w-52">
+              <p class="font-mono text-[10px] font-semibold uppercase tracking-[0.17em] text-green-700">Execution spine</p>
+              <p class="mt-2 text-sm font-bold text-forest">Fluxo de responsabilidades</p>
+            </div>
+            <div class="grid flex-1 grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
+              <div class="border border-green-200 bg-white p-3 text-center">
+                <i data-lucide="smartphone" class="mx-auto h-5 w-5 text-green-700" aria-hidden="true"></i>
+                <p class="mt-2 font-mono text-[10px] font-semibold">Flutter App</p>
+              </div>
+              <div class="hidden place-items-center text-green-600 lg:grid"><i data-lucide="arrow-right" class="h-5 w-5" aria-hidden="true"></i></div>
+              <div class="border border-green-200 bg-white p-3 text-center">
+                <i data-lucide="shield-check" class="mx-auto h-5 w-5 text-green-700" aria-hidden="true"></i>
+                <p class="mt-2 font-mono text-[10px] font-semibold">API GW</p>
+              </div>
+              <div class="hidden place-items-center text-green-600 lg:grid"><i data-lucide="arrow-right" class="h-5 w-5" aria-hidden="true"></i></div>
+              <div class="border border-green-200 bg-white p-3 text-center">
+                <i data-lucide="layers-3" class="mx-auto h-5 w-5 text-green-700" aria-hidden="true"></i>
+                <p class="mt-2 font-mono text-[10px] font-semibold">NestJS</p>
+              </div>
+              <div class="hidden place-items-center text-green-600 lg:grid"><i data-lucide="split" class="h-5 w-5" aria-hidden="true"></i></div>
+              <div class="grid grid-cols-2 gap-2">
+                <div class="border border-green-200 bg-white p-3 text-center">
+                  <i data-lucide="database" class="mx-auto h-5 w-5 text-green-700" aria-hidden="true"></i>
+                  <p class="mt-2 font-mono text-[9px] font-semibold">PostgreSQL</p>
+                </div>
+                <div class="border border-green-200 bg-white p-3 text-center">
+                  <i data-lucide="fingerprint" class="mx-auto h-5 w-5 text-green-700" aria-hidden="true"></i>
+                  <p class="mt-2 font-mono text-[9px] font-semibold">Audit Ledger</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 / Dados -->
+    <section id="dados" class="border-y border-green-100 bg-mint py-20 sm:py-24">
+      <div class="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10">
+        <header class="section-rule grid gap-8 pt-8 lg:grid-cols-12">
+          <div class="lg:col-span-2">
+            <span class="section-index font-mono text-7xl font-semibold sm:text-8xl">03</span>
+          </div>
+          <div class="lg:col-span-7">
+            <p class="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-green-700">Arquitetura de dados</p>
+            <h2 class="mt-3 text-3xl font-extrabold tracking-normal text-forest sm:text-5xl">Entrada simples agora. Integração contínua quando o volume exigir.</h2>
+          </div>
+          <p class="max-w-md text-sm leading-7 text-slate-600 lg:col-span-3 lg:pt-6">
+            Peso, material, custo, lote e recompensa obedecem ao mesmo contrato de dados. O canal muda; validação, rastreabilidade e idempotência permanecem.
+          </p>
+        </header>
+
+        <div class="mt-12 flex flex-col gap-4 border-b border-green-200 pb-5 sm:flex-row sm:items-center sm:justify-between">
+          <div class="inline-flex w-full border border-green-200 bg-white p-1 sm:w-auto" role="tablist" aria-label="Visualização do comparativo">
+            <button class="tab-button flex-1 border border-transparent px-4 py-2 text-xs font-bold sm:flex-none" type="button" role="tab" aria-selected="false" data-comparison="mvp">Somente MVP</button>
+            <button class="tab-button flex-1 border border-transparent px-4 py-2 text-xs font-bold sm:flex-none" type="button" role="tab" aria-selected="false" data-comparison="final">Versão final</button>
+            <button class="tab-button flex-1 border border-transparent px-4 py-2 text-xs font-bold sm:flex-none" type="button" role="tab" aria-selected="true" data-comparison="both">Lado a lado</button>
+          </div>
+          <p id="comparisonCaption" class="font-mono text-[10px] uppercase tracking-[0.13em] text-green-700">Comparação de operação, controle e escala</p>
+        </div>
+
+        <div class="mt-6 overflow-x-auto border border-green-200 bg-white shadow-panel">
+          <table class="comparison-table w-full min-w-[860px] border-collapse text-left">
+            <thead>
+              <tr class="bg-forest text-white">
+                <th scope="col" class="w-[19%] px-5 py-4 font-mono text-[10px] uppercase tracking-[0.15em] text-green-200">Dimensão</th>
+                <th scope="col" class="comparison-mvp w-[40.5%] border-l border-white/10 px-5 py-4">
+                  <span class="block text-base font-extrabold">MVP · Agilidade controlada</span>
+                  <span class="mt-1 block font-mono text-[10px] font-normal text-green-100/65">CSV / XLSX + formulário B2B</span>
+                </th>
+                <th scope="col" class="comparison-final w-[40.5%] border-l border-white/10 px-5 py-4">
+                  <span class="block text-base font-extrabold">Final · Escala conectada</span>
+                  <span class="mt-1 block font-mono text-[10px] font-normal text-green-100/65">REST / Webhooks + ERP</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-green-100 text-sm">
+              <tr class="align-top">
+                <th scope="row" class="px-5 py-5 font-bold text-forest">Origem</th>
+                <td class="comparison-mvp border-l border-green-100 px-5 py-5 leading-6 text-slate-600">Upload de planilha formatada (.CSV ou Excel) pela marca ou cadastro manual simplificado no Dashboard B2B.</td>
+                <td class="comparison-final border-l border-green-100 px-5 py-5 leading-6 text-slate-600">API REST e Webhooks ligados ao SAP, Oracle ou ERP proprietário; sincronização automatizada por lote.</td>
+              </tr>
+              <tr class="align-top bg-green-50/40">
+                <th scope="row" class="px-5 py-5 font-bold text-forest">Contrato mínimo</th>
+                <td class="comparison-mvp border-l border-green-100 px-5 py-5 font-mono text-xs leading-6 text-slate-600">batch_code, serial, material, weight_g, unit_cost, reward</td>
+                <td class="comparison-final border-l border-green-100 px-5 py-5 font-mono text-xs leading-6 text-slate-600">Mesmo payload versionado + source_event_id + occurred_at + signature</td>
+              </tr>
+              <tr class="align-top">
+                <th scope="row" class="px-5 py-5 font-bold text-forest">Validação</th>
+                <td class="comparison-mvp border-l border-green-100 px-5 py-5 leading-6 text-slate-600">Prévia antes da importação, validação de colunas/tipos, rejeição linha a linha e relatório para correção.</td>
+                <td class="comparison-final border-l border-green-100 px-5 py-5 leading-6 text-slate-600">JSON Schema, assinatura do cliente, idempotência por evento e dead-letter queue para payloads inválidos.</td>
+              </tr>
+              <tr class="align-top bg-green-50/40">
+                <th scope="row" class="px-5 py-5 font-bold text-forest">Processamento AWS</th>
+                <td class="comparison-mvp border-l border-green-100 px-5 py-5 leading-6 text-slate-600">Upload assíncrono, staging no S3, worker de validação e gravação transacional no PostgreSQL.</td>
+                <td class="comparison-final border-l border-green-100 px-5 py-5 leading-6 text-slate-600">API Gateway → Lambda/NestJS → fila → consumidor idempotente → RDS, com retorno de status por Webhook.</td>
+              </tr>
+              <tr class="align-top">
+                <th scope="row" class="px-5 py-5 font-bold text-forest">Latência esperada</th>
+                <td class="comparison-mvp border-l border-green-100 px-5 py-5 leading-6 text-slate-600">Minutos por lote; adequado para carga inicial e reposições programadas do piloto.</td>
+                <td class="comparison-final border-l border-green-100 px-5 py-5 leading-6 text-slate-600">Segundos por evento; suporta produção contínua e múltiplas fábricas/tenants.</td>
+              </tr>
+              <tr class="align-top bg-green-50/40">
+                <th scope="row" class="px-5 py-5 font-bold text-forest">Auditoria</th>
+                <td class="comparison-mvp border-l border-green-100 px-5 py-5 leading-6 text-slate-600">Arquivo original, autor, timestamp, hash do upload e relatório de aceites/rejeições preservados.</td>
+                <td class="comparison-final border-l border-green-100 px-5 py-5 leading-6 text-slate-600">Correlation ID ponta a ponta, versão do contrato, trilha de retry e reconciliação diária com o ERP.</td>
+              </tr>
+              <tr class="align-top">
+                <th scope="row" class="px-5 py-5 font-bold text-forest">Responsável</th>
+                <td class="comparison-mvp border-l border-green-100 px-5 py-5 leading-6 text-slate-600">Operador autorizado da marca, com escopo restrito ao próprio tenant.</td>
+                <td class="comparison-final border-l border-green-100 px-5 py-5 leading-6 text-slate-600">Conta técnica do ERP com OAuth2 client credentials, segredo rotacionado e rate limit por tenant.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="mt-8 grid gap-px border border-green-200 bg-green-200 lg:grid-cols-3">
+          <div class="bg-white p-5">
+            <p class="font-mono text-[10px] font-semibold uppercase tracking-[0.15em] text-green-700">Gate 01</p>
+            <p class="mt-2 text-sm font-extrabold text-forest">Template estabilizado</p>
+            <p class="mt-2 text-xs leading-6 text-slate-600">≥ 98% das linhas importadas sem intervenção em três lotes consecutivos.</p>
+          </div>
+          <div class="bg-white p-5">
+            <p class="font-mono text-[10px] font-semibold uppercase tracking-[0.15em] text-green-700">Gate 02</p>
+            <p class="mt-2 text-sm font-extrabold text-forest">Volume ou frequência excedidos</p>
+            <p class="mt-2 text-xs leading-6 text-slate-600">Mais de 100 mil embalagens/dia ou mais de uma carga operacional diária.</p>
+          </div>
+          <div class="bg-forest p-5 text-white">
+            <p class="font-mono text-[10px] font-semibold uppercase tracking-[0.15em] text-green-300">Decisão</p>
+            <p class="mt-2 text-sm font-extrabold">Ativar integração ERP</p>
+            <p class="mt-2 text-xs leading-6 text-green-50/70">O contrato de dados não muda; apenas o adaptador de entrada é substituído.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 / Rastreabilidade -->
+    <section id="blockchain" class="bg-white py-20 sm:py-24">
+      <div class="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10">
+        <header class="section-rule grid gap-8 pt-8 lg:grid-cols-12">
+          <div class="lg:col-span-2">
+            <span class="section-index font-mono text-7xl font-semibold sm:text-8xl">04</span>
+          </div>
+          <div class="lg:col-span-7">
+            <p class="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-green-700">Rastreamento e auditoria</p>
+            <h2 class="mt-3 text-3xl font-extrabold tracking-normal text-forest sm:text-5xl">Trilha criptográfica para auditoria descentralizada.</h2>
+          </div>
+          <p class="max-w-md text-sm leading-7 text-slate-600 lg:col-span-3 lg:pt-6">
+            O PostgreSQL gerencia a operação de matchmaking em tempo real; a trilha criptográfica de Row Chaining assegura a integridade dos dados auditáveis pelas fábricas.
+          </p>
+        </header>
+
+        <div class="mt-12 border border-green-200 bg-mint p-4 sm:p-7 lg:p-9">
+          <div class="flex flex-col gap-4 border-b border-green-200 pb-6 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <p class="font-mono text-[10px] font-semibold uppercase tracking-[0.17em] text-green-700">Simulador de lifecycle · PKG-ES-OLV-000184</p>
+              <div class="mt-2 flex flex-wrap items-center gap-3">
+                <h3 id="flowTitle" class="text-2xl font-extrabold text-forest">FÁBRICA</h3>
+                <span id="flowBadge" class="border border-green-300 bg-green-100 px-2 py-1 font-mono text-[10px] font-semibold text-green-800">LOTE ATIVO</span>
+              </div>
+              <p id="flowDescription" class="mt-2 max-w-2xl text-sm leading-6 text-slate-600">A fábrica publica o lote de QRs na plataforma e registra o saldo da recompensa.</p>
+            </div>
+            <div class="no-print flex flex-wrap gap-2">
+              <button id="autoFlowButton" type="button" class="inline-flex h-10 items-center gap-2 border border-green-300 bg-white px-3 text-xs font-bold text-forest transition hover:border-forest" aria-pressed="false">
+                <i data-lucide="play" class="h-4 w-4" aria-hidden="true"></i>
+                Auto
+              </button>
+              <button id="resetFlowButton" type="button" class="grid h-10 w-10 place-items-center border border-green-300 bg-white text-forest transition hover:border-forest" aria-label="Reiniciar ciclo" title="Reiniciar ciclo">
+                <i data-lucide="rotate-ccw" class="h-4 w-4" aria-hidden="true"></i>
+              </button>
+              <button id="advanceFlowButton" type="button" class="inline-flex h-10 items-center gap-2 bg-forest px-4 text-xs font-extrabold text-white transition hover:bg-green-900">
+                <i data-lucide="scan-line" class="h-4 w-4" aria-hidden="true"></i>
+                <span id="advanceFlowLabel">Registrar lote</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="mt-7 overflow-hidden">
+            <svg id="lifecycleSvg" viewBox="0 0 820 150" role="img" aria-labelledby="flowSvgTitle flowSvgDesc" class="h-auto w-full">
+              <title id="flowSvgTitle">Ciclo de vida de uma embalagem</title>
+              <desc id="flowSvgDesc">Fluxo da embalagem entre os estados Fábrica, Condomínio, Cooperativa e Liquidação.</desc>
+              <line x1="65" y1="62" x2="755" y2="62" stroke="#d1d5db" stroke-width="5" stroke-linecap="square"></line>
+              <line id="flow-progress" x1="65" y1="62" x2="755" y2="62" stroke="#22c55e" stroke-width="5" stroke-linecap="square"></line>
+
+              <g class="flow-node is-active" data-svg-stage="0" transform="translate(65 62)">
+                <circle class="flow-node-ring" r="28" fill="none" stroke="#22c55e" stroke-width="2" opacity="1"></circle>
+                <circle r="18" fill="#052e16" stroke="#22c55e" stroke-width="3"></circle>
+                <text y="4" text-anchor="middle" fill="#ffffff" font-size="11" font-family="IBM Plex Mono">01</text>
+              </g>
+              <g class="flow-node is-pending" data-svg-stage="1" transform="translate(295 62)">
+                <circle class="flow-node-ring" r="28" fill="none" stroke="#22c55e" stroke-width="2" opacity="0"></circle>
+                <circle r="18" fill="#ffffff" stroke="#cbd5e1" stroke-width="3"></circle>
+                <text y="4" text-anchor="middle" fill="#475569" font-size="11" font-family="IBM Plex Mono">02</text>
+              </g>
+              <g class="flow-node is-pending" data-svg-stage="2" transform="translate(525 62)">
+                <circle class="flow-node-ring" r="28" fill="none" stroke="#22c55e" stroke-width="2" opacity="0"></circle>
+                <circle r="18" fill="#ffffff" stroke="#cbd5e1" stroke-width="3"></circle>
+                <text y="4" text-anchor="middle" fill="#475569" font-size="11" font-family="IBM Plex Mono">03</text>
+              </g>
+              <g class="flow-node is-pending" data-svg-stage="3" transform="translate(755 62)">
+                <circle class="flow-node-ring" r="28" fill="none" stroke="#22c55e" stroke-width="2" opacity="0"></circle>
+                <circle r="18" fill="#ffffff" stroke="#cbd5e1" stroke-width="3"></circle>
+                <text y="4" text-anchor="middle" fill="#475569" font-size="11" font-family="IBM Plex Mono">04</text>
+              </g>
+
+              <text x="65" y="115" text-anchor="middle" fill="#052e16" font-size="12" font-weight="700" font-family="Manrope">FÁBRICA</text>
+              <text x="295" y="115" text-anchor="middle" fill="#052e16" font-size="12" font-weight="700" font-family="Manrope">CONDOMÍNIO</text>
+              <text x="525" y="115" text-anchor="middle" fill="#052e16" font-size="12" font-weight="700" font-family="Manrope">COOPERATIVA</text>
+              <text x="755" y="115" text-anchor="middle" fill="#052e16" font-size="12" font-weight="700" font-family="Manrope">LIQUIDAÇÃO</text>
+              <text x="65" y="134" text-anchor="middle" fill="#64748b" font-size="9" font-family="IBM Plex Mono">FábricaMint</text>
+              <text x="295" y="134" text-anchor="middle" fill="#64748b" font-size="9" font-family="IBM Plex Mono">CondoRequest</text>
+              <text x="525" y="134" text-anchor="middle" fill="#64748b" font-size="9" font-family="IBM Plex Mono">CoopCollect</text>
+              <text x="755" y="134" text-anchor="middle" fill="#64748b" font-size="9" font-family="IBM Plex Mono">LedgerSettled</text>
+            </svg>
+          </div>
+
+          <div class="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            <button type="button" class="stage-button border border-green-200 bg-white p-4 text-left transition" data-stage="0" aria-current="step">
+              <span class="font-mono text-[10px] text-green-700">01 · BRAND</span>
+              <span class="mt-1 block text-sm font-extrabold">Lote & QR Gerados</span>
+            </button>
+            <button type="button" class="stage-button border border-green-200 bg-white p-4 text-left transition" data-stage="1" aria-current="false">
+              <span class="font-mono text-[10px] text-green-700">02 · CONDOMÍNIO</span>
+              <span class="mt-1 block text-sm font-extrabold">Coleta Solicitada</span>
+            </button>
+            <button type="button" class="stage-button border border-green-200 bg-white p-4 text-left transition" data-stage="2" aria-current="false">
+              <span class="font-mono text-[10px] text-green-700">03 · COOPERATIVA</span>
+              <span class="mt-1 block text-sm font-extrabold">Coleta Executada</span>
+            </button>
+            <button type="button" class="stage-button border border-green-200 bg-white p-4 text-left transition" data-stage="3" aria-current="false">
+              <span class="font-mono text-[10px] text-green-700">04 · LIQUIDAÇÃO</span>
+              <span class="mt-1 block text-sm font-extrabold">Recompensa Paga</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="mt-10 grid gap-8 lg:grid-cols-12">
+          <div class="lg:col-span-7">
+            <div class="mb-5 flex items-end justify-between gap-5">
+              <div>
+                <p class="font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-green-700">Verificação do QR Code pós-consumo</p>
+                <h3 class="mt-2 text-2xl font-extrabold text-forest">Segurança no escaneamento cooperativo.</h3>
+              </div>
+              <span id="fraudStatus" class="hidden border border-emerald-300 bg-emerald-50 px-3 py-1.5 font-mono text-[10px] font-semibold text-emerald-800 sm:block">LOTE ATIVO</span>
+            </div>
+
+            <div class="grid gap-px border border-green-200 bg-green-200 sm:grid-cols-2">
+              <article class="bg-white p-5">
+                <div class="flex items-start gap-5">
+                  <div id="externalQr" class="qr-grid w-28 shrink-0" aria-label="Representação do QR Code externo"></div>
+                  <div>
+                    <div class="flex h-8 w-8 items-center justify-center bg-cyan-50 text-cyanx">
+                      <i data-lucide="eye" class="h-4 w-4" aria-hidden="true"></i>
+                    </div>
+                    <h4 class="mt-4 text-base font-extrabold text-forest">QR da Embalagem</h4>
+                    <p class="mt-2 text-xs leading-6 text-slate-600">Impresso na embalagem. Permite ao morador consultar informações do produto, impacto ambiental e recompensa do lote.</p>
+                    <p class="mt-3 font-mono text-[9px] uppercase tracking-[0.12em] text-cyan-700">Permissão: read-only</p>
+                  </div>
+                </div>
+              </article>
+
+              <article class="bg-white p-5">
+                <div class="flex items-start gap-5">
+                  <div id="secureQrWrap" class="qr-secure-wrap is-locked w-28 shrink-0">
+                    <div id="internalQr" class="qr-grid" aria-label="Representação do QR Code interno"></div>
+                    <div class="qr-lock text-forest">
+                      <i data-lucide="lock-keyhole" class="h-7 w-7" aria-hidden="true"></i>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="flex h-8 w-8 items-center justify-center bg-green-100 text-green-700">
+                      <i data-lucide="shield-check" class="h-4 w-4" aria-hidden="true"></i>
+                    </div>
+                    <h4 class="mt-4 text-base font-extrabold text-forest">QR Interno / Lacre</h4>
+                    <p class="mt-2 text-xs leading-6 text-slate-600">Lacre sob a tampa ou código de resgate interno. A cooperativa escaneia no ponto de coleta para validar a circularidade.</p>
+                    <p class="mt-3 font-mono text-[9px] uppercase tracking-[0.12em] text-green-700">Permissão: claim-once</p>
+                  </div>
+                </div>
+              </article>
+            </div>
+
+            <div class="mt-5 border border-slate-200 p-5">
+              <div class="flex items-center justify-between gap-4">
+                <div>
+                  <p class="text-sm font-extrabold text-forest">Validação da Assinatura do Lote</p>
+                  <p id="weightReadout" class="mt-1 font-mono text-[10px] text-slate-500">Chave pública da Fábrica · verificação pendente</p>
+                </div>
+                <span id="weightBadge" class="border border-slate-200 px-2 py-1 font-mono text-[10px] text-slate-500">WAITING</span>
+              </div>
+              <div class="mt-4 h-2 overflow-hidden bg-slate-100">
+                <div id="weightBar" class="h-full w-0 bg-emerald transition-all duration-500"></div>
+              </div>
+            </div>
+          </div>
+
+          <aside class="border border-slate-200 bg-slate-950 p-5 text-white sm:p-6 lg:col-span-5" aria-label="Log técnico da simulação">
+            <div class="flex items-center justify-between border-b border-white/10 pb-4">
+              <div>
+                <p class="font-mono text-[10px] uppercase tracking-[0.16em] text-green-300">Audit Stream</p>
+                <h3 class="mt-1 text-lg font-extrabold">Trilha de auditoria</h3>
+              </div>
+              <span class="flex items-center gap-2 font-mono text-[9px] text-slate-400"><span class="h-2 w-2 animate-pulse bg-emerald"></span>POSTGRES LEDGER</span>
+            </div>
+            <ol id="eventLog" class="mt-5 space-y-3" aria-live="polite">
+              <li class="border-l-2 border-emerald pl-4">
+                <div class="flex items-center justify-between gap-3">
+                  <span class="font-mono text-[10px] font-semibold text-green-300">PackagingMinted</span>
+                  <span class="font-mono text-[9px] text-slate-500">T+00:00</span>
+                </div>
+                <p class="mt-1 truncate font-mono text-[10px] text-slate-300">hash 0x91f2...a184 · ID #1</p>
+              </li>
+            </ol>
+            <div class="mt-6 grid grid-cols-2 gap-px bg-white/10">
+              <div class="bg-slate-950 p-4">
+                <p class="font-mono text-[9px] uppercase text-slate-500">Assinaturas</p>
+                <p id="confirmationCount" class="mt-2 font-mono text-xl font-semibold text-white">Plataforma</p>
+              </div>
+              <div class="bg-slate-950 p-4">
+                <p class="font-mono text-[9px] uppercase text-slate-500">Custo de Rede</p>
+                <p id="gasEstimate" class="mt-2 font-mono text-xl font-semibold text-white">€0.00</p>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>ext-slate-500">Gás estimado</p>
+                <p id="gasEstimate" class="mt-2 font-mono text-xl font-semibold text-white">$0.002</p>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- 05 / Métricas -->
+    <section id="metricas" class="border-y border-green-100 bg-mint py-20 sm:py-24">
+      <div class="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10">
+        <header class="section-rule grid gap-8 pt-8 lg:grid-cols-12">
+          <div class="lg:col-span-2">
+            <span class="section-index font-mono text-7xl font-semibold sm:text-8xl">05</span>
+          </div>
+          <div class="lg:col-span-7">
+            <p class="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-green-700">Engine de métricas</p>
+            <h2 class="mt-3 text-3xl font-extrabold tracking-normal text-forest sm:text-5xl">Um placar executivo com fórmulas auditáveis.</h2>
+          </div>
+          <p class="max-w-md text-sm leading-7 text-slate-600 lg:col-span-3 lg:pt-6">
+            Ajuste as premissas do piloto. Os gráficos do Diretor, as cinco métricas e o Score unificado do CEO são recalculados no navegador.
+          </p>
+        </header>
+
+        <div class="mt-12 flex flex-col gap-4 border-b border-green-200 pb-5 sm:flex-row sm:items-center sm:justify-between">
+          <div class="inline-flex border border-green-200 bg-white p-1" aria-label="Cenários do piloto">
+            <button class="scenario-button border border-transparent px-3 py-2 text-xs font-bold" type="button" data-scenario="conservative" aria-pressed="false">Conservador</button>
+            <button class="scenario-button border border-transparent px-3 py-2 text-xs font-bold" type="button" data-scenario="base" aria-pressed="true">Base</button>
+            <button class="scenario-button border border-transparent px-3 py-2 text-xs font-bold" type="button" data-scenario="accelerated" aria-pressed="false">Acelerado</button>
+          </div>
+          <p class="font-mono text-[10px] uppercase tracking-[0.14em] text-green-700">Pesos do Score somam 10.0</p>
+        </div>
+
+        <div class="mt-6 grid gap-6 xl:grid-cols-12">
+          <div class="border border-green-200 bg-white p-5 shadow-panel sm:p-7 xl:col-span-7">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+              <div>
+                <p class="font-mono text-[10px] font-semibold uppercase tracking-[0.15em] text-green-700">Premissas editáveis</p>
+                <h3 class="mt-1 text-xl font-extrabold text-forest">Operação do piloto</h3>
+              </div>
+              <i data-lucide="sliders-horizontal" class="h-5 w-5 text-green-700" aria-hidden="true"></i>
+            </div>
+
+            <div class="mt-6 grid gap-x-8 gap-y-6 md:grid-cols-2">
+              <label class="block">
+                <span class="flex items-center justify-between gap-3 text-xs font-bold"><span>QRs impressos</span><output id="producedOutput" class="font-mono text-green-700">10.000</output></span>
+                <input id="produced" class="mt-3" type="range" min="1000" max="20000" step="500" value="10000">
+              </label>
+              <label class="block">
+                <span class="flex items-center justify-between gap-3 text-xs font-bold"><span>QRs ativos no banco</span><output id="activeOutput" class="font-mono text-green-700">9.500</output></span>
+                <input id="active" class="mt-3" type="range" min="0" max="10000" step="100" value="9500">
+              </label>
+              <label class="block">
+                <span class="flex items-center justify-between gap-3 text-xs font-bold"><span>Produtos consumidos</span><output id="soldOutput" class="font-mono text-green-700">8.000</output></span>
+                <input id="sold" class="mt-3" type="range" min="100" max="10000" step="100" value="8000">
+              </label>
+              <label class="block">
+                <span class="flex items-center justify-between gap-3 text-xs font-bold"><span>Validados por cooperativas</span><output id="recycledOutput" class="font-mono text-green-700">5.200</output></span>
+                <input id="recycled" class="mt-3" type="range" min="0" max="8000" step="50" value="5200">
+              </label>
+              <label class="block">
+                <span class="flex items-center justify-between gap-3 text-xs font-bold"><span>Fundos de recompensa (Fábrica)</span><output id="topupsOutput" class="font-mono text-green-700">€ 25.000</output></span>
+                <input id="topups" class="mt-3" type="range" min="1000" max="50000" step="1000" value="25000">
+              </label>
+              <label class="block">
+                <span class="flex items-center justify-between gap-3 text-xs font-bold"><span>Resgates (Cooperativas)</span><output id="redemptionsOutput" class="font-mono text-green-700">€ 16.000</output></span>
+                <input id="redemptions" class="mt-3" type="range" min="0" max="50000" step="500" value="16000">
+              </label>
+              <label class="block">
+                <span class="flex items-center justify-between gap-3 text-xs font-bold"><span>Total coletado</span><output id="collectedOutput" class="font-mono text-green-700">5.200</output></span>
+                <input id="collected" class="mt-3" type="range" min="0" max="8000" step="50" value="5200">
+              </label>
+              <label class="block">
+                <span class="flex items-center justify-between gap-3 text-xs font-bold"><span>Evitado (Custo unitário novo)</span><output id="unitCostOutput" class="font-mono text-green-700">€ 0,62</output></span>
+                <input id="unitCost" class="mt-3" type="range" min="0.10" max="2" step="0.01" value="0.62">
+              </label>
+              <label class="block">
+                <span class="flex items-center justify-between gap-3 text-xs font-bold"><span>Recompensas + taxas B2B</span><output id="operationCostOutput" class="font-mono text-green-700">€ 1.500</output></span>
+                <input id="operationCost" class="mt-3" type="range" min="0" max="6000" step="100" value="1500">
+              </label>
+              <label class="block">
+                <span class="flex items-center justify-between gap-3 text-xs font-bold"><span>Material triado</span><output id="recycledWeightOutput" class="font-mono text-green-700">2.600 kg</output></span>
+                <input id="recycledWeight" class="mt-3" type="range" min="0" max="8000" step="100" value="2600">
+              </label>
+              <label class="block">
+                <span class="flex items-center justify-between gap-3 text-xs font-bold"><span>Coeficiente CO₂ (Material)</span><output id="co2CoefficientOutput" class="font-mono text-green-700">1,70</output></span>
+                <input id="co2Coefficient" class="mt-3" type="range" min="0.10" max="4" step="0.05" value="1.70">
+              </label>
+              <label class="block">
+                <span class="flex items-center justify-between gap-3 text-xs font-bold"><span>Meta de CO₂ do piloto</span><output id="co2TargetOutput" class="font-mono text-green-700">5.000 kg</output></span>
+                <input id="co2Target" class="mt-3" type="range" min="500" max="15000" step="500" value="5000">
+              </label>
+            </div>
+          </div>
+
+          <aside class="overflow-hidden bg-forest text-white shadow-lift xl:col-span-5" aria-label="Score consolidado do CEO">
+            <div class="border-b border-white/10 p-6">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="font-mono text-[10px] uppercase tracking-[0.17em] text-green-300">CEO unified score</p>
+                  <h3 class="mt-1 text-xl font-extrabold">Saúde do piloto</h3>
+                </div>
+                <span id="scoreRating" class="border border-green-400/30 bg-green-400/10 px-2 py-1 font-mono text-[10px] text-green-200">ROBUSTO</span>
+              </div>
+
+              <div class="mt-5 grid items-center gap-5 sm:grid-cols-[180px_1fr]">
+                <div class="relative mx-auto h-[180px] w-[180px]">
+                  <svg viewBox="0 0 140 140" class="h-full w-full" aria-hidden="true">
+                    <circle cx="70" cy="70" r="52" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="12"></circle>
+                    <circle id="score-ring" cx="70" cy="70" r="52" fill="none" stroke="#22c55e" stroke-width="12" stroke-linecap="square" stroke-dasharray="327" stroke-dashoffset="98"></circle>
+                  </svg>
+                  <div class="absolute inset-0 grid place-items-center text-center">
+                    <div>
+                      <span id="ceoScore" class="block font-mono text-4xl font-semibold">70,0</span>
+                      <span class="font-mono text-[9px] uppercase tracking-[0.16em] text-green-200/60">de 100</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <p class="text-sm leading-6 text-green-50/75">Média ponderada calculada no backend; dimensões monetária, custo e CO₂ são normalizadas para 0–100 antes da composição.</p>
+                  <div class="mt-4 border-l-2 border-emerald pl-3 font-mono text-[10px] leading-5 text-green-100">
+                    ((REC×3,0) + (EFI×2,5) + (RAS×1,5) + (CO₂×1,5) + (CIR×1,5)) ÷ 10
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="p-6">
+              <div class="mb-4 flex items-center justify-between">
+                <p class="font-mono text-[10px] uppercase tracking-[0.15em] text-green-200/70">Índices normalizados</p>
+                <span class="font-mono text-[9px] text-white/40">0 → 100</span>
+              </div>
+              <svg id="metricsChart" viewBox="0 0 440 210" class="h-auto w-full" role="img" aria-labelledby="metricsChartTitle metricsChartDesc">
+                <title id="metricsChartTitle">Gráfico das cinco métricas do Score</title>
+                <desc id="metricsChartDesc">Barras de recuperação, eficiência, rastreabilidade, impacto de carbono e circularidade.</desc>
+                <line x1="30" y1="170" x2="425" y2="170" stroke="rgba(255,255,255,0.25)" stroke-width="1"></line>
+                <line x1="30" y1="95" x2="425" y2="95" stroke="rgba(255,255,255,0.08)" stroke-width="1"></line>
+                <line x1="30" y1="20" x2="425" y2="20" stroke="rgba(255,255,255,0.08)" stroke-width="1"></line>
+                <text x="24" y="173" text-anchor="end" fill="rgba(255,255,255,0.45)" font-size="9" font-family="IBM Plex Mono">0</text>
+                <text x="24" y="98" text-anchor="end" fill="rgba(255,255,255,0.45)" font-size="9" font-family="IBM Plex Mono">50</text>
+                <text x="24" y="23" text-anchor="end" fill="rgba(255,255,255,0.45)" font-size="9" font-family="IBM Plex Mono">100</text>
+
+                <g data-chart-index="0">
+                  <rect class="metric-bar" x="47" y="72.5" width="46" height="97.5" fill="#22c55e"></rect>
+                  <text class="metric-bar-value" x="70" y="65" text-anchor="middle" fill="#bbf7d0" font-size="10" font-family="IBM Plex Mono">65</text>
+                  <text x="70" y="192" text-anchor="middle" fill="rgba(255,255,255,0.62)" font-size="9" font-family="IBM Plex Mono">REC</text>
+                </g>
+                <g data-chart-index="1">
+                  <rect class="metric-bar" x="126" y="89.8" width="46" height="80.2" fill="#86efac"></rect>
+                  <text class="metric-bar-value" x="149" y="82" text-anchor="middle" fill="#bbf7d0" font-size="10" font-family="IBM Plex Mono">53</text>
+                  <text x="149" y="192" text-anchor="middle" fill="rgba(255,255,255,0.62)" font-size="9" font-family="IBM Plex Mono">EFI</text>
+                </g>
+                <g data-chart-index="2">
+                  <rect class="metric-bar" x="205" y="27.5" width="46" height="142.5" fill="#22c55e"></rect>
+                  <text class="metric-bar-value" x="228" y="20" text-anchor="middle" fill="#bbf7d0" font-size="10" font-family="IBM Plex Mono">95</text>
+                  <text x="228" y="192" text-anchor="middle" fill="rgba(255,255,255,0.62)" font-size="9" font-family="IBM Plex Mono">RAS</text>
+                </g>
+                <g data-chart-index="3">
+                  <rect class="metric-bar" x="284" y="37.4" width="46" height="132.6" fill="#67e8f9"></rect>
+                  <text class="metric-bar-value" x="307" y="30" text-anchor="middle" fill="#a5f3fc" font-size="10" font-family="IBM Plex Mono">88</text>
+                  <text x="307" y="192" text-anchor="middle" fill="rgba(255,255,255,0.62)" font-size="9" font-family="IBM Plex Mono">CO₂</text>
+                </g>
+                <g data-chart-index="4">
+                  <rect class="metric-bar" x="363" y="74" width="46" height="96" fill="#fbbf24"></rect>
+                  <text class="metric-bar-value" x="386" y="67" text-anchor="middle" fill="#fde68a" font-size="10" font-family="IBM Plex Mono">64</text>
+                  <text x="386" y="192" text-anchor="middle" fill="rgba(255,255,255,0.62)" font-size="9" font-family="IBM Plex Mono">CIR</text>
+                </g>
+              </svg>
+            </div>
+          </aside>
+        </div>
+
+        <div class="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+          <article class="border border-green-200 bg-white p-5 reveal">
+            <div class="flex items-start justify-between gap-4">
+              <span class="grid h-9 w-9 place-items-center bg-green-100 font-mono text-xs font-bold text-green-800">01</span>
+              <span id="traceabilityValue" class="font-mono text-2xl font-semibold text-forest">95,0%</span>
+            </div>
+            <h3 class="mt-6 text-sm font-extrabold text-forest">% Rastreabilidade</h3>
+            <p class="mt-2 min-h-[44px] text-xs leading-5 text-slate-500">Cobertura digital do lote produzido.</p>
+            <div class="mt-4 border-t border-green-100 pt-4 font-mono text-[9px] leading-5 text-green-800">(Ativas no banco ÷ Total produzido) × 100</div>
+            <p id="traceabilityLive" class="mt-2 font-mono text-[9px] text-slate-400">9.500 ÷ 10.000 × 100</p>
+          </article>
+
+          <article class="border border-green-200 bg-white p-5 reveal">
+            <div class="flex items-start justify-between gap-4">
+              <span class="grid h-9 w-9 place-items-center bg-green-100 font-mono text-xs font-bold text-green-800">02</span>
+              <span id="recoveryValue" class="font-mono text-2xl font-semibold text-forest">65,0%</span>
+            </div>
+            <h3 class="mt-6 text-sm font-extrabold text-forest">Taxa de Recuperação</h3>
+            <p class="mt-2 min-h-[44px] text-xs leading-5 text-slate-500">Retorno efetivo confirmado na fábrica.</p>
+            <div class="mt-4 border-t border-green-100 pt-4 font-mono text-[9px] leading-5 text-green-800">(Recicladas na fábrica ÷ Vendidas) × 100</div>
+            <p id="recoveryLive" class="mt-2 font-mono text-[9px] text-slate-400">5.200 ÷ 8.000 × 100</p>
+          </article>
+
+          <article class="border border-green-200 bg-white p-5 reveal">
+            <div class="flex items-start justify-between gap-4">
+              <span class="grid h-9 w-9 place-items-center bg-amber-50 font-mono text-xs font-bold text-amber-700">03</span>
+              <span id="circularityValue" class="font-mono text-2xl font-semibold text-forest">64,0%</span>
+            </div>
+            <h3 class="mt-6 text-sm font-extrabold text-forest">Circularidade Monetária</h3>
+            <p class="mt-2 min-h-[44px] text-xs leading-5 text-slate-500">Saldo resgatado frente ao capital injetado.</p>
+            <div class="mt-4 border-t border-green-100 pt-4 font-mono text-[9px] leading-5 text-green-800">(Resgates Pix/SEPA ÷ Recargas) × 100</div>
+            <p id="circularityLive" class="mt-2 font-mono text-[9px] text-slate-400">€ 16.000 ÷ € 25.000 × 100</p>
+          </article>
+
+          <article class="border border-green-200 bg-white p-5 reveal">
+            <div class="flex items-start justify-between gap-4">
+              <span class="grid h-9 w-9 place-items-center bg-green-100 font-mono text-xs font-bold text-green-800">04</span>
+              <span id="efficiencyValue" class="font-mono text-xl font-semibold text-forest">€ 1.724</span>
+            </div>
+            <h3 class="mt-6 text-sm font-extrabold text-forest">Eficiência de Custos</h3>
+            <p class="mt-2 min-h-[44px] text-xs leading-5 text-slate-500">Economia líquida da substituição evitada.</p>
+            <div class="mt-4 border-t border-green-100 pt-4 font-mono text-[9px] leading-5 text-green-800">(Coletado × Custo novo) − Recompensas e logística</div>
+            <p id="efficiencyLive" class="mt-2 font-mono text-[9px] text-slate-400">(5.200 × € 0,62) − € 1.500</p>
+          </article>
+
+          <article class="border border-green-200 bg-white p-5 reveal md:col-span-2 xl:col-span-1">
+            <div class="flex items-start justify-between gap-4">
+              <span class="grid h-9 w-9 place-items-center bg-cyan-50 font-mono text-xs font-bold text-cyan-700">05</span>
+              <span id="co2Value" class="font-mono text-xl font-semibold text-forest">4.420 kg</span>
+            </div>
+            <h3 class="mt-6 text-sm font-extrabold text-forest">Impacto Ambiental</h3>
+            <p class="mt-2 min-h-[44px] text-xs leading-5 text-slate-500">Emissões de CO₂ evitadas por material.</p>
+            <div class="mt-4 border-t border-green-100 pt-4 font-mono text-[9px] leading-5 text-green-800">Peso total × Coeficiente do material</div>
+            <p id="co2Live" class="mt-2 font-mono text-[9px] text-slate-400">2.600 kg × 1,70</p>
+          </article>
+        </div>
+
+        <div class="mt-6 border-l-4 border-cyanx bg-cyan-50 px-5 py-4">
+          <p class="text-xs leading-6 text-cyan-950">
+            <strong>Normalização do Score:</strong> Eficiência = clamp(Economia líquida ÷ Economia bruta × 100); CO₂ = clamp(CO₂ evitado ÷ Meta de CO₂ × 100); Circularidade = clamp(Resgates ÷ Recargas × 100). <span class="font-mono">clamp</span> limita cada índice ao intervalo de 0 a 100.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 06 / Schema -->
+    <section id="schema" class="bg-white py-20 sm:py-24">
+      <div class="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10">
+        <header class="section-rule grid gap-8 pt-8 lg:grid-cols-12">
+          <div class="lg:col-span-2">
+            <span class="section-index font-mono text-7xl font-semibold sm:text-8xl">06</span>
+          </div>
+          <div class="lg:col-span-7">
+            <p class="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-green-700">PostgreSQL + Prisma</p>
+            <h2 class="mt-3 text-3xl font-extrabold tracking-normal text-forest sm:text-5xl">Quatro entidades para sustentar o núcleo transacional.</h2>
+          </div>
+          <p class="max-w-md text-sm leading-7 text-slate-600 lg:col-span-3 lg:pt-6">
+            O modelo privilegia unicidade, idempotência e consultas por tenant. Saldos são projeções rápidas; o histórico de transações continua sendo a fonte auditável.
+          </p>
+        </header>
+
+        <div class="mt-12 grid gap-6 xl:grid-cols-12">
+          <div class="overflow-hidden border border-slate-800 bg-slate-950 shadow-lift xl:col-span-8">
+            <div class="flex items-center justify-between border-b border-white/10 px-4 py-3 sm:px-5">
+              <div class="flex items-center gap-3">
+                <span class="h-2.5 w-2.5 bg-emerald"></span>
+                <span class="font-mono text-[10px] uppercase tracking-[0.14em] text-slate-400">prisma/schema.prisma</span>
+              </div>
+              <button id="copySchemaButton" type="button" class="no-print inline-flex h-9 items-center gap-2 border border-white/15 px-3 font-mono text-[10px] font-semibold text-green-200 transition hover:border-emerald hover:text-white">
+                <i data-lucide="copy" class="h-3.5 w-3.5" aria-hidden="true"></i>
+                <span id="copySchemaLabel">Copiar schema</span>
+              </button>
+            </div>
+            <pre class="code-panel max-h-[760px] overflow-auto p-5 font-mono text-[11px] leading-6 text-green-100 sm:p-7 sm:text-xs"><code id="prismaCode">generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PackagingStatus {
+  GENERATED
+  IN_CONDOMINIUM
+  COLLECTED
+  PROCESSED
+}
+
+enum RequestStatus {
+  PENDING
+  ASSIGNED
+  COMPLETED
+  CANCELLED
+}
+
+model Tenant {
+  id                 String              @id @default(uuid()) @db.Uuid
+  name               String
+  slug               String              @unique
+  subscriptionActive Boolean             @default(true)
+  monthlyFeeCents    Int                 @default(25000) // €250.00 fixo
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  packages           Packaging[]
+
+  @@index([createdAt])
+}
+
+model Condominium {
+  id                 String              @id @default(uuid()) @db.Uuid
+  name               String
+  slug               String              @unique
+  address            String
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  collectionRequests CollectionRequest[]
+  packages           Packaging[]
+
+  @@index([createdAt])
+}
+
+model Cooperative {
+  id                 String              @id @default(uuid()) @db.Uuid
+  name               String
+  slug               String              @unique
+  pixKey             String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  collectionRequests CollectionRequest[]
+  packages           Packaging[]
+
+  @@index([createdAt])
+}
+
+model CollectionRequest {
+  id             String            @id @default(uuid()) @db.Uuid
+  condominiumId  String            @db.Uuid
+  cooperativeId  String?           @db.Uuid
+  status         RequestStatus     @default(PENDING)
+  scheduledFor   DateTime?
+  completedAt    DateTime?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  condominium    Condominium       @relation(fields: [condominiumId], references: [id], onDelete: Cascade)
+  cooperative    Cooperative?      @relation(fields: [cooperativeId], references: [id], onDelete: SetNull)
+
+  @@index([status, createdAt])
+}
+
+model Packaging {
+  id                String             @id @default(uuid()) @db.Uuid
+  tenantId          String             @db.Uuid
+  condominiumId     String?            @db.Uuid
+  cooperativeId     String?            @db.Uuid
+  serial            String             @unique
+  batchCode         String
+  status            PackagingStatus    @default(GENERATED)
+  material          String
+  weightGrams       Decimal            @db.Decimal(10, 2)
+  unitRewardCents   Int                // Valor pago p/ unidade
+  externalQrHash    String             @unique @db.VarChar(64)
+  internalQrHash    String             @unique @db.VarChar(64)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  tenant            Tenant             @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  condominium       Condominium?       @relation(fields: [condominiumId], references: [id], onDelete: SetNull)
+  cooperative       Cooperative?       @relation(fields: [cooperativeId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId, batchCode, status])
+  @@index([status, updatedAt])
+}
+
+model AuditLedger {
+  id             String            @id @default(uuid()) @db.Uuid
+  prevHash       String            @db.VarChar(64)
+  rowHash        String            @unique @db.VarChar(64)
+  payload        Json
+  signature      String
+  createdAt      DateTime          @default(now())
+
+  @@index([createdAt])
+}</code></pre>
+          </div>
+
+          <aside class="xl:col-span-4">
+            <div class="border border-green-200">
+              <div class="bg-forest p-5 text-white">
+                <p class="font-mono text-[10px] uppercase tracking-[0.16em] text-green-300">Invariantes de domínio</p>
+                <h3 class="mt-2 text-xl font-extrabold">O banco impede o erro antes do código.</h3>
+              </div>
+              <div class="divide-y divide-green-100 bg-white">
+                <div class="flex gap-4 p-5">
+                  <span class="font-mono text-xs font-semibold text-green-700">01</span>
+                  <div>
+                    <p class="text-sm font-extrabold text-forest">Scan único</p>
+                    <p class="mt-2 text-xs leading-6 text-slate-600"><span class="font-mono">internalQrHash @unique</span> bloqueia uma segunda leitura ou duplo crédito para a mesma embalagem.</p>
+                  </div>
+                </div>
+                <div class="flex gap-4 p-5">
+                  <span class="font-mono text-xs font-semibold text-green-700">02</span>
+                  <div>
+                    <p class="text-sm font-extrabold text-forest">Idempotência de coleta</p>
+                    <p class="mt-2 text-xs leading-6 text-slate-600">A vinculação transacional das coletas aos condomínios solicitantes e QRs únicos impede duplicidades de resgate nos apps.</p>
+                  </div>
+                </div>
+                <div class="flex gap-4 p-5">
+                  <span class="font-mono text-xs font-semibold text-green-700">03</span>
+                  <div>
+                    <p class="text-sm font-extrabold text-forest">Assinatura do Ledger</p>
+                    <p class="mt-2 text-xs leading-6 text-slate-600">Cada transação alimenta a cadeia do ledger gerando um hash encadeado assinado com a chave da plataforma.</p>
+                  </div>
+                </div>
+                <div class="flex gap-4 p-5">
+                  <span class="font-mono text-xs font-semibold text-green-700">04</span>
+                  <div>
+                    <p class="text-sm font-extrabold text-forest">Consulta indexada</p>
+                    <p class="mt-2 text-xs leading-6 text-slate-600">Índices compostos cobrem dashboard por tenant/lote/status e requisições por condomínio/cooperativa.</p>
+                  </div>
+                </div>
+                <div class="flex gap-4 p-5">
+                  <span class="font-mono text-xs font-semibold text-green-700">05</span>
+                  <div>
+                    <p class="text-sm font-extrabold text-forest">Isolamento de Tenant (Zero Leakage)</p>
+                    <p class="mt-2 text-xs leading-6 text-slate-600">Toda consulta e escrita filtra estritamente por <span class="font-mono">tenantId</span> resolvido no middleware, isolando 100% os dados e métricas de cada fábrica.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-5 border border-amber-200 bg-amber-50 p-5">
+              <div class="flex items-start gap-3">
+                <i data-lucide="triangle-alert" class="mt-0.5 h-5 w-5 shrink-0 text-amber-700" aria-hidden="true"></i>
+                <div>
+                  <p class="text-sm font-extrabold text-amber-950">Regra de transição</p>
+                  <p class="mt-2 text-xs leading-6 text-amber-900/75">O status é controlado transacionalmente. Apenas GENERATED → IN_CONDOMINIUM → COLLECTED → PROCESSED é aceito.</p>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- 07 / Riscos -->
+    <section id="riscos" class="border-y border-green-100 bg-mint py-20 sm:py-24">
+      <div class="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10">
+        <header class="section-rule grid gap-8 pt-8 lg:grid-cols-12">
+          <div class="lg:col-span-2">
+            <span class="section-index font-mono text-7xl font-semibold sm:text-8xl">07</span>
+          </div>
+          <div class="lg:col-span-7">
+            <p class="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-green-700">Casos de teste e falhas</p>
+            <h2 class="mt-3 text-3xl font-extrabold tracking-normal text-forest sm:text-5xl">Falhar de forma previsível também é requisito.</h2>
+          </div>
+          <p class="max-w-md text-sm leading-7 text-slate-600 lg:col-span-3 lg:pt-6">
+            Cada risco possui gatilho reproduzível, contenção, recuperação e critério de aceite. Expanda uma linha para ver o teste de engenharia.
+          </p>
+        </header>
+
+        <div class="mt-12 flex flex-col gap-4 border-b border-green-200 pb-5 md:flex-row md:items-center md:justify-between">
+          <div class="inline-flex flex-wrap border border-green-200 bg-white p-1" aria-label="Filtro de severidade">
+            <button class="risk-filter bg-forest px-3 py-2 text-xs font-bold text-white" type="button" data-risk-filter="all" aria-pressed="true">Todos · 6</button>
+            <button class="risk-filter px-3 py-2 text-xs font-bold text-slate-600" type="button" data-risk-filter="critical" aria-pressed="false">Críticos · 2</button>
+            <button class="risk-filter px-3 py-2 text-xs font-bold text-slate-600" type="button" data-risk-filter="high" aria-pressed="false">Altos · 3</button>
+            <button class="risk-filter px-3 py-2 text-xs font-bold text-slate-600" type="button" data-risk-filter="medium" aria-pressed="false">Médios · 1</button>
+          </div>
+          <div class="flex flex-wrap gap-4 font-mono text-[9px] uppercase tracking-[0.12em] text-slate-500">
+            <span class="flex items-center gap-2"><span class="h-2 w-2 bg-red-600"></span>Crítico</span>
+            <span class="flex items-center gap-2"><span class="h-2 w-2 bg-amber-500"></span>Alto</span>
+            <span class="flex items-center gap-2"><span class="h-2 w-2 bg-cyan-600"></span>Médio</span>
+          </div>
+        </div>
+
+        <div class="mt-6 overflow-x-auto border border-green-200 bg-white shadow-panel">
+          <table class="risk-table w-full min-w-[1040px] border-collapse text-left">
+            <thead class="bg-forest text-white">
+              <tr>
+                <th scope="col" class="w-[8%] px-4 py-4 font-mono text-[10px] uppercase tracking-[0.14em] text-green-200">ID</th>
+                <th scope="col" class="w-[21%] px-4 py-4 font-mono text-[10px] uppercase tracking-[0.14em] text-green-200">Cenário</th>
+                <th scope="col" class="w-[12%] px-4 py-4 font-mono text-[10px] uppercase tracking-[0.14em] text-green-200">Severidade</th>
+                <th scope="col" class="w-[23%] px-4 py-4 font-mono text-[10px] uppercase tracking-[0.14em] text-green-200">Impacto real</th>
+                <th scope="col" class="w-[31%] px-4 py-4 font-mono text-[10px] uppercase tracking-[0.14em] text-green-200">Controle de engenharia</th>
+                <th scope="col" class="w-[5%] px-4 py-4"><span class="sr-only">Detalhes</span></th>
+              </tr>
+            </thead>
+            <tbody id="failureTableBody" class="divide-y divide-green-100 text-sm">
+              <tr class="failure-row align-top" data-severity="critical" data-failure="f01">
+                <td class="px-4 py-5 font-mono text-xs font-semibold text-green-700">F-01</td>
+                <td class="px-4 py-5">
+                  <p class="font-extrabold text-forest">Fraude de Escaneamento</p>
+                  <p class="mt-1 text-xs leading-5 text-slate-500">Tentativa de escanear QR Codes falsificados ou duplicados no condomínio.</p>
+                </td>
+                <td class="px-4 py-5"><span class="inline-flex items-center gap-2 font-mono text-[10px] font-semibold text-red-700"><span class="h-2 w-2 bg-red-600"></span>CRÍTICO</span></td>
+                <td class="px-4 py-5 text-xs leading-6 text-slate-600">Pagamento indevido de recompensas e desvio nos relatórios de impacto da marca.</td>
+                <td class="px-4 py-5 text-xs leading-6 text-slate-600">O app de coleta da Cooperativa valida a assinatura criptográfica do lote da Fábrica. Se inválido ou já escaneado, bloqueia o crédito imediatamente.</td>
+                <td class="px-4 py-5 text-right">
+                  <button class="failure-toggle grid h-8 w-8 place-items-center border border-slate-200 text-forest" type="button" data-toggle-failure="f01" aria-expanded="false" aria-controls="detail-f01" title="Ver caso de teste">
+                    <i data-lucide="chevron-down" class="h-4 w-4" aria-hidden="true"></i>
+                    <span class="sr-only">Ver caso de teste F-01</span>
+                  </button>
+                </td>
+              </tr>
+              <tr id="detail-f01" class="failure-detail bg-red-50/50" data-detail-for="f01" data-severity="critical" hidden>
+                <td colspan="6" class="px-5 py-5">
+                  <div class="grid gap-5 md:grid-cols-4">
+                    <div><p class="font-mono text-[9px] uppercase text-red-700">Entrada</p><p class="mt-2 text-xs leading-5">QR Code escaneado com assinatura de lote inválida ou alterada.</p></div>
+                    <div><p class="font-mono text-[9px] uppercase text-red-700">Oráculo</p><p class="mt-2 text-xs leading-5">Resposta <span class="font-mono">INVALID_SIGNATURE</span>; rejeitado localmente e logado no servidor.</p></div>
+                    <div><p class="font-mono text-[9px] uppercase text-red-700">Recuperação</p><p class="mt-2 text-xs leading-5">Alerta de fraude enviado ao painel da cooperativa e da plataforma.</p></div>
+                    <div><p class="font-mono text-[9px] uppercase text-red-700">Aceite</p><p class="mt-2 text-xs leading-5">100% de rejeição de assinaturas falsas; falso negativo = 0%.</p></div>
+                  </div>
+                </td>
+              </tr>
+
+              <tr class="failure-row align-top" data-severity="high" data-failure="f02">
+                <td class="px-4 py-5 font-mono text-xs font-semibold text-green-700">F-02</td>
+                <td class="px-4 py-5">
+                  <p class="font-extrabold text-forest">App offline na Coleta</p>
+                  <p class="mt-1 text-xs leading-5 text-slate-500">A cooperativa perde a conexão de rede na garagem ou depósito do condomínio.</p>
+                </td>
+                <td class="px-4 py-5"><span class="inline-flex items-center gap-2 font-mono text-[10px] font-semibold text-amber-700"><span class="h-2 w-2 bg-amber-500"></span>ALTO</span></td>
+                <td class="px-4 py-5 text-xs leading-6 text-slate-600">Impossibilidade de registrar coletas no ato, gerando atraso e erros manuais.</td>
+                <td class="px-4 py-5 text-xs leading-6 text-slate-600">Cache local em SQLite criptografado no app da cooperativa. As validações geram hash monotônico offline e são transmitidas ao retornar a rede.</td>
+                <td class="px-4 py-5 text-right">
+                  <button class="failure-toggle grid h-8 w-8 place-items-center border border-slate-200 text-forest" type="button" data-toggle-failure="f02" aria-expanded="false" aria-controls="detail-f02" title="Ver caso de teste">
+                    <i data-lucide="chevron-down" class="h-4 w-4" aria-hidden="true"></i><span class="sr-only">Ver caso de teste F-02</span>
+                  </button>
+                </td>
+              </tr>
+              <tr id="detail-f02" class="failure-detail bg-amber-50/50" data-detail-for="f02" data-severity="high" hidden>
+                <td colspan="6" class="px-5 py-5">
+                  <div class="grid gap-5 md:grid-cols-4">
+                    <div><p class="font-mono text-[9px] uppercase text-amber-700">Entrada</p><p class="mt-2 text-xs leading-5">Rede desconectada durante leitura de 50 embalagens no condomínio.</p></div>
+                    <div><p class="font-mono text-[9px] uppercase text-amber-700">Oráculo</p><p class="mt-2 text-xs leading-5">Registros marcados como <span class="font-mono">OFFLINE_VERIFIED</span> com UUIDs vinculados localmente.</p></div>
+                    <div><p class="font-mono text-[9px] uppercase text-amber-700">Recuperação</p><p class="mt-2 text-xs leading-5">Sincronização em segundo plano envia dados em lote; API processa com idempotência.</p></div>
+                    <div><p class="font-mono text-[9px] uppercase text-amber-700">Aceite</p><p class="mt-2 text-xs leading-5">Zero perdas de registros após 12h offline; sincronização concluída com sucesso.</p></div>
+                  </div>
+                </td>
+              </tr>
+
+              <tr class="failure-row align-top" data-severity="high" data-failure="f03">
+                <td class="px-4 py-5 font-mono text-xs font-semibold text-green-700">F-03</td>
+                <td class="px-4 py-5">
+                  <p class="font-extrabold text-forest">Fila de Matching Congestionada</p>
+                  <p class="mt-1 text-xs leading-5 text-slate-500">Pico de solicitações de coletas simultâneas por condomínios.</p>
+                </td>
+                <td class="px-4 py-5"><span class="inline-flex items-center gap-2 font-mono text-[10px] font-semibold text-amber-700"><span class="h-2 w-2 bg-amber-500"></span>ALTO</span></td>
+                <td class="px-4 py-5 text-xs leading-6 text-slate-600">Atraso na atribuição das solicitações de coletas urgentes para as cooperativas.</td>
+                <td class="px-4 py-5 text-xs leading-6 text-slate-600">A fila de eventos do NestJS gerencia e distribui requisições de forma assíncrona, priorizando por volume acumulado e proximidade das cooperativas.</td>
+                <td class="px-4 py-5 text-right">
+                  <button class="failure-toggle grid h-8 w-8 place-items-center border border-slate-200 text-forest" type="button" data-toggle-failure="f03" aria-expanded="false" aria-controls="detail-f03" title="Ver caso de teste">
+                    <i data-lucide="chevron-down" class="h-4 w-4" aria-hidden="true"></i><span class="sr-only">Ver caso de teste F-03</span>
+                  </button>
+                </td>
+              </tr>
+              <tr id="detail-f03" class="failure-detail bg-amber-50/50" data-detail-for="f03" data-severity="high" hidden>
+                <td colspan="6" class="px-5 py-5">
+                  <div class="grid gap-5 md:grid-cols-4">
+                    <div><p class="font-mono text-[9px] uppercase text-amber-700">Entrada</p><p class="mt-2 text-xs leading-5">Carga simulada de 5.000 requisições simultâneas de condomínios.</p></div>
+                    <div><p class="font-mono text-[9px] uppercase text-amber-700">Oráculo</p><p class="mt-2 text-xs leading-5">Requisições entram na fila <span class="font-mono">MATCHING_QUEUE</span>; latência de resposta do app &lt; 200ms.</p></div>
+                    <div><p class="font-mono text-[9px] uppercase text-amber-700">Recuperação</p><p class="mt-2 text-xs leading-5">Trabalhadores da fila consomem mensagens em paralelo; balanceamento de coletas atualizado.</p></div>
+                    <div><p class="font-mono text-[9px] uppercase text-amber-700">Aceite</p><p class="mt-2 text-xs leading-5">Processamento de todas as atribuições em menos de 3 minutos, sem perda de pacotes.</p></div>
+                  </div>
+                </td>
+              </tr>
+
+              <tr class="failure-row align-top" data-severity="critical" data-failure="f04">
+                <td class="px-4 py-5 font-mono text-xs font-semibold text-green-700">F-04</td>
+                <td class="px-4 py-5">
+                  <p class="font-extrabold text-forest">QR Code Reutilizado</p>
+                  <p class="mt-1 text-xs leading-5 text-slate-500">Tentativa de bipar o mesmo código interno mais de uma vez para obter recompensas.</p>
+                </td>
+                <td class="px-4 py-5"><span class="inline-flex items-center gap-2 font-mono text-[10px] font-semibold text-red-700"><span class="h-2 w-2 bg-red-600"></span>CRÍTICO</span></td>
+                <td class="px-4 py-5 text-xs leading-6 text-slate-600">Créditos de compensação inflados e distorção das métricas do lote auditado.</td>
+                <td class="px-4 py-5 text-xs leading-6 text-slate-600">O banco PostgreSQL impõe unicidade no campo `internalQrHash`. O status transita para `COLLECTED` e impede novos acionamentos.</td>
+                <td class="px-4 py-5 text-right">
+                  <button class="failure-toggle grid h-8 w-8 place-items-center border border-slate-200 text-forest" type="button" data-toggle-failure="f04" aria-expanded="false" aria-controls="detail-f04" title="Ver caso de teste">
+                    <i data-lucide="chevron-down" class="h-4 w-4" aria-hidden="true"></i><span class="sr-only">Ver caso de teste F-04</span>
+                  </button>
+                </td>
+              </tr>
+              <tr id="detail-f04" class="failure-detail bg-red-50/50" data-detail-for="f04" data-severity="critical" hidden>
+                <td colspan="6" class="px-5 py-5">
+                  <div class="grid gap-5 md:grid-cols-4">
+                    <div><p class="font-mono text-[9px] uppercase text-red-700">Entrada</p><p class="mt-2 text-xs leading-5">Requisição de bipagem com hash já marcado como COLLECTED no DB.</p></div>
+                    <div><p class="font-mono text-[9px] uppercase text-red-700">Oráculo</p><p class="mt-2 text-xs leading-5">Lançamento de exceção de violação de restrição única SQL; transação revertida.</p></div>
+                    <div><p class="font-mono text-[9px] uppercase text-red-700">Recuperação</p><p class="mt-2 text-xs leading-5">O app exibe erro de código inválido/duplicado e sinaliza o serial para inspeção.</p></div>
+                    <div><p class="font-mono text-[9px] uppercase text-red-700">Aceite</p><p class="mt-2 text-xs leading-5">Nenhuma duplicação de crédito permitida sob concorrência intensa.</p></div>
+                  </div>
+                </td>
+              </tr>
+
+              <tr class="failure-row align-top" data-severity="medium" data-failure="f05">
+                <td class="px-4 py-5 font-mono text-xs font-semibold text-green-700">F-05</td>
+                <td class="px-4 py-5">
+                  <p class="font-extrabold text-forest">Planilha de Lote Inválida</p>
+                  <p class="mt-1 text-xs leading-5 text-slate-500">Fábrica envia arquivo com dados corrompidos ou campos em branco.</p>
+                </td>
+                <td class="px-4 py-5"><span class="inline-flex items-center gap-2 font-mono text-[10px] font-semibold text-cyan-700"><span class="h-2 w-2 bg-cyan-600"></span>MÉDIO</span></td>
+                <td class="px-4 py-5 text-xs leading-6 text-slate-600">Problemas futuros na leitura do QR Code e falhas na integridade do banco.</td>
+                <td class="px-4 py-5 text-xs leading-6 text-slate-600">Validação com JSON Schema em nível de API B2B. O lote só é ativado no banco se passar em 100% dos testes de formato e regras.</td>
+                <td class="px-4 py-5 text-right">
+                  <button class="failure-toggle grid h-8 w-8 place-items-center border border-slate-200 text-forest" type="button" data-toggle-failure="f05" aria-expanded="false" aria-controls="detail-f05" title="Ver caso de teste">
+                    <i data-lucide="chevron-down" class="h-4 w-4" aria-hidden="true"></i><span class="sr-only">Ver caso de teste F-05</span>
+                  </button>
+                </td>
+              </tr>
+              <tr id="detail-f05" class="failure-detail bg-cyan-50/50" data-detail-for="f05" data-severity="medium" hidden>
+                <td colspan="6" class="px-5 py-5">
+                  <div class="grid gap-5 md:grid-cols-4">
+                    <div><p class="font-mono text-[9px] uppercase text-cyan-700">Entrada</p><p class="mt-2 text-xs leading-5">Upload de CSV com 5.000 itens contendo erros de formatação de hashes.</p></div>
+                    <div><p class="font-mono text-[9px] uppercase text-cyan-700">Oráculo</p><p class="mt-2 text-xs leading-5">A pré-validação aborta a importação transacional e devolve relatório de erros.</p></div>
+                    <div><p class="font-mono text-[9px] uppercase text-cyan-700">Recuperação</p><p class="mt-2 text-xs leading-5">O operador é alertado na tela para corrigir e reimportar o lote.</p></div>
+                    <div><p class="font-mono text-[9px] uppercase text-cyan-700">Aceite</p><p class="mt-2 text-xs leading-5">Nenhum registro parcial inserido no banco de dados.</p></div>
+                  </div>
+                </td>
+              </tr>
+
+              <tr class="failure-row align-top" data-severity="high" data-failure="f06">
+                <td class="px-4 py-5 font-mono text-xs font-semibold text-green-700">F-06</td>
+                <td class="px-4 py-5">
+                  <p class="font-extrabold text-forest">Falha no Cashout Cooperativa</p>
+                  <p class="mt-1 text-xs leading-5 text-slate-500">API bancária ou provedor PIX/SEPA falha durante a liquidação de saldo da cooperativa.</p>
+                </td>
+                <td class="px-4 py-5"><span class="inline-flex items-center gap-2 font-mono text-[10px] font-semibold text-amber-700"><span class="h-2 w-2 bg-amber-500"></span>ALTO</span></td>
+                <td class="px-4 py-5 text-xs leading-6 text-slate-600">Erro de pagamento gerando desconfiança e bloqueio financeiro operacional.</td>
+                <td class="px-4 py-5 text-xs leading-6 text-slate-600">Reserva de saldo transacional, uso de chave de idempotência exclusiva no gateway e webhook de confirmação assíncrona.</td>
+                <td class="px-4 py-5 text-right">
+                  <button class="failure-toggle grid h-8 w-8 place-items-center border border-slate-200 text-forest" type="button" data-toggle-failure="f06" aria-expanded="false" aria-controls="detail-f06" title="Ver caso de teste">
+                    <i data-lucide="chevron-down" class="h-4 w-4" aria-hidden="true"></i><span class="sr-only">Ver caso de teste F-06</span>
+                  </button>
+                </td>
+              </tr>
+              <tr id="detail-f06" class="failure-detail bg-amber-50/50" data-detail-for="f06" data-severity="high" hidden>
+                <td colspan="6" class="px-5 py-5">
+                  <div class="grid gap-5 md:grid-cols-4">
+                    <div><p class="font-mono text-[9px] uppercase text-amber-700">Entrada</p><p class="mt-2 text-xs leading-5">Requisição de saque com resposta de timeout HTTP da API de pagamento.</p></div>
+                    <div><p class="font-mono text-[9px] uppercase text-amber-700">Oráculo</p><p class="mt-2 text-xs leading-5">Status é mantido em <span class="font-mono">PENDING</span>; saldo reservado em conta transacional.</p></div>
+                    <div><p class="font-mono text-[9px] uppercase text-amber-700">Recuperação</p><p class="mt-2 text-xs leading-5">Fila de reconciliação de saldo consulta a transação via webhook ou polling.</p></div>
+                    <div><p class="font-mono text-[9px] uppercase text-amber-700">Aceite</p><p class="mt-2 text-xs leading-5">Garantia de transação única (payout exato), sem duplicidades de saques.</p></div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 08 / Custos -->
+    <section id="custos" class="bg-white py-20 sm:py-24">
+      <div class="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10">
+        <header class="section-rule grid gap-8 pt-8 lg:grid-cols-12">
+          <div class="lg:col-span-2">
+            <span class="section-index font-mono text-7xl font-semibold sm:text-8xl">08</span>
+          </div>
+          <div class="lg:col-span-7">
+            <p class="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-green-700">Onde investir · mês 1</p>
+            <h2 class="mt-3 text-3xl font-extrabold tracking-normal text-forest sm:text-5xl">Capital concentrado em publicação e base operacional.</h2>
+          </div>
+          <p class="max-w-md text-sm leading-7 text-slate-600 lg:col-span-3 lg:pt-6">
+            Ative ou desative itens e alterne entre desembolso real do primeiro mês e custo mensal equivalente. Taxas variáveis por transação ficam fora do fixo.
+          </p>
+        </header>
+
+        <div class="mt-12 grid gap-6 xl:grid-cols-12">
+          <div class="min-w-0 xl:col-span-8">
+            <div class="flex flex-col gap-4 border-b border-green-200 pb-5 sm:flex-row sm:items-center sm:justify-between">
+              <div class="inline-flex border border-green-200 bg-mint p-1" aria-label="Modo de cálculo de custos">
+                <button class="cost-mode-button border border-transparent px-3 py-2 text-xs font-bold" type="button" data-cost-mode="cash" aria-pressed="true">Desembolso mês 1</button>
+                <button class="cost-mode-button border border-transparent px-3 py-2 text-xs font-bold" type="button" data-cost-mode="monthly" aria-pressed="false">Equivalente mensal</button>
+              </div>
+              <p id="costModeCaption" class="font-mono text-[10px] uppercase tracking-[0.13em] text-green-700">Inclui anuidades e taxas únicas integrais</p>
+            </div>
+
+            <div class="mt-6 overflow-x-auto border border-green-200">
+              <table class="cost-table w-full min-w-[760px] border-collapse text-left">
+                <thead class="bg-forest text-white">
+                  <tr>
+                    <th scope="col" class="w-[8%] px-4 py-4"><span class="sr-only">Incluir</span></th>
+                    <th scope="col" class="w-[27%] px-4 py-4 font-mono text-[10px] uppercase tracking-[0.14em] text-green-200">Plataforma</th>
+                    <th scope="col" class="w-[43%] px-4 py-4 font-mono text-[10px] uppercase tracking-[0.14em] text-green-200">Decisão de compra</th>
+                    <th scope="col" class="w-[22%] px-4 py-4 text-right font-mono text-[10px] uppercase tracking-[0.14em] text-green-200">Estimativa USD</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-green-100 text-sm">
+                  <tr class="cost-row" data-cash-min="25" data-cash-max="35" data-monthly-min="25" data-monthly-max="35">
+                    <td class="px-4 py-5">
+                      <label class="relative inline-flex cursor-pointer items-center">
+                        <input class="cost-toggle peer sr-only" type="checkbox" checked aria-label="Incluir AWS no cálculo">
+                        <span class="h-5 w-9 bg-slate-200 transition after:absolute after:left-0.5 after:top-0.5 after:h-4 after:w-4 after:bg-white after:transition peer-checked:bg-emerald peer-checked:after:translate-x-4"></span>
+                      </label>
+                    </td>
+                    <td class="px-4 py-5">
+                      <p class="font-extrabold text-forest">AWS Serverless Setup</p>
+                      <p class="mt-1 font-mono text-[9px] text-slate-400">COGNITO · RDS · LAMBDA · API GW</p>
+                    </td>
+                    <td class="px-4 py-5 text-xs leading-6 text-slate-600">Criar contas/ambientes, alertas de budget e baseline seguro. Consumo estimado após camadas gratuitas.</td>
+                    <td class="cost-value px-4 py-5 text-right font-mono text-sm font-semibold text-forest">$25–$35 / mês</td>
+                  </tr>
+                  <tr class="cost-row" data-cash-min="0" data-cash-max="0" data-monthly-min="0" data-monthly-max="0">
+                    <td class="px-4 py-5">
+                      <label class="relative inline-flex cursor-pointer items-center">
+                        <input class="cost-toggle peer sr-only" type="checkbox" checked aria-label="Incluir Neon ou Supabase no cálculo">
+                        <span class="h-5 w-9 bg-slate-200 transition after:absolute after:left-0.5 after:top-0.5 after:h-4 after:w-4 after:bg-white after:transition peer-checked:bg-emerald peer-checked:after:translate-x-4"></span>
+                      </label>
+                    </td>
+                    <td class="px-4 py-5">
+                      <p class="font-extrabold text-forest">Neon / Supabase</p>
+                      <p class="mt-1 font-mono text-[9px] text-slate-400">POSTGRESQL DB</p>
+                    </td>
+                    <td class="px-4 py-5 text-xs leading-6 text-slate-600">Instância PostgreSQL gerenciada com suporte a Prisma Client, pooling de conexões e backups diários. Camada gratuita atende ao MVP inicial.</td>
+                    <td class="cost-value px-4 py-5 text-right font-mono text-sm font-semibold text-forest">$0</td>
+                  </tr>
+                  <tr class="cost-row" data-cash-min="99" data-cash-max="99" data-monthly-min="8.25" data-monthly-max="8.25">
+                    <td class="px-4 py-5">
+                      <label class="relative inline-flex cursor-pointer items-center">
+                        <input class="cost-toggle peer sr-only" type="checkbox" checked aria-label="Incluir Apple Developer Program no cálculo">
+                        <span class="h-5 w-9 bg-slate-200 transition after:absolute after:left-0.5 after:top-0.5 after:h-4 after:w-4 after:bg-white after:transition peer-checked:bg-emerald peer-checked:after:translate-x-4"></span>
+                      </label>
+                    </td>
+                    <td class="px-4 py-5">
+                      <p class="font-extrabold text-forest">Apple Developer Program</p>
+                      <p class="mt-1 font-mono text-[9px] text-slate-400">PUBLICAÇÃO iOS · ANUAL</p>
+                    </td>
+                    <td class="px-4 py-5 text-xs leading-6 text-slate-600">Abrir na semana 1: validação jurídica da organização pode bloquear TestFlight e publicação.</td>
+                    <td class="cost-value px-4 py-5 text-right font-mono text-sm font-semibold text-forest">$99 / ano</td>
+                  </tr>
+                  <tr class="cost-row" data-cash-min="25" data-cash-max="25" data-monthly-min="2.08" data-monthly-max="2.08">
+                    <td class="px-4 py-5">
+                      <label class="relative inline-flex cursor-pointer items-center">
+                        <input class="cost-toggle peer sr-only" type="checkbox" checked aria-label="Incluir Google Play Console no cálculo">
+                        <span class="h-5 w-9 bg-slate-200 transition after:absolute after:left-0.5 after:top-0.5 after:h-4 after:w-4 after:bg-white after:transition peer-checked:bg-emerald peer-checked:after:translate-x-4"></span>
+                      </label>
+                    </td>
+                    <td class="px-4 py-5">
+                      <p class="font-extrabold text-forest">Google Play Console</p>
+                      <p class="mt-1 font-mono text-[9px] text-slate-400">PUBLICAÇÃO ANDROID · ÚNICA</p>
+                    </td>
+                    <td class="px-4 py-5 text-xs leading-6 text-slate-600">Registrar conta corporativa e concluir verificação antes dos testes fechados do app.</td>
+                    <td class="cost-value px-4 py-5 text-right font-mono text-sm font-semibold text-forest">$25 única</td>
+                  </tr>
+                  <tr class="cost-row" data-cash-min="0" data-cash-max="0" data-monthly-min="0" data-monthly-max="0">
+                    <td class="px-4 py-5">
+                      <label class="relative inline-flex cursor-pointer items-center">
+                        <input class="cost-toggle peer sr-only" type="checkbox" checked aria-label="Incluir gateway de pagamento no cálculo">
+                        <span class="h-5 w-9 bg-slate-200 transition after:absolute after:left-0.5 after:top-0.5 after:h-4 after:w-4 after:bg-white after:transition peer-checked:bg-emerald peer-checked:after:translate-x-4"></span>
+                      </label>
+                    </td>
+                    <td class="px-4 py-5">
+                      <p class="font-extrabold text-forest">Gateway de cashout</p>
+                      <p class="mt-1 font-mono text-[9px] text-slate-400">PIX / SEPA</p>
+                    </td>
+                    <td class="px-4 py-5 text-xs leading-6 text-slate-600">Sem custo fixo no MVP; contratar por país e contabilizar taxa somente quando houver saque.</td>
+                    <td class="cost-value px-4 py-5 text-right font-mono text-sm font-semibold text-forest">$0 fixo</td>
+                  </tr>
+                  <tr class="cost-row" data-cash-min="12" data-cash-max="12" data-monthly-min="1" data-monthly-max="1">
+                    <td class="px-4 py-5">
+                      <label class="relative inline-flex cursor-pointer items-center">
+                        <input class="cost-toggle peer sr-only" type="checkbox" checked aria-label="Incluir domínio e DNS no cálculo">
+                        <span class="h-5 w-9 bg-slate-200 transition after:absolute after:left-0.5 after:top-0.5 after:h-4 after:w-4 after:bg-white after:transition peer-checked:bg-emerald peer-checked:after:translate-x-4"></span>
+                      </label>
+                    </td>
+                    <td class="px-4 py-5">
+                      <p class="font-extrabold text-forest">Domínio, DNS e landing</p>
+                      <p class="mt-1 font-mono text-[9px] text-slate-400">VERCEL / ROUTE 53</p>
+                    </td>
+                    <td class="px-4 py-5 text-xs leading-6 text-slate-600">Registrar domínio corporativo; hospedar landing estática na camada gratuita e gerenciar DNS.</td>
+                    <td class="cost-value px-4 py-5 text-right font-mono text-sm font-semibold text-forest">$12 / ano</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <aside class="bg-forest p-6 text-white shadow-lift sm:p-7 xl:col-span-4">
+            <p class="font-mono text-[10px] uppercase tracking-[0.17em] text-green-300">Envelope aprovado</p>
+            <p class="mt-3 text-sm text-green-50/65" id="costSummaryLabel">Desembolso fixo estimado no mês 1</p>
+            <div class="mt-3 flex items-baseline gap-2">
+              <span id="costTotal" class="font-mono text-4xl font-semibold sm:text-5xl">$161–$171</span>
+              <span class="font-mono text-[10px] text-green-200/50">USD</span>
+            </div>
+            <p class="mt-5 border-l-2 border-emerald pl-4 text-xs leading-6 text-green-50/70">Valores de referência sem IVA, câmbio, taxa de transação do cashout e consumo acima da faixa AWS.</p>
+
+            <div class="mt-8 border-t border-white/10 pt-6">
+              <p class="font-mono text-[10px] uppercase tracking-[0.16em] text-green-300">Ordem de contratação</p>
+              <ol class="mt-5 space-y-4">
+                <li class="flex gap-4"><span class="font-mono text-xs text-emerald">01</span><div><p class="text-sm font-bold">Semana 1 · Apple e Google</p><p class="mt-1 text-xs text-green-50/55">Antecipar verificações de identidade corporativa.</p></div></li>
+                <li class="flex gap-4"><span class="font-mono text-xs text-emerald">02</span><div><p class="text-sm font-bold">Semana 1 · AWS Setup</p><p class="mt-1 text-xs text-green-50/55">Configuração de budgets, MFA, ambientes de dev/prod e logs.</p></div></li>
+                <li class="flex gap-4"><span class="font-mono text-xs text-emerald">03</span><div><p class="text-sm font-bold">Semana 2 · Domínio e DB</p><p class="mt-1 text-xs text-green-50/55">DNS, e-mail técnico e banco de dados PostgreSQL.</p></div></li>
+                <li class="flex gap-4"><span class="font-mono text-xs text-emerald">04</span><div><p class="text-sm font-bold">Semana 7 · Cashout sandbox</p><p class="mt-1 text-xs text-green-50/55">Integração da conta bancária de liquidação após KYB da cooperativa.</p></div></li>
+              </ol>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- 09 / Cronograma -->
+    <section id="cronograma" class="relative overflow-hidden bg-forest py-20 text-white sm:py-24">
+      <div class="absolute right-0 top-0 hidden h-full w-[28%] border-l border-white/[0.04] lg:block" aria-hidden="true"></div>
+      <div class="relative mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-10">
+        <header class="section-rule grid gap-8 pt-8 lg:grid-cols-12">
+          <div class="lg:col-span-2">
+            <span class="section-index dark-index font-mono text-7xl font-semibold sm:text-8xl">09</span>
+          </div>
+          <div class="lg:col-span-7">
+            <p class="font-mono text-[11px] font-semibold uppercase tracking-[0.16em] text-green-300">Execução do MVP</p>
+            <h2 class="mt-3 text-3xl font-extrabold tracking-normal text-white sm:text-5xl">Quatorze semanas. Quinze fases verificáveis.</h2>
+          </div>
+          <p class="max-w-md text-sm leading-7 text-green-50/65 lg:col-span-3 lg:pt-6">
+            Uma fase zero e quatorze fases semanais, com checks ligados a evidências reais. Selecione uma fase para inspecionar entregas, bloqueios e gate de saída.
+          </p>
+        </header>
+
+        <div class="mt-12 grid gap-px border border-white/10 bg-white/10 sm:grid-cols-2 xl:grid-cols-4" aria-label="Resumo do progresso verificado">
+          <div class="bg-forest p-5 sm:p-6 xl:col-span-2">
+            <div class="flex items-end justify-between gap-6">
+              <div>
+                <p class="font-mono text-[10px] uppercase tracking-[0.16em] text-green-300">Progresso verificado</p>
+                <p class="mt-2 text-2xl font-extrabold"><span id="planDoneCount">19</span> de <span id="planTotalCount">104</span> microentregas</p>
+              </div>
+              <span id="planProgressPercent" class="font-mono text-3xl font-semibold text-emerald">18%</span>
+            </div>
+            <div id="planProgressTrack" class="mt-5 h-2 bg-white/10" role="progressbar" aria-label="Progresso total do plano" aria-valuemin="0" aria-valuemax="104" aria-valuenow="19">
+              <div id="planProgressBar" class="plan-progress-fill h-full bg-emerald" style="width: 18.3%"></div>
+            </div>
+          </div>
+          <div class="bg-forest p-5 sm:p-6">
+            <p class="font-mono text-[10px] uppercase tracking-[0.16em] text-green-300">Em execução</p>
+            <p id="planActiveCount" class="mt-2 font-mono text-3xl font-semibold">2</p>
+            <p class="mt-2 text-xs leading-5 text-green-50/55">Trabalho local aberto agora</p>
+          </div>
+          <div class="bg-forest p-5 sm:p-6">
+            <p class="font-mono text-[10px] uppercase tracking-[0.16em] text-amber-300">Dependências</p>
+            <p id="planBlockedCount" class="mt-2 font-mono text-3xl font-semibold text-amber-300">17</p>
+            <p class="mt-2 text-xs leading-5 text-green-50/55">Decisão, credencial ou campo</p>
+          </div>
+        </div>
+
+        <div class="mt-8 grid gap-8 xl:grid-cols-12">
+          <div class="xl:col-span-5">
+            <div class="mb-4 flex flex-wrap gap-x-5 gap-y-2 border-b border-white/10 pb-4 font-mono text-[9px] uppercase tracking-[0.13em] text-green-50/55" aria-label="Legenda de status">
+              <span class="flex items-center gap-2"><span class="h-2 w-2 bg-emerald"></span>Concluída</span>
+              <span class="flex items-center gap-2"><span class="h-2 w-2 border border-green-300"></span>Em execução</span>
+              <span class="flex items-center gap-2"><span class="h-2 w-2 bg-white/25"></span>Pendente</span>
+              <span class="flex items-center gap-2"><span class="h-2 w-2 bg-amber-400"></span>Dependência</span>
+            </div>
+            <div id="timelinePhaseList" class="timeline-scroll grid gap-2 sm:grid-cols-2 xl:max-h-[720px] xl:grid-cols-1 xl:overflow-y-auto xl:pr-2" aria-label="Fases detalhadas do plano"></div>
+          </div>
+
+          <div class="self-start border border-white/15 bg-white/[0.055] p-5 backdrop-blur-sm sm:p-7 xl:sticky xl:top-24 xl:col-span-7" aria-live="polite">
+            <div class="flex flex-col gap-4 border-b border-white/10 pb-5 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <p id="phaseWeeks" class="font-mono text-[10px] uppercase tracking-[0.16em] text-green-300">Semana 5 · Gate G2</p>
+                <h3 id="phaseTitle" class="mt-2 text-2xl font-extrabold">Catálogo e importação</h3>
+              </div>
+              <div class="flex flex-wrap gap-2 sm:justify-end">
+                <span id="phaseStatus" class="self-start border border-green-400/40 bg-green-400/10 px-3 py-1.5 font-mono text-[10px] text-green-200">EM EXECUÇÃO · 1/7</span>
+                <span id="phaseOwner" class="self-start border border-white/15 px-3 py-1.5 font-mono text-[10px] text-green-100">OWNER · BACKEND</span>
+              </div>
+            </div>
+
+            <div class="mt-6 grid gap-8 md:grid-cols-[1fr_220px]">
+              <div>
+                <p class="font-mono text-[10px] uppercase tracking-[0.15em] text-green-300">Microentregas e checks</p>
+                <ol id="phaseTasks" class="mt-4 space-y-3"></ol>
+              </div>
+              <div>
+                <p class="font-mono text-[10px] uppercase tracking-[0.15em] text-green-300">Critério de saída</p>
+                <p id="phaseExit" class="mt-4 border-l-2 border-emerald pl-4 text-sm font-semibold leading-6">Um lote real anonimizado entra, é auditado e pode ser reconciliado.</p>
+                <p class="mt-6 font-mono text-[10px] uppercase tracking-[0.15em] text-green-300">Evidência</p>
+                <p id="phaseEvidence" class="mt-3 text-xs leading-6 text-green-50/65">Agregado testado; repositório Prisma, importação e relatório ainda pendentes.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-10 grid gap-px bg-white/10 sm:grid-cols-2 lg:grid-cols-4">
+          <div class="bg-forest p-5">
+            <p class="font-mono text-[10px] uppercase tracking-[0.14em] text-green-300">Qualidade</p>
+            <p class="mt-2 text-sm font-extrabold">E2E crítico verde</p>
+            <p class="mt-2 text-xs leading-6 text-green-50/55">Cadastro → coleta → saldo → liquidação.</p>
+          </div>
+          <div class="bg-forest p-5">
+            <p class="font-mono text-[10px] uppercase tracking-[0.14em] text-green-300">Performance</p>
+            <p class="mt-2 text-sm font-extrabold">API P95 &lt; 400 ms</p>
+            <p class="mt-2 text-xs leading-6 text-green-50/55">Exceto settlement assíncrono on-chain.</p>
+          </div>
+          <div class="bg-forest p-5">
+            <p class="font-mono text-[10px] uppercase tracking-[0.14em] text-green-300">Resiliência</p>
+            <p class="mt-2 text-sm font-extrabold">8 h offline sem perda</p>
+            <p class="mt-2 text-xs leading-6 text-green-50/55">Fila local reconciliada após retorno.</p>
+          </div>
+          <div class="bg-forest p-5">
+            <p class="font-mono text-[10px] uppercase tracking-[0.14em] text-green-300">Piloto</p>
+            <p class="mt-2 text-sm font-extrabold">2 países em produção</p>
+            <p class="mt-2 text-xs leading-6 text-green-50/55">Runbook, suporte e KPIs aceitos.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-white/10 bg-forest py-10 text-white">
+    <div class="mx-auto flex max-w-[1440px] flex-col gap-6 px-4 sm:px-6 lg:flex-row lg:items-end lg:justify-between lg:px-10">
+      <div>
+        <p class="text-lg font-extrabold">DigitalWallet</p>
+        <p class="mt-2 max-w-xl text-xs leading-6 text-green-50/60">Plano de desenvolvimento de software e infraestrutura para validação de um piloto internacional em Espanha e Portugal.</p>
+      </div>
+      <p class="font-mono text-[10px] uppercase tracking-[0.14em] text-green-200/50">Engineering plan · v1.1 · <span id="currentYear">2026</span></p>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+
+      var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var numberFormat = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 0 });
+      var decimalFormat = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+      var twoDecimalFormat = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+      function clamp(value, min, max) {
+        return Math.min(Math.max(value, min), max);
+      }
+
+      function formatNumber(value) {
+        return numberFormat.format(Math.round(value));
+      }
+
+      function formatPercent(value) {
+        return decimalFormat.format(value) + '%';
+      }
+
+      function formatCurrency(value) {
+        var sign = value < 0 ? '-€ ' : '€ ';
+        return sign + numberFormat.format(Math.abs(Math.round(value)));
+      }
+
+      function formatDollar(value) {
+        var hasDecimals = Math.abs(value % 1) > 0.001;
+        return '$' + new Intl.NumberFormat('pt-BR', {
+          minimumFractionDigits: hasDecimals ? 2 : 0,
+          maximumFractionDigits: 2
+        }).format(value);
+      }
+
+      // Navigation, print and page progress.
+      var menuButton = document.getElementById('menuButton');
+      var mobileMenu = document.getElementById('mobileMenu');
+      menuButton.addEventListener('click', function () {
+        var isOpen = menuButton.getAttribute('aria-expanded') === 'true';
+        menuButton.setAttribute('aria-expanded', String(!isOpen));
+        menuButton.setAttribute('aria-label', isOpen ? 'Abrir navegação' : 'Fechar navegação');
+        mobileMenu.classList.toggle('hidden', isOpen);
+      });
+
+      mobileMenu.querySelectorAll('a').forEach(function (link) {
+        link.addEventListener('click', function () {
+          mobileMenu.classList.add('hidden');
+          menuButton.setAttribute('aria-expanded', 'false');
+          menuButton.setAttribute('aria-label', 'Abrir navegação');
+        });
+      });
+
+      document.getElementById('printButton').addEventListener('click', function () {
+        window.print();
+      });
+
+      document.getElementById('currentYear').textContent = String(new Date().getFullYear());
+
+      function updateScrollProgress() {
+        var scrollable = document.documentElement.scrollHeight - window.innerHeight;
+        var progress = scrollable > 0 ? window.scrollY / scrollable : 0;
+        document.getElementById('scrollProgress').style.transform = 'scaleX(' + clamp(progress, 0, 1) + ')';
+      }
+      updateScrollProgress();
+      window.addEventListener('scroll', updateScrollProgress, { passive: true });
+
+      var navLinks = Array.from(document.querySelectorAll('.nav-link'));
+      var observedSections = Array.from(document.querySelectorAll('main > section[id]'));
+      if ('IntersectionObserver' in window) {
+        var navObserver = new IntersectionObserver(function (entries) {
+          var visible = entries
+            .filter(function (entry) { return entry.isIntersecting; })
+            .sort(function (a, b) { return b.intersectionRatio - a.intersectionRatio; })[0];
+          if (!visible) return;
+
+          navLinks.forEach(function (link) {
+            var active = link.getAttribute('href') === '#' + visible.target.id;
+            link.classList.toggle('border-emerald', active);
+            link.classList.toggle('text-forest', active);
+            link.classList.toggle('border-transparent', !active);
+            link.classList.toggle('text-slate-500', !active);
+          });
+        }, { rootMargin: '-20% 0px -68% 0px', threshold: [0, 0.1, 0.3] });
+
+        observedSections.forEach(function (section) { navObserver.observe(section); });
+      }
+
+      var revealElements = document.querySelectorAll('.reveal');
+      if (reducedMotion || !('IntersectionObserver' in window)) {
+        revealElements.forEach(function (element) { element.classList.add('is-visible'); });
+      } else {
+        var revealObserver = new IntersectionObserver(function (entries, observer) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.12 });
+        revealElements.forEach(function (element) { revealObserver.observe(element); });
+      }
+
+      // MVP versus final data-entry comparison.
+      var comparisonButtons = document.querySelectorAll('[data-comparison]');
+      var comparisonCaption = document.getElementById('comparisonCaption');
+      var comparisonCaptions = {
+        mvp: 'MVP · upload controlado e cadastro manual',
+        final: 'Final · automação ERP orientada a eventos',
+        both: 'Comparação de operação, controle e escala'
+      };
+
+      function setComparison(mode) {
+        document.querySelectorAll('.comparison-mvp').forEach(function (cell) {
+          cell.classList.toggle('hidden', mode === 'final');
+        });
+        document.querySelectorAll('.comparison-final').forEach(function (cell) {
+          cell.classList.toggle('hidden', mode === 'mvp');
+        });
+        comparisonButtons.forEach(function (button) {
+          button.setAttribute('aria-selected', String(button.dataset.comparison === mode));
+        });
+        comparisonCaption.textContent = comparisonCaptions[mode];
+      }
+
+      comparisonButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
+          setComparison(button.dataset.comparison);
+        });
+      });
+      setComparison(window.innerWidth < 768 ? 'mvp' : 'both');
+
+      // Deterministic QR-like matrices used by the physical fraud model.
+      function createQrMatrix(container, seed, useAccent) {
+        var size = 17;
+        var fragment = document.createDocumentFragment();
+
+        function finderCell(row, column, startRow, startColumn) {
+          var relativeRow = row - startRow;
+          var relativeColumn = column - startColumn;
+          if (relativeRow < 0 || relativeRow > 4 || relativeColumn < 0 || relativeColumn > 4) return null;
+          var outer = relativeRow === 0 || relativeRow === 4 || relativeColumn === 0 || relativeColumn === 4;
+          var center = relativeRow >= 2 && relativeRow <= 2 && relativeColumn >= 2 && relativeColumn <= 2;
+          return outer || center;
+        }
+
+        for (var row = 0; row < size; row += 1) {
+          for (var column = 0; column < size; column += 1) {
+            var cell = document.createElement('span');
+            cell.className = 'qr-cell';
+            var inFinder =
+              finderCell(row, column, 1, 1) ??
+              finderCell(row, column, 1, 11) ??
+              finderCell(row, column, 11, 1);
+            var noise = ((row * 37 + column * 19 + seed * 13 + row * column * 7) % 11) < 5;
+            var timing = (row === 8 || column === 8) && (row + column) % 2 === 0;
+            var isOn = inFinder === null ? (noise !== timing) : inFinder;
+            if (isOn) cell.classList.add('on');
+            if (useAccent && isOn && row > 9 && column > 9 && (row + column) % 5 === 0) {
+              cell.classList.add('accent');
+            }
+            fragment.appendChild(cell);
+          }
+        }
+        container.replaceChildren(fragment);
+      }
+
+      createQrMatrix(document.getElementById('externalQr'), 17, false);
+      createQrMatrix(document.getElementById('internalQr'), 41, true);
+
+      // Polygon lifecycle simulator.
+      var flowStates = [
+        {
+          title: 'GENERATED',
+          badge: 'FÁBRICA',
+          description: 'A fábrica gera os QRs exclusivos, vinculados ao lote de produção e à mensalidade de €250.',
+          action: 'Disponibilizar no Condomínio',
+          fraud: 'LOTE ORIGINAL',
+          event: 'QRsGerados',
+          hash: 'Lote #401',
+          block: 'Fabricado',
+          elapsed: 'T+0',
+          confirmations: 'Fábrica',
+          gas: 'Sub: €250'
+        },
+        {
+          title: 'IN_CONDOMINIUM',
+          badge: 'CONDOMÍNIO',
+          description: 'O morador descarta a embalagem no ecoponto e o condomínio solicita coleta via aplicativo.',
+          action: 'Executar Coleta',
+          fraud: 'AGUARDANDO COLETA',
+          event: 'ColetaSolicitada',
+          hash: 'Lisboa, PT',
+          block: 'Condomínio',
+          elapsed: 'T+1D',
+          confirmations: 'Plataforma',
+          gas: 'Localizado'
+        },
+        {
+          title: 'COLLECTED',
+          badge: 'COOPERATIVA',
+          description: 'A cooperativa executa a coleta, bipa o QR Code interno no local e confirma a retirada.',
+          action: 'Processar na Fábrica',
+          fraud: 'SCAN VALIDADO',
+          event: 'ColetaExecutada',
+          hash: 'Rec. Pendente',
+          block: 'Cooperativa',
+          elapsed: 'T+2D',
+          confirmations: 'Validador',
+          gas: 'Recompensa'
+        },
+        {
+          title: 'PROCESSED',
+          badge: 'LIQUIDAÇÃO',
+          description: 'Material triado e pesado. A fábrica recebe os dados regionais no dashboard e a cooperativa é liquidada.',
+          action: 'Reiniciar Lote',
+          fraud: 'PAGO & CONCLUÍDO',
+          event: 'LoteCertificado',
+          hash: 'PIX/SEPA Pago',
+          block: 'Auditado',
+          elapsed: 'T+4D',
+          confirmations: 'Ledger',
+          gas: 'Taxa B2B'
+        }
+      ];
+
+      var currentFlowStage = 0;
+      var autoFlowTimer = null;
+      var autoFlowButton = document.getElementById('autoFlowButton');
+      var secureQrWrap = document.getElementById('secureQrWrap');
+
+      function renderEventLog(stage) {
+        var eventLog = document.getElementById('eventLog');
+        eventLog.innerHTML = '';
+        flowStates.slice(0, stage + 1).reverse().forEach(function (state, reverseIndex) {
+          var isCurrent = reverseIndex === 0;
+          var item = document.createElement('li');
+          item.className = 'border-l-2 ' + (isCurrent ? 'border-emerald' : 'border-slate-700') + ' pl-4';
+
+          var header = document.createElement('div');
+          header.className = 'flex items-center justify-between gap-3';
+          var eventName = document.createElement('span');
+          eventName.className = 'font-mono text-[10px] font-semibold ' + (isCurrent ? 'text-green-300' : 'text-slate-400');
+          eventName.textContent = state.event;
+          var elapsed = document.createElement('span');
+          elapsed.className = 'font-mono text-[9px] text-slate-500';
+          elapsed.textContent = state.elapsed;
+          header.append(eventName, elapsed);
+
+          var hash = document.createElement('p');
+          hash.className = 'mt-1 truncate font-mono text-[10px] text-slate-300';
+          hash.textContent = 'tx ' + state.hash + ' · block ' + state.block;
+          item.append(header, hash);
+          eventLog.appendChild(item);
+        });
+      }
+
+      function renderFlow(stage) {
+        currentFlowStage = clamp(stage, 0, flowStates.length - 1);
+        var state = flowStates[currentFlowStage];
+        document.getElementById('flowTitle').textContent = state.title;
+        document.getElementById('flowBadge').textContent = state.badge;
+        document.getElementById('flowDescription').textContent = state.description;
+        document.getElementById('advanceFlowLabel').textContent = state.action;
+        document.getElementById('fraudStatus').textContent = state.fraud;
+        document.getElementById('confirmationCount').textContent = state.confirmations;
+        document.getElementById('gasEstimate').textContent = state.gas;
+        document.getElementById('flow-progress').style.strokeDashoffset = String(690 - currentFlowStage * 230);
+
+        document.querySelectorAll('[data-svg-stage]').forEach(function (node) {
+          var nodeStage = Number(node.dataset.svgStage);
+          node.classList.toggle('is-complete', nodeStage < currentFlowStage);
+          node.classList.toggle('is-active', nodeStage === currentFlowStage);
+          node.classList.toggle('is-pending', nodeStage > currentFlowStage);
+          var textNode = node.querySelector('text');
+          textNode.setAttribute('fill', nodeStage <= currentFlowStage ? '#ffffff' : '#475569');
+        });
+
+        document.querySelectorAll('.stage-button').forEach(function (button) {
+          var buttonStage = Number(button.dataset.stage);
+          button.setAttribute('aria-current', buttonStage === currentFlowStage ? 'step' : 'false');
+          button.dataset.complete = String(buttonStage < currentFlowStage);
+        });
+
+        var physicalValidationComplete = currentFlowStage >= 2;
+        secureQrWrap.classList.toggle('is-locked', !physicalValidationComplete);
+        document.getElementById('weightBar').style.width = physicalValidationComplete ? '100%' : '0%';
+        document.getElementById('weightBar').classList.toggle('bg-emerald', physicalValidationComplete);
+        document.getElementById('weightReadout').textContent = physicalValidationComplete
+          ? 'Assinatura do QR Code interno validada com sucesso'
+          : 'Aguardando bipagem do QR interno pela cooperativa';
+        var weightBadge = document.getElementById('weightBadge');
+        weightBadge.textContent = physicalValidationComplete ? 'VALIDADO' : 'PENDENTE';
+        weightBadge.className = physicalValidationComplete
+          ? 'border border-green-300 bg-green-50 px-2 py-1 font-mono text-[10px] font-semibold text-green-800'
+          : 'border border-slate-200 px-2 py-1 font-mono text-[10px] text-slate-500';
+        renderEventLog(currentFlowStage);
+      }
+
+      function stopAutoFlow() {
+        if (autoFlowTimer) window.clearInterval(autoFlowTimer);
+        autoFlowTimer = null;
+        autoFlowButton.setAttribute('aria-pressed', 'false');
+      }
+
+      document.getElementById('advanceFlowButton').addEventListener('click', function () {
+        stopAutoFlow();
+        renderFlow(currentFlowStage === flowStates.length - 1 ? 0 : currentFlowStage + 1);
+      });
+
+      document.getElementById('resetFlowButton').addEventListener('click', function () {
+        stopAutoFlow();
+        renderFlow(0);
+      });
+
+      document.querySelectorAll('.stage-button').forEach(function (button) {
+        button.addEventListener('click', function () {
+          stopAutoFlow();
+          renderFlow(Number(button.dataset.stage));
+        });
+      });
+
+      autoFlowButton.addEventListener('click', function () {
+        if (autoFlowTimer) {
+          stopAutoFlow();
+          return;
+        }
+        if (currentFlowStage === flowStates.length - 1) renderFlow(0);
+        autoFlowButton.setAttribute('aria-pressed', 'true');
+        autoFlowTimer = window.setInterval(function () {
+          if (currentFlowStage >= flowStates.length - 1) {
+            stopAutoFlow();
+            return;
+          }
+          renderFlow(currentFlowStage + 1);
+        }, reducedMotion ? 250 : 1500);
+      });
+
+      renderFlow(0);
+
+      // Metrics engine and CEO score.
+      var metricInputIds = [
+        'produced', 'active', 'sold', 'recycled', 'topups', 'redemptions',
+        'collected', 'unitCost', 'operationCost', 'recycledWeight',
+        'co2Coefficient', 'co2Target'
+      ];
+
+      var scenarios = {
+        conservative: {
+          produced: 10000, active: 8500, sold: 7000, recycled: 2800,
+          topups: 20000, redemptions: 8000, collected: 2800, unitCost: 0.62,
+          operationCost: 1400, recycledWeight: 1400, co2Coefficient: 1.70, co2Target: 5000
+        },
+        base: {
+          produced: 10000, active: 9500, sold: 8000, recycled: 5200,
+          topups: 25000, redemptions: 16000, collected: 5200, unitCost: 0.62,
+          operationCost: 1500, recycledWeight: 2600, co2Coefficient: 1.70, co2Target: 5000
+        },
+        accelerated: {
+          produced: 10000, active: 9900, sold: 9000, recycled: 7650,
+          topups: 30000, redemptions: 24000, collected: 7650, unitCost: 0.62,
+          operationCost: 1800, recycledWeight: 3825, co2Coefficient: 1.70, co2Target: 5000
+        }
+      };
+
+      function readMetricValues() {
+        var values = {};
+        metricInputIds.forEach(function (id) {
+          values[id] = Number(document.getElementById(id).value);
+        });
+        return values;
+      }
+
+      function constrainMetricInputs() {
+        var produced = Number(document.getElementById('produced').value);
+        var activeInput = document.getElementById('active');
+        var soldInput = document.getElementById('sold');
+        activeInput.max = String(produced);
+        soldInput.max = String(produced);
+        if (Number(activeInput.value) > produced) activeInput.value = String(produced);
+        if (Number(soldInput.value) > produced) soldInput.value = String(produced);
+
+        var sold = Number(soldInput.value);
+        var recycledInput = document.getElementById('recycled');
+        var collectedInput = document.getElementById('collected');
+        recycledInput.max = String(sold);
+        collectedInput.max = String(sold);
+        if (Number(recycledInput.value) > sold) recycledInput.value = String(sold);
+        if (Number(collectedInput.value) > sold) collectedInput.value = String(sold);
+
+        var topups = Number(document.getElementById('topups').value);
+        var redemptionsInput = document.getElementById('redemptions');
+        redemptionsInput.max = String(Math.max(topups * 1.25, 1000));
+        if (Number(redemptionsInput.value) > Number(redemptionsInput.max)) {
+          redemptionsInput.value = redemptionsInput.max;
+        }
+      }
+
+      function updateMetricOutputs(values) {
+        document.getElementById('producedOutput').textContent = formatNumber(values.produced);
+        document.getElementById('activeOutput').textContent = formatNumber(values.active);
+        document.getElementById('soldOutput').textContent = formatNumber(values.sold);
+        document.getElementById('recycledOutput').textContent = formatNumber(values.recycled);
+        document.getElementById('topupsOutput').textContent = formatCurrency(values.topups);
+        document.getElementById('redemptionsOutput').textContent = formatCurrency(values.redemptions);
+        document.getElementById('collectedOutput').textContent = formatNumber(values.collected);
+        document.getElementById('unitCostOutput').textContent = '€ ' + twoDecimalFormat.format(values.unitCost);
+        document.getElementById('operationCostOutput').textContent = formatCurrency(values.operationCost);
+        document.getElementById('recycledWeightOutput').textContent = formatNumber(values.recycledWeight) + ' kg';
+        document.getElementById('co2CoefficientOutput').textContent = twoDecimalFormat.format(values.co2Coefficient);
+        document.getElementById('co2TargetOutput').textContent = formatNumber(values.co2Target) + ' kg';
+      }
+
+      function updateChart(values) {
+        document.querySelectorAll('[data-chart-index]').forEach(function (group, index) {
+          var value = clamp(values[index], 0, 100);
+          var height = value * 1.5;
+          var y = 170 - height;
+          var rect = group.querySelector('.metric-bar');
+          var label = group.querySelector('.metric-bar-value');
+          rect.setAttribute('y', y.toFixed(1));
+          rect.setAttribute('height', height.toFixed(1));
+          label.setAttribute('y', String(Math.max(12, y - 8)));
+          label.textContent = String(Math.round(value));
+        });
+        document.getElementById('metricsChartDesc').textContent =
+          'Recuperação ' + Math.round(values[0]) + ', eficiência ' + Math.round(values[1]) +
+          ', rastreabilidade ' + Math.round(values[2]) + ', carbono ' + Math.round(values[3]) +
+          ' e circularidade ' + Math.round(values[4]) + ' em uma escala de zero a cem.';
+      }
+
+      function updateMetrics() {
+        constrainMetricInputs();
+        var values = readMetricValues();
+        updateMetricOutputs(values);
+
+        var traceability = values.produced > 0 ? (values.active / values.produced) * 100 : 0;
+        var recovery = values.sold > 0 ? (values.recycled / values.sold) * 100 : 0;
+        var circularity = values.topups > 0 ? (values.redemptions / values.topups) * 100 : 0;
+        var grossAvoidedCost = values.collected * values.unitCost;
+        var costEfficiency = grossAvoidedCost - values.operationCost;
+        var efficiencyIndex = grossAvoidedCost > 0 ? clamp((costEfficiency / grossAvoidedCost) * 100, 0, 100) : 0;
+        var co2Avoided = values.recycledWeight * values.co2Coefficient;
+        var co2Index = values.co2Target > 0 ? clamp((co2Avoided / values.co2Target) * 100, 0, 100) : 0;
+
+        var normalizedRecovery = clamp(recovery, 0, 100);
+        var normalizedTraceability = clamp(traceability, 0, 100);
+        var normalizedCircularity = clamp(circularity, 0, 100);
+        var score = (
+          normalizedRecovery * 3.0 +
+          efficiencyIndex * 2.5 +
+          normalizedTraceability * 1.5 +
+          co2Index * 1.5 +
+          normalizedCircularity * 1.5
+        ) / 10;
+
+        document.getElementById('traceabilityValue').textContent = formatPercent(traceability);
+        document.getElementById('recoveryValue').textContent = formatPercent(recovery);
+        document.getElementById('circularityValue').textContent = formatPercent(circularity);
+        document.getElementById('efficiencyValue').textContent = formatCurrency(costEfficiency);
+        document.getElementById('co2Value').textContent = formatNumber(co2Avoided) + ' kg';
+        document.getElementById('traceabilityLive').textContent = formatNumber(values.active) + ' ÷ ' + formatNumber(values.produced) + ' × 100';
+        document.getElementById('recoveryLive').textContent = formatNumber(values.recycled) + ' ÷ ' + formatNumber(values.sold) + ' × 100';
+        document.getElementById('circularityLive').textContent = formatCurrency(values.redemptions) + ' ÷ ' + formatCurrency(values.topups) + ' × 100';
+        document.getElementById('efficiencyLive').textContent = '(' + formatNumber(values.collected) + ' × € ' + twoDecimalFormat.format(values.unitCost) + ') − ' + formatCurrency(values.operationCost);
+        document.getElementById('co2Live').textContent = formatNumber(values.recycledWeight) + ' kg × ' + twoDecimalFormat.format(values.co2Coefficient);
+
+        document.getElementById('ceoScore').textContent = decimalFormat.format(score);
+        var scoreRing = document.getElementById('score-ring');
+        scoreRing.style.strokeDashoffset = String(327 * (1 - score / 100));
+        var scoreRating = document.getElementById('scoreRating');
+        if (score >= 80) {
+          scoreRating.textContent = 'EXEMPLAR';
+          scoreRing.setAttribute('stroke', '#22c55e');
+        } else if (score >= 65) {
+          scoreRating.textContent = 'ROBUSTO';
+          scoreRing.setAttribute('stroke', '#86efac');
+        } else if (score >= 50) {
+          scoreRating.textContent = 'EM ATENÇÃO';
+          scoreRing.setAttribute('stroke', '#fbbf24');
+        } else {
+          scoreRating.textContent = 'CRÍTICO';
+          scoreRing.setAttribute('stroke', '#fb7185');
+        }
+
+        updateChart([normalizedRecovery, efficiencyIndex, normalizedTraceability, co2Index, normalizedCircularity]);
+      }
+
+      function applyScenario(name) {
+        var scenario = scenarios[name];
+        Object.keys(scenario).forEach(function (key) {
+          document.getElementById(key).value = String(scenario[key]);
+        });
+        document.querySelectorAll('.scenario-button').forEach(function (button) {
+          button.setAttribute('aria-pressed', String(button.dataset.scenario === name));
+        });
+        updateMetrics();
+      }
+
+      document.querySelectorAll('.scenario-button').forEach(function (button) {
+        button.addEventListener('click', function () {
+          applyScenario(button.dataset.scenario);
+        });
+      });
+
+      metricInputIds.forEach(function (id) {
+        document.getElementById(id).addEventListener('input', function () {
+          document.querySelectorAll('.scenario-button').forEach(function (button) {
+            button.setAttribute('aria-pressed', 'false');
+          });
+          updateMetrics();
+        });
+      });
+
+      applyScenario('base');
+
+      // Prisma schema copy action with a file:// fallback.
+      var copySchemaButton = document.getElementById('copySchemaButton');
+      copySchemaButton.addEventListener('click', function () {
+        var schema = document.getElementById('prismaCode').textContent;
+        var copyPromise;
+        if (navigator.clipboard && window.isSecureContext) {
+          copyPromise = navigator.clipboard.writeText(schema);
+        } else {
+          copyPromise = new Promise(function (resolve, reject) {
+            var textarea = document.createElement('textarea');
+            textarea.value = schema;
+            textarea.setAttribute('readonly', '');
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+              document.execCommand('copy') ? resolve() : reject(new Error('copy failed'));
+            } catch (error) {
+              reject(error);
+            }
+            textarea.remove();
+          });
+        }
+
+        copyPromise.then(function () {
+          document.getElementById('copySchemaLabel').textContent = 'Schema copiado';
+          window.setTimeout(function () {
+            document.getElementById('copySchemaLabel').textContent = 'Copiar schema';
+          }, 1800);
+        }).catch(function () {
+          document.getElementById('copySchemaLabel').textContent = 'Selecione o código';
+        });
+      });
+
+      // Failure matrix filters and expandable acceptance cases.
+      document.querySelectorAll('.failure-toggle').forEach(function (button) {
+        button.addEventListener('click', function () {
+          var detail = document.getElementById('detail-' + button.dataset.toggleFailure);
+          var isOpen = button.getAttribute('aria-expanded') === 'true';
+          button.setAttribute('aria-expanded', String(!isOpen));
+          detail.hidden = isOpen;
+        });
+      });
+
+      document.querySelectorAll('.risk-filter').forEach(function (button) {
+        button.addEventListener('click', function () {
+          var filter = button.dataset.riskFilter;
+          document.querySelectorAll('.risk-filter').forEach(function (filterButton) {
+            var active = filterButton === button;
+            filterButton.setAttribute('aria-pressed', String(active));
+            filterButton.classList.toggle('bg-forest', active);
+            filterButton.classList.toggle('text-white', active);
+            filterButton.classList.toggle('text-slate-600', !active);
+          });
+
+          document.querySelectorAll('.failure-row').forEach(function (row) {
+            var matches = filter === 'all' || row.dataset.severity === filter;
+            row.hidden = !matches;
+            var detail = document.querySelector('[data-detail-for="' + row.dataset.failure + '"]');
+            if (!matches) {
+              detail.hidden = true;
+              var toggle = row.querySelector('.failure-toggle');
+              toggle.setAttribute('aria-expanded', 'false');
+            }
+          });
+        });
+      });
+
+      // First-month cost worksheet.
+      var costMode = 'cash';
+
+      function formatCostRange(min, max, suffix) {
+        if (Math.abs(min - max) < 0.001) return formatDollar(min) + suffix;
+        return formatDollar(min) + '–' + formatDollar(max) + suffix;
+      }
+
+      function updateCosts() {
+        var totalMin = 0;
+        var totalMax = 0;
+        document.querySelectorAll('.cost-row').forEach(function (row) {
+          var toggle = row.querySelector('.cost-toggle');
+          var enabled = toggle.checked;
+          row.classList.toggle('is-disabled', !enabled);
+          var min = Number(row.dataset[costMode + 'Min']);
+          var max = Number(row.dataset[costMode + 'Max']);
+          if (enabled) {
+            totalMin += min;
+            totalMax += max;
+          }
+          var suffix = costMode === 'monthly' ? ' / mês' : '';
+          row.querySelector('.cost-value').textContent = formatCostRange(min, max, suffix);
+        });
+
+        document.getElementById('costTotal').textContent = formatCostRange(totalMin, totalMax, '');
+        document.getElementById('costSummaryLabel').textContent = costMode === 'cash'
+          ? 'Desembolso fixo estimado no mês 1'
+          : 'Custo fixo mensal equivalente';
+        document.getElementById('costModeCaption').textContent = costMode === 'cash'
+          ? 'Inclui anuidades e taxas únicas integrais'
+          : 'Anuidades e taxas únicas distribuídas em 12 meses';
+      }
+
+      document.querySelectorAll('.cost-mode-button').forEach(function (button) {
+        button.addEventListener('click', function () {
+          costMode = button.dataset.costMode;
+          document.querySelectorAll('.cost-mode-button').forEach(function (modeButton) {
+            modeButton.setAttribute('aria-pressed', String(modeButton === button));
+          });
+          updateCosts();
+        });
+      });
+
+      document.querySelectorAll('.cost-toggle').forEach(function (toggle) {
+        toggle.addEventListener('change', updateCosts);
+      });
+      updateCosts();
+
+      // Phase zero plus fourteen weekly delivery phases. Statuses mirror docs/PROGRESS.md.
+      var timelinePhases = [
+        {
+          code: 'F00',
+          period: 'Fundação',
+          weeks: 'Fase 00 · Gate G-1',
+          title: 'Fundação reproduzível',
+          owner: 'OWNER · ENGINEERING',
+          status: 'completed',
+          tasks: [
+            ['F00.1', 'Derivar a execução do plano mestre existente.', 'done'],
+            ['F00.2', 'Criar topologia, convenções e comandos do monorepo.', 'done'],
+            ['F00.3', 'Fixar e instalar versões das ferramentas.', 'done'],
+            ['F00.4', 'Configurar ambiente local sem segredos reais.', 'done'],
+            ['F00.5', 'Automatizar format, lint, typecheck, schema, testes e build.', 'done'],
+            ['F00.6', 'Comprovar onboarding técnico pelo README.', 'done']
+          ],
+          exit: 'Uma pessoa nova consegue validar o repositório seguindo apenas o README.',
+          evidence: 'Lockfile fixado, 19 testes verdes, build completo e relatório de fundação em docs/evidence.'
+        },
+        {
+          code: 'W01',
+          period: 'Semana 1',
+          weeks: 'Semana 1 · Gate G0',
+          title: 'Escopo e jornadas do piloto',
+          owner: 'OWNER · PRODUCT',
+          status: 'active',
+          tasks: [
+            ['W01.1', 'Delimitar objetivo, dentro e fora do MVP binacional.', 'done'],
+            ['W01.2', 'Descrever jornada do operador B2B.', 'done'],
+            ['W01.3', 'Descrever jornada do consumidor.', 'done'],
+            ['W01.4', 'Descrever jornada do totem e suporte.', 'done'],
+            ['W01.5', 'Versionar fórmulas, fontes e janelas dos KPIs.', 'pending'],
+            ['W01.6', 'Validar hipóteses com sponsor, jurídico e operação.', 'blocked']
+          ],
+          exit: 'Escopo e critérios de sucesso aprovados pelos responsáveis.',
+          evidence: 'PILOT_SCOPE.md e JOURNEYS.md prontos; KPIs e validação externa ainda abertos.'
+        },
+        {
+          code: 'W02',
+          period: 'Semana 2',
+          weeks: 'Semana 2 · Gate G0',
+          title: 'Arquitetura, dados e risco',
+          owner: 'OWNER · ARCH + SECURITY',
+          status: 'active',
+          tasks: [
+            ['W02.1', 'Registrar decisões de monólito modular, tenancy e ledger público.', 'done'],
+            ['W02.2', 'Versionar contrato mínimo de entrada de embalagens.', 'done'],
+            ['W02.3', 'Mapear dados pessoais, retenção, exclusão e base legal.', 'pending'],
+            ['W02.4', 'Produzir threat model e matriz de fraude.', 'pending'],
+            ['W02.5', 'Priorizar backlog por risco e caminho crítico.', 'pending'],
+            ['W02.6', 'Documentar rollout, rollback e severidades.', 'pending'],
+            ['W02.7', 'Obter aprovação das decisões de risco e custo.', 'blocked']
+          ],
+          exit: 'G0 aprovado, com decisões rastreáveis e riscos conhecidos.',
+          evidence: 'Três ADRs e contrato v1 versionados; privacy map, threat model e aprovações permanecem pendentes.'
+        },
+        {
+          code: 'W03',
+          period: 'Semana 3',
+          weeks: 'Semana 3 · Gate G1',
+          title: 'Banco, API e entrega contínua',
+          owner: 'OWNER · PLATFORM',
+          status: 'active',
+          tasks: [
+            ['W03.1', 'Subir PostgreSQL 17 local com healthcheck e porta isolada.', 'done'],
+            ['W03.2', 'Validar schema Prisma e aplicar a primeira migração.', 'done'],
+            ['W03.3', 'Criar health, readiness e shutdown gracioso da API.', 'done'],
+            ['W03.4', 'Publicar OpenAPI versionada e política uniforme de erros.', 'done'],
+            ['W03.5', 'Validar lint, tipos, 19 testes e build no gate local.', 'done'],
+            ['W03.6', 'Preparar baseline de IaC para dev/stage.', 'pending'],
+            ['W03.7', 'Executar restore e deploy em conta AWS autorizada.', 'blocked']
+          ],
+          exit: 'Deploy automatizado em stage e migração reversível comprovada.',
+          evidence: 'Banco local e migração estão verdes; IaC, restore e stage dependem do próximo bloco e de conta externa.'
+        },
+        {
+          code: 'W04',
+          period: 'Semana 4',
+          weeks: 'Semana 4 · Gate G1',
+          title: 'Identidade, tenancy e auditoria',
+          owner: 'OWNER · BACKEND + PLATFORM',
+          status: 'active',
+          tasks: [
+            ['W04.1', 'Validar token real e normalizar o principal autenticado.', 'blocked'],
+            ['W04.2', 'Trocar o header local por tenant derivado de membership.', 'active'],
+            ['W04.3', 'Implementar RBAC para operação, suporte e administração.', 'pending'],
+            ['W04.4', 'Persistir trilha de auditoria append-only.', 'pending'],
+            ['W04.5', 'Padronizar idempotência em comandos mutáveis.', 'pending'],
+            ['W04.6', 'Criar staging privado e expiração de importações.', 'pending'],
+            ['W04.7', 'Testar isolamento de dados entre dois tenants.', 'done'],
+            ['W04.8', 'Instrumentar logs, traces e métricas essenciais.', 'pending']
+          ],
+          exit: 'Nenhuma consulta ou mutação atravessa tenants nos testes de integração.',
+          evidence: 'Isolamento E2E já comprovado com adaptador local; identidade real, papéis e auditoria ainda abertos.'
+        },
+        {
+          code: 'W05',
+          period: 'Semana 5',
+          weeks: 'Semana 5 · Gate G2',
+          title: 'Catálogo e importação de embalagens',
+          owner: 'OWNER · BACKEND',
+          status: 'active',
+          tasks: [
+            ['W05.1', 'Implementar agregado e transições explícitas da embalagem.', 'done'],
+            ['W05.2', 'Implementar lote e repositório Prisma transacional.', 'active'],
+            ['W05.3', 'Validar CSV/XLSX por contrato, conteúdo e duplicidade.', 'pending'],
+            ['W05.4', 'Gerar prévia e relatório de erros por linha.', 'pending'],
+            ['W05.5', 'Disponibilizar cadastro manual com as mesmas regras.', 'pending'],
+            ['W05.6', 'Persistir hashes distintos para QR externo e interno.', 'pending'],
+            ['W05.7', 'Provar reprocessamento e versão otimista com lote anonimizado.', 'blocked']
+          ],
+          exit: 'Um lote real anonimizado entra, é auditado e pode ser reconciliado.',
+          evidence: 'Agregado e testes de ciclo prontos; persistência, importação e lote de evidência são os próximos checks.'
+        },
+        {
+          code: 'W06',
+          period: 'Semana 6',
+          weeks: 'Semana 6 · Gate G2',
+          title: 'Processo de Coleta e Auditoria Ledger',
+          owner: 'OWNER · BACKEND + PLATFORM',
+          status: 'planned',
+          tasks: [
+            ['W06.1', 'Modelar tabelas de solicitações e atribuições de coletas no Prisma.', 'pending'],
+            ['W06.2', 'Implementar fila Redis para o matchmaking de coletas das cooperativas.', 'pending'],
+            ['W06.3', 'Desenvolver rotina de encadeamento criptográfico no Ledger (Row Chaining).', 'blocked'],
+            ['W06.4', 'Implementar assinatura digital de transações de triagem com chaves RSA/KMS.', 'blocked'],
+            ['W06.5', 'Escrever testes de integridade para a cadeia de hashes do Ledger.', 'pending'],
+            ['W06.6', 'Configurar geração e criptografia de logs de auditoria e relatórios.', 'pending'],
+            ['W06.7', 'Reconciliar dados de coletas físicas com a folha de auditoria final.', 'pending']
+          ],
+          exit: 'Solicitações de coleta e assinaturas criptográficas do Ledger validadas com sucesso.',
+          evidence: 'Serviço de Ledger atômico com encadeamento de hashes e testes unitários.'
+        },
+        {
+          code: 'W07',
+          period: 'Semana 7',
+          weeks: 'Semana 7 · Gate G2',
+          title: 'Ledger, métricas e operação B2B',
+          owner: 'OWNER · BACKEND + PRODUCT',
+          status: 'planned',
+          tasks: [
+            ['W07.1', 'Implementar ledger e projeção de saldo na mesma transação.', 'pending'],
+            ['W07.2', 'Garantir um crédito por embalagem sob concorrência.', 'pending'],
+            ['W07.3', 'Modelar earn, cashout, reversão e estados de settlement.', 'pending'],
+            ['W07.4', 'Integrar adaptador de cashout em sandbox.', 'blocked'],
+            ['W07.5', 'Calcular KPIs com fórmulas versionadas.', 'pending'],
+            ['W07.6', 'Entregar dashboard por país, tenant, lote e período.', 'pending'],
+            ['W07.7', 'Exportar reconciliação financeira auditável.', 'pending']
+          ],
+          exit: 'Embalagem coletada gera exatamente um crédito e métricas conciliadas.',
+          evidence: 'Teste concorrente, extrato reconciliado e dashboard com janela explícita.'
+        },
+        {
+          code: 'W08',
+          period: 'Semana 8',
+          weeks: 'Semana 8 · Gate G3',
+          title: 'Fundação do app consumidor',
+          owner: 'OWNER · MOBILE',
+          status: 'planned',
+          tasks: [
+            ['W08.1', 'Criar app Flutter por feature e design system acessível.', 'pending'],
+            ['W08.2', 'Configurar flavors e pipeline Android/iOS.', 'blocked'],
+            ['W08.3', 'Implementar onboarding, consentimento e login.', 'pending'],
+            ['W08.4', 'Guardar tokens em secure storage e renovar sessão.', 'pending'],
+            ['W08.5', 'Entregar português, espanhol e inglês por ARB.', 'pending'],
+            ['W08.6', 'Definir navegação, vazios, offline e acessibilidade.', 'pending'],
+            ['W08.7', 'Instrumentar crash reporting sem dados sensíveis.', 'pending']
+          ],
+          exit: 'Builds instaláveis autenticam em iOS e Android nos três idiomas.',
+          evidence: 'Build matrix, vídeo de onboarding e checklist de acessibilidade.'
+        },
+        {
+          code: 'W09',
+          period: 'Semana 9',
+          weeks: 'Semana 9 · Gate G3',
+          title: 'QR, carteira e cashout',
+          owner: 'OWNER · MOBILE + BACKEND',
+          status: 'planned',
+          tasks: [
+            ['W09.1', 'Ler QR externo e mostrar procedência permitida.', 'pending'],
+            ['W09.2', 'Consumir QR interno com challenge único de coleta.', 'pending'],
+            ['W09.3', 'Exibir saldo disponível, pendente e extrato paginado.', 'pending'],
+            ['W09.4', 'Implementar claim, retry seguro e suporte acionável.', 'pending'],
+            ['W09.5', 'Integrar cashout Pix/SEPA no sandbox aprovado.', 'blocked'],
+            ['W09.6', 'Cobrir deep links e permissões de câmera.', 'pending'],
+            ['W09.7', 'Executar E2E cadastro → claim → saldo → cashout.', 'pending']
+          ],
+          exit: 'Fluxo crítico funciona nos dois sistemas sem crédito duplicado.',
+          evidence: 'E2E mobile, extrato explicável e recibo do sandbox.'
+        },
+        {
+          code: 'W10',
+          period: 'Semana 10',
+          weeks: 'Semana 10 · Gate G3',
+          title: 'Aplicativo da Cooperativa e Operação Offline',
+          owner: 'OWNER · MOBILE + BACKEND',
+          status: 'planned',
+          tasks: [
+            ['W10.1', 'Desenvolver fluxo de leitura de múltiplos QR Codes no aplicativo móvel.', 'pending'],
+            ['W10.2', 'Validar seriais e assinaturas dos lotes offline via App da Cooperativa.', 'pending'],
+            ['W10.3', 'Persistir leituras em banco SQLite local do dispositivo.', 'pending'],
+            ['W10.4', 'Assinar requisições com chave privada do operador da cooperativa.', 'pending'],
+            ['W10.5', 'Sincronizar coletas de forma idempotente em lote ao recuperar rede.', 'pending'],
+            ['W10.6', 'Exibir histórico local de coletas e sincronizações pendentes.', 'pending'],
+            ['W10.7', 'Testar simulação offline por 8 horas seguidas no aplicativo.', 'blocked']
+          ],
+          exit: 'Leitura de múltiplos itens offline e sincronização em lote concluídas sem perdas.',
+          evidence: 'App da Cooperativa testado offline, com banco de dados local SQLite e filas de sincronização.'
+        },
+        {
+          code: 'W11',
+          period: 'Semana 11',
+          weeks: 'Semana 11 · Gate G4',
+          title: 'Hardening e UAT',
+          owner: 'OWNER · QA + SECURITY',
+          status: 'planned',
+          tasks: [
+            ['W11.1', 'Medir carga, P50, P95, P99 e capacidade.', 'pending'],
+            ['W11.2', 'Executar casos de autorização, abuso e fraude.', 'pending'],
+            ['W11.3', 'Testar restore e falhas do banco de dados, filas e cashout.', 'pending'],
+            ['W11.4', 'Validar acessibilidade e matriz de dispositivos.', 'pending'],
+            ['W11.5', 'Fazer dry run de suporte e incidentes.', 'pending'],
+            ['W11.6', 'Executar UAT conjunto com Espanha e Portugal.', 'blocked'],
+            ['W11.7', 'Fechar P0/P1 ou obter aceite formal de risco.', 'pending']
+          ],
+          exit: 'Release candidate aprovado e runbooks exercitados.',
+          evidence: 'Relatórios de carga, segurança, restore e UAT.'
+        },
+        {
+          code: 'W12',
+          period: 'Semana 12',
+          weeks: 'Semana 12 · Gate G4',
+          title: 'Release candidate e piloto Espanha',
+          owner: 'OWNER · DELIVERY ES',
+          status: 'planned',
+          tasks: [
+            ['W12.1', 'Assinar builds e concluir publicação/teste fechado.', 'blocked'],
+            ['W12.2', 'Treinar operação e suporte do cliente espanhol.', 'pending'],
+            ['W12.3', 'Carregar lote do piloto com dupla conferência.', 'pending'],
+            ['W12.4', 'Executar dry run de coleta física no condomínio antes da recompensa real.', 'blocked'],
+            ['W12.5', 'Ativar feature flags e rollback por tenant.', 'pending'],
+            ['W12.6', 'Monitorar claims, saldo e reconciliação diariamente.', 'pending'],
+            ['W12.7', 'Registrar aceite e aprendizados do primeiro país.', 'pending']
+          ],
+          exit: 'Espanha opera sem P0 e com reconciliação diária aprovada.',
+          evidence: 'Aceite espanhol, runbook exercitado e relatório diário.'
+        },
+        {
+          code: 'W13',
+          period: 'Semana 13',
+          weeks: 'Semana 13 · Gate G4',
+          title: 'Piloto Portugal e comparação',
+          owner: 'OWNER · DELIVERY PT',
+          status: 'planned',
+          tasks: [
+            ['W13.1', 'Aplicar aprendizados sem quebrar o tenant espanhol.', 'pending'],
+            ['W13.2', 'Treinar operação e suporte do cliente português.', 'blocked'],
+            ['W13.3', 'Carregar e conferir lote português.', 'pending'],
+            ['W13.4', 'Ativar Portugal com rollback independente.', 'blocked'],
+            ['W13.5', 'Validar idioma, cashout, fiscalidade e operação.', 'pending'],
+            ['W13.6', 'Comparar KPIs, fraude, suporte e custo por país.', 'pending'],
+            ['W13.7', 'Manter reconciliação financeira e do Ledger diária.', 'pending']
+          ],
+          exit: 'Dois países operam isoladamente com KPIs comparáveis.',
+          evidence: 'Aceites por país e comparação executiva reconciliada.'
+        },
+        {
+          code: 'W14',
+          period: 'Semana 14',
+          weeks: 'Semana 14 · Gate G4',
+          title: 'Hypercare e decisão de escala',
+          owner: 'OWNER · DELIVERY + SPONSOR',
+          status: 'planned',
+          tasks: [
+            ['W14.1', 'Operar hypercare com SLIs, owners e cadência diária.', 'pending'],
+            ['W14.2', 'Corrigir P0/P1 e priorizar dívida de campo.', 'pending'],
+            ['W14.3', 'Fechar métricas executivas com ressalvas.', 'pending'],
+            ['W14.4', 'Produzir post-mortem e atualizar runbooks.', 'pending'],
+            ['W14.5', 'Medir custo por embalagem, claim e cashout.', 'pending'],
+            ['W14.6', 'Preparar backlog de escala e integração ERP.', 'pending'],
+            ['W14.7', 'Conduzir go/no-go com critérios aprovados.', 'blocked']
+          ],
+          exit: 'Relatório aceito, zero P0 e decisão documentada de próxima escala.',
+          evidence: 'Relatório final, post-mortem e ata de go/no-go.'
+        }
+      ];
+
+      var phaseStatusMeta = {
+        completed: { label: 'CONCLUÍDA', className: 'border-green-400/40 bg-green-400/10 text-green-200' },
+        active: { label: 'EM EXECUÇÃO', className: 'border-green-400/40 bg-green-400/10 text-green-200' },
+        planned: { label: 'PENDENTE', className: 'border-white/15 bg-white/[0.04] text-green-50/65' },
+        blocked: { label: 'DEPENDÊNCIA', className: 'border-amber-400/40 bg-amber-400/10 text-amber-300' }
+      };
+
+      var taskStatusMeta = {
+        done: { label: 'Feito', symbol: '✓', textClass: 'text-green-200' },
+        active: { label: 'Em execução', symbol: '→', textClass: 'text-green-200' },
+        pending: { label: 'Pendente', symbol: '·', textClass: 'text-green-50/45' },
+        blocked: { label: 'Dependência', symbol: '!', textClass: 'text-amber-300' }
+      };
+
+      function completedTasks(phase) {
+        return phase.tasks.filter(function (task) { return task[2] === 'done'; }).length;
+      }
+
+      function renderPlanSummary() {
+        var allTasks = timelinePhases.reduce(function (result, phase) {
+          return result.concat(phase.tasks);
+        }, []);
+        var done = allTasks.filter(function (task) { return task[2] === 'done'; }).length;
+        var active = allTasks.filter(function (task) { return task[2] === 'active'; }).length;
+        var blocked = allTasks.filter(function (task) { return task[2] === 'blocked'; }).length;
+        var progress = allTasks.length === 0 ? 0 : (done / allTasks.length) * 100;
+
+        document.getElementById('planDoneCount').textContent = String(done);
+        document.getElementById('planTotalCount').textContent = String(allTasks.length);
+        document.getElementById('planActiveCount').textContent = String(active);
+        document.getElementById('planBlockedCount').textContent = String(blocked);
+        document.getElementById('planProgressPercent').textContent = Math.round(progress) + '%';
+        document.getElementById('planProgressBar').style.width = progress.toFixed(1) + '%';
+        document.getElementById('planProgressTrack').setAttribute('aria-valuemax', String(allTasks.length));
+        document.getElementById('planProgressTrack').setAttribute('aria-valuenow', String(done));
+      }
+
+      function renderTimelineNavigation() {
+        var list = document.getElementById('timelinePhaseList');
+        list.innerHTML = '';
+
+        timelinePhases.forEach(function (phase, index) {
+          var done = completedTasks(phase);
+          var button = document.createElement('button');
+          button.className = 'timeline-phase relative flex w-full items-center gap-3 border border-white/15 bg-white/[0.03] p-3 text-left transition hover:border-green-400 sm:p-4';
+          button.type = 'button';
+          button.dataset.phase = String(index);
+          button.dataset.status = phase.status;
+          button.setAttribute('aria-current', 'false');
+          button.setAttribute('aria-label', phase.code + ', ' + phase.title + ', ' + done + ' de ' + phase.tasks.length + ' concluídas');
+
+          var dot = document.createElement('span');
+          dot.className = 'timeline-dot relative z-10 grid h-5 w-5 shrink-0 place-items-center border-4 border-slate-700 bg-forest';
+          dot.setAttribute('aria-hidden', 'true');
+
+          var content = document.createElement('span');
+          content.className = 'min-w-0 flex-1';
+          var eyebrow = document.createElement('span');
+          eyebrow.className = 'font-mono text-[9px] uppercase tracking-[0.14em] text-green-300';
+          eyebrow.textContent = phase.code + ' · ' + phase.period;
+          var title = document.createElement('span');
+          title.className = 'mt-1 block text-xs font-extrabold sm:text-sm';
+          title.textContent = phase.title;
+          content.append(eyebrow, title);
+
+          var count = document.createElement('span');
+          count.className = 'font-mono text-[10px] text-green-200/60';
+          count.textContent = done + '/' + phase.tasks.length;
+
+          button.append(dot, content, count);
+          button.addEventListener('click', function () {
+            renderTimelinePhase(index);
+          });
+          list.appendChild(button);
+        });
+      }
+
+      function renderTimelinePhase(index) {
+        var phase = timelinePhases[index];
+        var done = completedTasks(phase);
+        var phaseMeta = phaseStatusMeta[phase.status];
+        document.querySelectorAll('.timeline-phase').forEach(function (button) {
+          button.setAttribute('aria-current', Number(button.dataset.phase) === index ? 'step' : 'false');
+        });
+        document.getElementById('phaseWeeks').textContent = phase.weeks;
+        document.getElementById('phaseTitle').textContent = phase.title;
+        document.getElementById('phaseOwner').textContent = phase.owner;
+        document.getElementById('phaseExit').textContent = phase.exit;
+        document.getElementById('phaseEvidence').textContent = phase.evidence;
+        var phaseStatus = document.getElementById('phaseStatus');
+        phaseStatus.className = 'self-start border px-3 py-1.5 font-mono text-[10px] ' + phaseMeta.className;
+        phaseStatus.textContent = phaseMeta.label + ' · ' + done + '/' + phase.tasks.length;
+
+        var tasks = document.getElementById('phaseTasks');
+        tasks.innerHTML = '';
+        phase.tasks.forEach(function (task) {
+          var taskMeta = taskStatusMeta[task[2]];
+          var item = document.createElement('li');
+          item.className = 'grid grid-cols-[24px_1fr] gap-3 border-b border-white/[0.07] pb-3 last:border-0 last:pb-0';
+          var state = document.createElement('span');
+          state.className = 'task-state';
+          state.dataset.state = task[2];
+          state.textContent = taskMeta.symbol;
+          state.setAttribute('aria-label', taskMeta.label);
+          var content = document.createElement('div');
+          var metaLine = document.createElement('div');
+          metaLine.className = 'flex flex-wrap items-center gap-x-3 gap-y-1';
+          var code = document.createElement('span');
+          code.className = 'font-mono text-[10px] text-emerald';
+          code.textContent = task[0];
+          var status = document.createElement('span');
+          status.className = 'font-mono text-[8px] uppercase tracking-[0.12em] ' + taskMeta.textClass;
+          status.textContent = taskMeta.label;
+          var description = document.createElement('p');
+          description.className = 'mt-1 text-xs leading-5 text-green-50/75 sm:text-sm sm:leading-6';
+          description.textContent = task[1];
+          metaLine.append(code, status);
+          content.append(metaLine, description);
+          item.append(state, content);
+          tasks.appendChild(item);
+        });
+      }
+
+      renderPlanSummary();
+      renderTimelineNavigation();
+      renderTimelinePhase(5);
+    });
+  </script>
+</body>
+</html>
