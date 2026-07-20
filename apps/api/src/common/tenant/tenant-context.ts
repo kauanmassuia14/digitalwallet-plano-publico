@@ -28,3 +28,15 @@ export const CurrentTenant = createParamDecorator(
     return request.tenantId;
   },
 );
+
+export const CurrentUser = createParamDecorator(
+  (_data: unknown, context: ExecutionContext): AuthenticatedUser => {
+    const request = context.switchToHttp().getRequest<TenantAwareRequest>();
+
+    if (request.user === undefined) {
+      throw new Error("TenantContextGuard must run before CurrentUser");
+    }
+
+    return request.user;
+  },
+);

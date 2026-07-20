@@ -97,14 +97,24 @@ Legenda: `[x]` concluído e verificado · `[~]` em execução · `[ ]` pendente 
 - [x] Configurar geração e criptografia de logs de auditoria e relatórios.
 - [x] Reconciliar dados de coletas físicas com a folha de auditoria final.
 
+### W07 · Ledger, Métricas e Operação B2B
+
+- [x] Implementar ledger e projeção de saldo na mesma transação (W07.1).
+- [x] Garantir um crédito por embalagem sob concorrência (W07.2).
+- [x] Modelar earn, cashout, reversão e estados de settlement (W07.3).
+- [x] Integrar adaptador de cashout em sandbox (W07.4).
+- [ ] Calcular KPIs com fórmulas versionadas.
+- [ ] Entregar dashboard por país, tenant, lote e período.
+- [ ] Exportar reconciliação financeira auditável.
+
 ## Evidência mais recente
 
-- Snapshot: `2026-07-20T19:54:00-03:00`.
-- Redis matchmaking de coletas das cooperativas funcional com fila FIFO e testes E2E.
-- Cryptographic AuditLedger com row chaining SHA-256, assinaturas RSA/KMS e testes de integridade contra adulteração.
-- Logs de auditoria criptografados com AES-256-GCM em repouso e descriptografados transparente via API.
-- Rotina de reconciliação de coletas físicas com folha de auditoria criptográfica.
-- 27 testes (23 unitários de domínio e 4 E2E de integração/API) 100% verdes no monorepo.
+- Snapshot: `2026-07-20T20:00:00-03:00`.
+- Ledger atômico e projeção de saldo na mesma transação de banco com concorrência `FOR UPDATE` e testes E2E.
+- Garantia de um crédito por embalagem com validação de unicidade e tratamento de erros de concorrência.
+- Modelo financeiro de Earn, Cashout (PENDING/SETTLED/FAILED) e Reversal (reversões seguras e estornadas) com assinaturas de Ledger.
+- Sandbox de Cashout integrado simulando transferências PIX bem-sucedidas e com falhas de provisão.
+- 31 testes (23 de domínio/unidade e 8 E2E de integração/API) 100% verdes no monorepo.
 - Prisma schema válido, client `7.8.0` e TypeScript build saudáveis.
 
 ## Dependências externas conhecidas
