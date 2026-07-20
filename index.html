@@ -2637,15 +2637,15 @@ model AuditLedger {
           weeks: 'Semana 7 · Gate G2',
           title: 'Ledger, métricas e operação B2B',
           owner: 'OWNER · BACKEND + PRODUCT',
-          status: 'in_progress',
+          status: 'done',
           tasks: [
             ['W07.1', 'Implementar ledger e projeção de saldo na mesma transação.', 'done'],
             ['W07.2', 'Garantir um crédito por embalagem sob concorrência.', 'done'],
             ['W07.3', 'Modelar earn, cashout, reversão e estados de settlement.', 'done'],
             ['W07.4', 'Integrar adaptador de cashout em sandbox.', 'done'],
-            ['W07.5', 'Calcular KPIs com fórmulas versionadas.', 'pending'],
-            ['W07.6', 'Entregar dashboard por país, tenant, lote e período.', 'pending'],
-            ['W07.7', 'Exportar reconciliação financeira auditável.', 'pending']
+            ['W07.5', 'Calcular KPIs com fórmulas versionadas.', 'done'],
+            ['W07.6', 'Entregar dashboard por país, tenant, lote e período.', 'done'],
+            ['W07.7', 'Exportar reconciliação financeira auditável.', 'done']
           ],
           exit: 'Embalagem coletada gera exatamente um crédito e métricas conciliadas.',
           evidence: 'Teste concorrente, extrato reconciliado e dashboard com janela explícita.'

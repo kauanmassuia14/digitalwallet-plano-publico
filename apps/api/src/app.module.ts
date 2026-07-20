@@ -7,6 +7,7 @@ import { PackagingModule } from "./packaging/packaging.module.js";
 import { CollectionModule } from "./collection/collection.module.js";
 import { LedgerModule } from "./ledger/ledger.module.js";
 import { RewardsModule } from "./rewards/rewards.module.js";
+import { DashboardModule } from "./dashboard/dashboard.module.js";
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { RewardsModule } from "./rewards/rewards.module.js";
     CollectionModule,
     LedgerModule,
     RewardsModule,
+    DashboardModule,
   ],
 })
 export class AppModule {}
