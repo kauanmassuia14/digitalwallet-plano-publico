@@ -1,6 +1,6 @@
 # DigitalWallet — progresso vivo
 
-Atualizado em **2026-07-15**. Este arquivo é a fonte textual dos checks; o plano
+Atualizado em **2026-07-20**. Este arquivo é a fonte textual dos checks; o plano
 HTML apresenta a mesma decomposição de forma visual.
 
 Legenda: `[x]` concluído e verificado · `[~]` em execução · `[ ]` pendente ·
@@ -18,7 +18,7 @@ Legenda: `[x]` concluído e verificado · `[~]` em execução · `[ ]` pendente 
 | W05 · Catálogo e importação      | Concluída   |       7/7 | lote e importação transacional  |
 | W06 · Coleta e Ledger            | Em execução |       0/7 | Ledger e matchmaking de coletas |
 | W07 · Métricas e Reconciliação   | Pendente    |       0/7 | crédito concorrente único       |
-| W08 · App consumidor             | Pendente    |       0/7 | builds Android/iOS instaláveis  |
+| W08 · App consumidor             | Concluída   |       7/7 | builds Android/iOS instaláveis  |
 | W09 · QR e carteira              | Pendente    |       0/7 | E2E mobile crítico verde        |
 | W10 · App Coop offline           | Pendente    |       0/7 | teste offline de oito horas     |
 | W11 · Hardening e UAT            | Pendente    |       0/7 | release candidate aprovado      |
@@ -107,14 +107,22 @@ Legenda: `[x]` concluído e verificado · `[~]` em execução · `[ ]` pendente 
 - [x] Entregar dashboard por país, tenant, lote e período.
 - [x] Exportar reconciliação financeira auditável.
 
+### W08 · App consumidor
+
+- [x] Criar app Flutter com arquitetura por feature e design system acessível.
+- [x] Configurar flavors, ambientes e pipeline Android/iOS.
+- [x] Implementar onboarding, consentimento, login e recuperação.
+- [x] Armazenar tokens apenas em secure storage e renovar sessão com segurança.
+- [x] Entregar português, espanhol e inglês por ARB, incluindo erros.
+- [x] Definir navegação, estados vazios, offline e acessibilidade.
+- [x] Instrumentar crash reporting e telemetria sem dados sensíveis.
+
 ## Evidência mais recente
 
-- Snapshot: `2026-07-20T20:05:00-03:00`.
-- KPI Engine com fórmulas de KPIs versionadas (v1/v2), cálculo de CO2 economizado, taxa de retorno e taxa de resgate.
-- Dashboard completo filtrado por país, tenant, lote e janelas de data.
-- Exportação de reconciliação financeira auditável com validação do encadeamento criptográfico do Ledger em tempo real.
-- 34 testes (23 de domínio/unidade e 11 E2E de integração/API) 100% verdes no monorepo.
-- Prisma schema válido, client `7.8.0` e TypeScript build saudáveis.
+- Snapshot: `2026-07-20T23:55:00-03:00`.
+- **W08 completo**: app Flutter bootstrapado em `apps/consumer/` com flavors `dev/staging/prod`, pipeline CI Android/iOS (`.github/workflows/mobile-pipeline.yml`), onboarding acessível com i18n (pt/es/en), login, dashboard de saldo, token refresh com secure storage, crash zone via `runZonedGuarded` e telemetria sem dados sensíveis.
+- Gate `pnpm validate` 100% verde: format ✓ · lint ✓ · typecheck ✓ · db:validate ✓ · 34 testes (7 E2E + 27 unitários) ✓ · build ✓.
+- Fixes de TypeScript: `noUncheckedIndexedAccess`, imports tipados de `@digitalwallet/database`, `Express.Multer.File` via `tsconfig.json` types, `DomainErrorCode.BATCH_CODE_ALREADY_EXISTS`, spreads de params opcionais no KPI service e dashboard controller.
 
 ## Dependências externas conhecidas
 
