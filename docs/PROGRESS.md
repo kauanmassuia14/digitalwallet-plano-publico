@@ -8,8 +8,8 @@ Atualizado em **2026-07-29**. Este arquivo é a fonte textual dos checks e do pl
 
 | Desenvolvedor | Frente Principal | Responsabilidades |
 | :--- | :--- | :--- |
-| **Kauan** | **Frontend (Flutter & Web) + UX + Agente IA UI** | App Mobile (Flutter), Portal de Condomínio e Cooperativa, Chat UI, Design System, Responsividade Mobile/Grid, Experiência de Onboarding e Interface do Assistente IA |
-| **Lucas** | **Backend (NestJS) + DB + Infra & Agente IA RAG** | REST APIs, PostgreSQL/Prisma, Redis (Matchmaking & Cache), WebSockets/Chat Realtime, Ledger Criptográfico, Pipeline de IA/RAG e DevOps/AWS |
+| **Kauan** | **Fullstack (NestJS & Flutter) + IA Lead + DevOps** | Endpoints NestJS (Chat, IA/RAG, Sync), App Mobile (Flutter), Interface do Chatbot de IA, Design System, Responsividade, Automação & Scripting (Expo QR) |
+| **Lucas** | **Backend Core + Ledger Criptográfico + Infra/DB** | Row Chaining do Ledger, Assinaturas Criptográficas RSA/KMS, Fila Redis (Matchmaking), WebSockets (Realtime Chat), Reconciliação Financeira & PostgreSQL/Prisma |
 
 ---
 

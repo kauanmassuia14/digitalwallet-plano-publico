@@ -1763,7 +1763,22 @@ model AuditLedger {
           </p>
         </header>
 
-        <div class="mt-12 grid gap-px border border-white/10 bg-white/10 sm:grid-cols-2 xl:grid-cols-4" aria-label="Resumo do progresso verificado">
+        <div class="mt-8 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-emerald/30 bg-forest/80 p-4 backdrop-blur-md">
+          <div class="flex items-center gap-3">
+            <span class="font-mono text-xs uppercase tracking-wider text-green-300">Filtrar por Desenvolvedor:</span>
+            <div class="inline-flex rounded-lg border border-white/15 bg-black/30 p-1" role="group">
+              <button id="filterAll" type="button" class="dev-filter-btn rounded-md px-3 py-1.5 font-mono text-xs font-bold text-white transition bg-emerald/20 text-emerald border border-emerald/40" data-dev="all">⚡ Todos</button>
+              <button id="filterKauan" type="button" class="dev-filter-btn rounded-md px-3 py-1.5 font-mono text-xs font-bold text-green-50/70 hover:text-white transition" data-dev="kauan">🧑‍💻 Kauan (Frontend/UX)</button>
+              <button id="filterLucas" type="button" class="dev-filter-btn rounded-md px-3 py-1.5 font-mono text-xs font-bold text-green-50/70 hover:text-white transition" data-dev="lucas">⚙️ Lucas (Backend/Infra)</button>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 text-xs text-green-50/70 font-mono">
+            <span class="inline-block h-2 w-2 rounded-full bg-emerald animate-pulse"></span>
+            Capacidade: ~8h/semana (2h/dia x 2 dias de semana + Fim de Semana)
+          </div>
+        </div>
+
+        <div class="mt-8 grid gap-px border border-white/10 bg-white/10 sm:grid-cols-2 xl:grid-cols-4" aria-label="Resumo do progresso verificado">
           <div class="bg-forest p-5 sm:p-6 xl:col-span-2">
             <div class="flex items-end justify-between gap-6">
               <div>
@@ -2654,17 +2669,17 @@ model AuditLedger {
           code: 'W08',
           period: 'Semana 8',
           weeks: 'Semana 8 · Gate G3',
-          title: 'App Consumidor Flutter & UI/UX (Kauan)',
-          owner: 'OWNER · KAUAN (FRONTEND)',
+          title: 'App Consumidor Flutter & UI/UX (Kauan & Lucas)',
+          owner: 'KAUAN (FULLSTACK) & LUCAS',
           status: 'completed',
           tasks: [
-            ['W08.1', '[Kauan · Frontend] Criar app Flutter por feature e design system acessível.', 'done'],
-            ['W08.2', '[Kauan · Frontend] Seletor de portal no Onboarding (Condomínio vs Cooperativa).', 'done'],
-            ['W08.3', '[Kauan · Frontend] Implementar login por role e armazenamento em SecureStorage.', 'done'],
-            ['W08.4', '[Kauan · Frontend] Dashboard de Condomínio com solicitação de coleta.', 'done'],
-            ['W08.5', '[Kauan · Frontend] Dashboard de Cooperativa com aceite e histórico.', 'done'],
-            ['W08.6', '[Kauan · Frontend] Interface de chat entre condomínio e cooperativa.', 'done'],
-            ['W08.7', '[Kauan · Frontend] Suporte a execução no Safari iOS, Android e Web.', 'done']
+            ['W08.1', '[Kauan · Fullstack] Criar app Flutter por feature e design system acessível.', 'done'],
+            ['W08.2', '[Kauan · Fullstack] Seletor de portal no Onboarding (Condomínio vs Cooperativa).', 'done'],
+            ['W08.3', '[Kauan · Fullstack] Implementar login por role e armazenamento em SecureStorage.', 'done'],
+            ['W08.4', '[Kauan · Fullstack] Dashboard de Condomínio com solicitação de coleta.', 'done'],
+            ['W08.5', '[Kauan · Fullstack] Dashboard de Cooperativa com aceite e histórico.', 'done'],
+            ['W08.6', '[Kauan · Fullstack] Interface de chat entre condomínio e cooperativa.', 'done'],
+            ['W08.7', '[Kauan · DevOps] Suporte e automação para execução no Safari iOS, Android e Web.', 'done']
           ],
           exit: 'Builds instaláveis autenticam e navegam por roles em iOS/Android/Web.',
           evidence: 'App Flutter funcional com telas de condomínio, cooperativa e chat.'
@@ -2673,16 +2688,16 @@ model AuditLedger {
           code: 'W09',
           period: 'Semana 9',
           weeks: 'Semana 9 · Gate G3',
-          title: 'Coletas, API & Chat (Lucas)',
-          owner: 'OWNER · LUCAS (BACKEND)',
+          title: 'Coletas, APIs & Chat Module (Kauan & Lucas)',
+          owner: 'KAUAN (BACKEND/API) & LUCAS (CORE)',
           status: 'completed',
           tasks: [
-            ['W09.1', '[Lucas · Backend] Criar endpoints REST de solicitação e aceite de coletas.', 'done'],
-            ['W09.2', '[Lucas · Backend] Desenvolver módulo NestJS de mensagens de chat por solicitação.', 'done'],
-            ['W09.3', '[Lucas · Backend] Atualizar schema Prisma com ChatMessage e ChatSenderType.', 'done'],
-            ['W09.4', '[Lucas · Backend] Seed de dados reais (Edifício Verde + CoopRecicla SP).', 'done'],
-            ['W09.5', '[Lucas · Backend] Habilitar CORS e permissões para consumo mobile via túnel.', 'done'],
-            ['W09.6', '[Kauan · Frontend] Conectar repositório Flutter aos endpoints de chat.', 'done'],
+            ['W09.1', '[Lucas · Backend Core] Criar endpoints REST de solicitação e aceite de coletas.', 'done'],
+            ['W09.2', '[Kauan · Backend API] Desenvolver módulo NestJS de mensagens de chat por solicitação.', 'done'],
+            ['W09.3', '[Kauan · Backend DB] Atualizar schema Prisma com ChatMessage e ChatSenderType.', 'done'],
+            ['W09.4', '[Kauan · Backend Seed] Seed de dados reais (Edifício Verde + CoopRecicla SP).', 'done'],
+            ['W09.5', '[Lucas · Infra/Security] Habilitar CORS e permissões para consumo mobile via túnel.', 'done'],
+            ['W09.6', '[Kauan · Fullstack] Conectar repositório Flutter aos endpoints de chat.', 'done'],
             ['W09.7', '[Kauan & Lucas] Testar comunicação completa de ponta a ponta no iPhone.', 'done']
           ],
           exit: 'Fluxo completo de coleta e atendimento funcionando de ponta a ponta.',
@@ -2692,20 +2707,20 @@ model AuditLedger {
           code: 'W10',
           period: 'Semana 10',
           weeks: 'Semana 10 · Gate G3',
-          title: 'Aplicativo da Cooperativa e Operação Offline',
-          owner: 'OWNER · MOBILE + BACKEND',
+          title: 'IA RAG Backend & Operação Offline (Kauan & Lucas)',
+          owner: 'KAUAN (IA & API) & LUCAS (OFFLINE ENGINE)',
           status: 'planned',
           tasks: [
-            ['W10.1', 'Desenvolver fluxo de leitura de múltiplos QR Codes no aplicativo móvel.', 'pending'],
-            ['W10.2', 'Validar seriais e assinaturas dos lotes offline via App da Cooperativa.', 'pending'],
-            ['W10.3', 'Persistir leituras em banco SQLite local do dispositivo.', 'pending'],
-            ['W10.4', 'Assinar requisições com chave privada do operador da cooperativa.', 'pending'],
-            ['W10.5', 'Sincronizar coletas de forma idempotente em lote ao recuperar rede.', 'pending'],
-            ['W10.6', 'Exibir histórico local de coletas e sincronizações pendentes.', 'pending'],
-            ['W10.7', 'Testar simulação offline por 8 horas seguidas no aplicativo.', 'blocked']
+            ['W10.1', '[Kauan · Backend IA] Desenvolver módulo RAG NestJS `/api/v1/ai/query` integrado com Gemini API.', 'pending'],
+            ['W10.2', '[Kauan · Fullstack] Criar interface de Chatbot de IA para dúvidas dos moradores e condomínio.', 'pending'],
+            ['W10.3', '[Lucas · Backend Engine] Desenvolver fluxo de leitura de múltiplos QR Codes no aplicativo móvel.', 'pending'],
+            ['W10.4', '[Lucas · Backend DB] Persistir leituras offline em banco SQLite local do dispositivo.', 'pending'],
+            ['W10.5', '[Kauan · Backend API] Endpoint de sincronização idempotente em lote ao recuperar rede.', 'pending'],
+            ['W10.6', '[Kauan · Frontend] Exibir histórico local de coletas e sincronizações pendentes.', 'pending'],
+            ['W10.7', '[Lucas & Kauan] Testar simulação offline por 8 horas seguidas no aplicativo.', 'blocked']
           ],
-          exit: 'Leitura de múltiplos itens offline e sincronização em lote concluídas sem perdas.',
-          evidence: 'App da Cooperativa testado offline, com banco de dados local SQLite e filas de sincronização.'
+          exit: 'Assistente de IA RAG respondendo dúvidas e sincronização offline garantida.',
+          evidence: 'Endpoints de IA no NestJS e aplicativo sincronizando sem perda de dados.'
         },
         {
           code: 'W11',
@@ -2799,13 +2814,27 @@ model AuditLedger {
         blocked: { label: 'Dependência', symbol: '!', textClass: 'text-amber-300' }
       };
 
+      var currentDevFilter = 'all';
+
+      function isTaskForDev(task) {
+        if (currentDevFilter === 'all') return true;
+        var text = task[1].toLowerCase();
+        if (currentDevFilter === 'kauan') {
+          return text.indexOf('kauan') !== -1 || text.indexOf('frontend') !== -1 || text.indexOf('app') !== -1 || text.indexOf('ui') !== -1;
+        }
+        if (currentDevFilter === 'lucas') {
+          return text.indexOf('lucas') !== -1 || text.indexOf('backend') !== -1 || text.indexOf('api') !== -1 || text.indexOf('prisma') !== -1 || text.indexOf('infra') !== -1;
+        }
+        return true;
+      }
+
       function completedTasks(phase) {
-        return phase.tasks.filter(function (task) { return task[2] === 'done'; }).length;
+        return phase.tasks.filter(function (task) { return task[2] === 'done' && isTaskForDev(task); }).length;
       }
 
       function renderPlanSummary() {
         var allTasks = timelinePhases.reduce(function (result, phase) {
-          return result.concat(phase.tasks);
+          return result.concat(phase.tasks.filter(isTaskForDev));
         }, []);
         var done = allTasks.filter(function (task) { return task[2] === 'done'; }).length;
         var active = allTasks.filter(function (task) { return task[2] === 'active'; }).length;
@@ -2827,6 +2856,9 @@ model AuditLedger {
         list.innerHTML = '';
 
         timelinePhases.forEach(function (phase, index) {
+          var filteredTasks = phase.tasks.filter(isTaskForDev);
+          if (filteredTasks.length === 0 && currentDevFilter !== 'all') return;
+
           var done = completedTasks(phase);
           var button = document.createElement('button');
           button.className = 'timeline-phase relative flex w-full items-center gap-3 border border-white/15 bg-white/[0.03] p-3 text-left transition hover:border-green-400 sm:p-4';
@@ -2834,7 +2866,6 @@ model AuditLedger {
           button.dataset.phase = String(index);
           button.dataset.status = phase.status;
           button.setAttribute('aria-current', 'false');
-          button.setAttribute('aria-label', phase.code + ', ' + phase.title + ', ' + done + ' de ' + phase.tasks.length + ' concluídas');
 
           var dot = document.createElement('span');
           dot.className = 'timeline-dot relative z-10 grid h-5 w-5 shrink-0 place-items-center border-4 border-slate-700 bg-forest';
@@ -2852,7 +2883,7 @@ model AuditLedger {
 
           var count = document.createElement('span');
           count.className = 'font-mono text-[10px] text-green-200/60';
-          count.textContent = done + '/' + phase.tasks.length;
+          count.textContent = done + '/' + filteredTasks.length;
 
           button.append(dot, content, count);
           button.addEventListener('click', function () {
@@ -2864,8 +2895,10 @@ model AuditLedger {
 
       function renderTimelinePhase(index) {
         var phase = timelinePhases[index];
+        var filteredTasks = phase.tasks.filter(isTaskForDev);
         var done = completedTasks(phase);
         var phaseMeta = phaseStatusMeta[phase.status];
+
         document.querySelectorAll('.timeline-phase').forEach(function (button) {
           button.setAttribute('aria-current', Number(button.dataset.phase) === index ? 'step' : 'false');
         });
@@ -2876,11 +2909,11 @@ model AuditLedger {
         document.getElementById('phaseEvidence').textContent = phase.evidence;
         var phaseStatus = document.getElementById('phaseStatus');
         phaseStatus.className = 'self-start border px-3 py-1.5 font-mono text-[10px] ' + phaseMeta.className;
-        phaseStatus.textContent = phaseMeta.label + ' · ' + done + '/' + phase.tasks.length;
+        phaseStatus.textContent = phaseMeta.label + ' · ' + done + '/' + filteredTasks.length;
 
         var tasks = document.getElementById('phaseTasks');
         tasks.innerHTML = '';
-        phase.tasks.forEach(function (task) {
+        filteredTasks.forEach(function (task) {
           var taskMeta = taskStatusMeta[task[2]];
           var item = document.createElement('li');
           item.className = 'grid grid-cols-[24px_1fr] gap-3 border-b border-white/[0.07] pb-3 last:border-0 last:pb-0';
@@ -2889,6 +2922,7 @@ model AuditLedger {
           state.dataset.state = task[2];
           state.textContent = taskMeta.symbol;
           state.setAttribute('aria-label', taskMeta.label);
+
           var content = document.createElement('div');
           var metaLine = document.createElement('div');
           metaLine.className = 'flex flex-wrap items-center gap-x-3 gap-y-1';
@@ -2898,15 +2932,37 @@ model AuditLedger {
           var status = document.createElement('span');
           status.className = 'font-mono text-[8px] uppercase tracking-[0.12em] ' + taskMeta.textClass;
           status.textContent = taskMeta.label;
+
+          // Estimativa de tempo baseada na carga real de 8h/semana
+          var estTag = document.createElement('span');
+          estTag.className = 'font-mono text-[9px] text-amber-300/80 bg-amber-400/10 px-1.5 py-0.5 rounded';
+          estTag.textContent = 'Estimado: ~4h (~2 dias)';
+
           var description = document.createElement('p');
           description.className = 'mt-1 text-xs leading-5 text-green-50/75 sm:text-sm sm:leading-6';
           description.textContent = task[1];
-          metaLine.append(code, status);
+
+          metaLine.append(code, status, estTag);
           content.append(metaLine, description);
           item.append(state, content);
           tasks.appendChild(item);
         });
       }
+
+      // Dev Filter Event Listeners
+      document.querySelectorAll('.dev-filter-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          currentDevFilter = btn.dataset.dev;
+          document.querySelectorAll('.dev-filter-btn').forEach(function(b) {
+            b.className = 'dev-filter-btn rounded-md px-3 py-1.5 font-mono text-xs font-bold text-green-50/70 hover:text-white transition';
+          });
+          btn.className = 'dev-filter-btn rounded-md px-3 py-1.5 font-mono text-xs font-bold text-white transition bg-emerald/20 text-emerald border border-emerald/40';
+
+          renderPlanSummary();
+          renderTimelineNavigation();
+          renderTimelinePhase(8);
+        });
+      });
 
       renderPlanSummary();
       renderTimelineNavigation();
