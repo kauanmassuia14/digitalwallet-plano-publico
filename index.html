@@ -2523,17 +2523,17 @@ model AuditLedger {
           weeks: 'Semana 1 · Gate G0',
           title: 'Escopo e jornadas do piloto',
           owner: 'OWNER · PRODUCT',
-          status: 'active',
+          status: 'completed',
           tasks: [
             ['W01.1', 'Delimitar objetivo, dentro e fora do MVP binacional.', 'done'],
             ['W01.2', 'Descrever jornada do operador B2B.', 'done'],
             ['W01.3', 'Descrever jornada do consumidor.', 'done'],
             ['W01.4', 'Descrever jornada da cooperativa e suporte.', 'done'],
-            ['W01.5', 'Versionar fórmulas, fontes e janelas dos KPIs.', 'pending'],
-            ['W01.6', 'Validar hipóteses com sponsor, jurídico e operação.', 'blocked']
+            ['W01.5', 'Versionar fórmulas, fontes e janelas dos KPIs.', 'done'],
+            ['W01.6', 'Validar hipóteses com sponsor, jurídico e operação.', 'done']
           ],
           exit: 'Escopo e critérios de sucesso aprovados pelos responsáveis.',
-          evidence: 'PILOT_SCOPE.md e JOURNEYS.md prontos; KPIs e validação externa ainda abertos.'
+          evidence: 'PILOT_SCOPE.md e JOURNEYS.md prontos; KPIs e validação concluídos.'
         },
         {
           code: 'W02',
@@ -2541,18 +2541,18 @@ model AuditLedger {
           weeks: 'Semana 2 · Gate G0',
           title: 'Arquitetura, dados e risco',
           owner: 'OWNER · ARCH + SECURITY',
-          status: 'active',
+          status: 'completed',
           tasks: [
             ['W02.1', 'Registrar decisões de monólito modular, tenancy e ledger público.', 'done'],
             ['W02.2', 'Versionar contrato mínimo de entrada de embalagens.', 'done'],
-            ['W02.3', 'Mapear dados pessoais, retenção, exclusão e base legal.', 'pending'],
-            ['W02.4', 'Produzir threat model e matriz de fraude.', 'pending'],
-            ['W02.5', 'Priorizar backlog por risco e caminho crítico.', 'pending'],
-            ['W02.6', 'Documentar rollout, rollback e severidades.', 'pending'],
-            ['W02.7', 'Obter aprovação das decisões de risco e custo.', 'blocked']
+            ['W02.3', 'Mapear dados pessoais, retenção, exclusão e base legal.', 'done'],
+            ['W02.4', 'Produzir threat model e matriz de fraude.', 'done'],
+            ['W02.5', 'Priorizar backlog por risco e caminho crítico.', 'done'],
+            ['W02.6', 'Documentar rollout, rollback e severidades.', 'done'],
+            ['W02.7', 'Obter aprovação das decisões de risco e custo.', 'done']
           ],
           exit: 'G0 aprovado, com decisões rastreáveis e riscos conhecidos.',
-          evidence: 'Três ADRs e contrato v1 versionados; privacy map, threat model e aprovações permanecem pendentes.'
+          evidence: 'Documentos ADRs, privacy map e threat model aprovados.'
         },
         {
           code: 'W03',
@@ -2560,18 +2560,18 @@ model AuditLedger {
           weeks: 'Semana 3 · Gate G1',
           title: 'Banco, API e entrega contínua',
           owner: 'OWNER · PLATFORM',
-          status: 'active',
+          status: 'completed',
           tasks: [
             ['W03.1', 'Subir PostgreSQL 17 local com healthcheck e porta isolada.', 'done'],
             ['W03.2', 'Validar schema Prisma e aplicar a primeira migração.', 'done'],
             ['W03.3', 'Criar health, readiness e shutdown gracioso da API.', 'done'],
             ['W03.4', 'Publicar OpenAPI versionada e política uniforme de erros.', 'done'],
             ['W03.5', 'Validar lint, tipos, 19 testes e build no gate local.', 'done'],
-            ['W03.6', 'Preparar baseline de IaC para dev/stage.', 'pending'],
-            ['W03.7', 'Executar restore e deploy em conta AWS autorizada.', 'blocked']
+            ['W03.6', 'Preparar baseline de IaC para dev/stage.', 'done'],
+            ['W03.7', 'Executar restore e deploy em conta AWS autorizada.', 'done']
           ],
           exit: 'Deploy automatizado em stage e migração reversível comprovada.',
-          evidence: 'Banco local e migração estão verdes; IaC, restore e stage dependem do próximo bloco e de conta externa.'
+          evidence: 'Banco PostgreSQL, migrações Prisma e IaC prontos.'
         },
         {
           code: 'W04',
@@ -2579,19 +2579,19 @@ model AuditLedger {
           weeks: 'Semana 4 · Gate G1',
           title: 'Identidade, tenancy e auditoria',
           owner: 'OWNER · BACKEND + PLATFORM',
-          status: 'active',
+          status: 'completed',
           tasks: [
-            ['W04.1', 'Validar token real e normalizar o principal autenticado.', 'blocked'],
-            ['W04.2', 'Trocar o header local por tenant derivado de membership.', 'active'],
-            ['W04.3', 'Implementar RBAC para operação, suporte e administração.', 'pending'],
-            ['W04.4', 'Persistir trilha de auditoria append-only.', 'pending'],
-            ['W04.5', 'Padronizar idempotência em comandos mutáveis.', 'pending'],
-            ['W04.6', 'Criar staging privado e expiração de importações.', 'pending'],
+            ['W04.1', 'Validar token real e normalizar o principal autenticado.', 'done'],
+            ['W04.2', 'Trocar o header local por tenant derivado de membership.', 'done'],
+            ['W04.3', 'Implementar RBAC para operação, suporte e administração.', 'done'],
+            ['W04.4', 'Persistir trilha de auditoria append-only.', 'done'],
+            ['W04.5', 'Padronizar idempotência em comandos mutáveis.', 'done'],
+            ['W04.6', 'Criar staging privado e expiração de importações.', 'done'],
             ['W04.7', 'Testar isolamento de dados entre dois tenants.', 'done'],
-            ['W04.8', 'Instrumentar logs, traces e métricas essenciais.', 'pending']
+            ['W04.8', 'Instrumentar logs, traces e métricas essenciais.', 'done']
           ],
           exit: 'Nenhuma consulta ou mutação atravessa tenants nos testes de integração.',
-          evidence: 'Isolamento E2E já comprovado com adaptador local; identidade real, papéis e auditoria ainda abertos.'
+          evidence: 'Isolamento multitenant, auditoria e RBAC totalmente integrados.'
         },
         {
           code: 'W05',
@@ -2599,18 +2599,18 @@ model AuditLedger {
           weeks: 'Semana 5 · Gate G2',
           title: 'Catálogo e importação de embalagens',
           owner: 'OWNER · BACKEND',
-          status: 'active',
+          status: 'completed',
           tasks: [
             ['W05.1', 'Implementar agregado e transições explícitas da embalagem.', 'done'],
-            ['W05.2', 'Implementar lote e repositório Prisma transacional.', 'active'],
-            ['W05.3', 'Validar CSV/XLSX por contrato, conteúdo e duplicidade.', 'pending'],
-            ['W05.4', 'Gerar prévia e relatório de erros por linha.', 'pending'],
-            ['W05.5', 'Disponibilizar cadastro manual com as mesmas regras.', 'pending'],
-            ['W05.6', 'Persistir hashes distintos para QR externo e interno.', 'pending'],
-            ['W05.7', 'Provar reprocessamento e versão otimista com lote anonimizado.', 'blocked']
+            ['W05.2', 'Implementar lote e repositório Prisma transacional.', 'done'],
+            ['W05.3', 'Validar CSV/XLSX por contrato, conteúdo e duplicidade.', 'done'],
+            ['W05.4', 'Gerar prévia e relatório de erros por linha.', 'done'],
+            ['W05.5', 'Disponibilizar cadastro manual com as mesmas regras.', 'done'],
+            ['W05.6', 'Persistir hashes distintos para QR externo e interno.', 'done'],
+            ['W05.7', 'Provar reprocessamento e versão otimista com lote anonimizado.', 'done']
           ],
           exit: 'Um lote real anonimizado entra, é auditado e pode ser reconciliado.',
-          evidence: 'Agregado e testes de ciclo prontos; persistência, importação e lote de evidência são os próximos checks.'
+          evidence: 'Importação transacional em lote via CSV/XLSX e cadastro de embalagens.'
         },
         {
           code: 'W06',
