@@ -10,6 +10,7 @@ export default tseslint.config(
       "**/node_modules/**",
       "packages/database/generated/**",
       "index.html",
+      "apps/web/vite.config.ts",
     ],
   },
   ...tseslint.configs.recommendedTypeChecked,

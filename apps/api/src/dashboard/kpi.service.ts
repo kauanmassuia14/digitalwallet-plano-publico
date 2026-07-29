@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from "@nestjs/common";
+import { Injectable, BadRequestException, Inject } from "@nestjs/common";
 import { Prisma } from "@digitalwallet/database";
 import { DatabaseService } from "../common/database/database.service.js";
 import { LedgerService } from "../ledger/ledger.service.js";
@@ -51,8 +51,8 @@ export interface FinancialReconciliationResult {
 @Injectable()
 export class KpiService {
   public constructor(
-    private readonly database: DatabaseService,
-    private readonly ledgerService: LedgerService,
+    @Inject(DatabaseService) private readonly database: DatabaseService,
+    @Inject(LedgerService) private readonly ledgerService: LedgerService,
   ) {}
 
   public async calculateKpis(
@@ -292,6 +292,131 @@ export class KpiService {
         error: chainValidation.error || null,
         totalChainEntries,
       },
+    };
+  }
+
+  public async getChartData(tenantId: string): Promise<any> {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    thirtyDaysAgo.setHours(0, 0, 0, 0);
+
+    // 1. Fetch Packaging Lifecycle Data
+    const packagings = await this.database.client.packaging.findMany({
+      where: {
+        tenantId,
+        mintedAt: { gte: thirtyDaysAgo },
+      },
+      select: {
+        mintedAt: true,
+        circulatedAt: true,
+        collectedAt: true,
+        recycledAt: true,
+        materialCode: true,
+      },
+    });
+
+    // 2. Fetch Financial Data
+    const transactions = await this.database.client.rewardTransaction.findMany({
+      where: {
+        tenantId,
+        status: "SETTLED",
+        settledAt: { gte: thirtyDaysAgo },
+      },
+      select: {
+        type: true,
+        amountCents: true,
+        settledAt: true,
+        createdAt: true,
+      },
+    });
+
+    // Generate date map for last 30 days
+    const dailyDataMap = new Map<
+      string,
+      {
+        date: string;
+        minted: number;
+        circulated: number;
+        collected: number;
+        recycled: number;
+        earned: number;
+        cashedOut: number;
+      }
+    >();
+
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split("T")[0]!;
+      dailyDataMap.set(dateStr, {
+        date: dateStr,
+        minted: 0,
+        circulated: 0,
+        collected: 0,
+        recycled: 0,
+        earned: 0,
+        cashedOut: 0,
+      });
+    }
+
+    const formatDate = (date: Date | null): string | null => {
+      if (!date) return null;
+      return new Date(date).toISOString().split("T")[0] || null;
+    };
+
+    // Populate packaging counts
+    for (const pkg of packagings) {
+      const mintedDate = formatDate(pkg.mintedAt);
+      if (mintedDate && dailyDataMap.has(mintedDate)) {
+        dailyDataMap.get(mintedDate)!.minted++;
+      }
+      const circulatedDate = formatDate(pkg.circulatedAt);
+      if (circulatedDate && dailyDataMap.has(circulatedDate)) {
+        dailyDataMap.get(circulatedDate)!.circulated++;
+      }
+      const collectedDate = formatDate(pkg.collectedAt);
+      if (collectedDate && dailyDataMap.has(collectedDate)) {
+        dailyDataMap.get(collectedDate)!.collected++;
+      }
+      const recycledDate = formatDate(pkg.recycledAt);
+      if (recycledDate && dailyDataMap.has(recycledDate)) {
+        dailyDataMap.get(recycledDate)!.recycled++;
+      }
+    }
+
+    // Populate transaction sums
+    for (const tx of transactions) {
+      const txDate = formatDate(tx.settledAt ?? tx.createdAt);
+      if (txDate && dailyDataMap.has(txDate)) {
+        const entry = dailyDataMap.get(txDate)!;
+        const amount = Number(tx.amountCents);
+        if (tx.type === "EARN") {
+          entry.earned += amount;
+        } else if (tx.type === "CASHOUT") {
+          entry.cashedOut += amount;
+        }
+      }
+    }
+
+    const timeline = Array.from(dailyDataMap.values());
+
+    // 3. Material Distribution (over all time)
+    const materialCounts = await this.database.client.packaging.groupBy({
+      by: ["materialCode"],
+      where: { tenantId },
+      _count: {
+        id: true,
+      },
+    });
+
+    const materialDistribution = materialCounts.map((mc) => ({
+      materialCode: mc.materialCode,
+      count: mc._count.id,
+    }));
+
+    return {
+      timeline,
+      materialDistribution,
     };
   }
 }

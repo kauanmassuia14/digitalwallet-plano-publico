@@ -2,6 +2,7 @@ import {
   Injectable,
   BadRequestException,
   NotFoundException,
+  Inject,
 } from "@nestjs/common";
 import { DatabaseService } from "../common/database/database.service.js";
 import { CashoutAdapter } from "./cashout-adapter.js";
@@ -11,9 +12,9 @@ import type { RewardTransaction, RewardAccount } from "@digitalwallet/database";
 @Injectable()
 export class RewardsService {
   public constructor(
-    private readonly database: DatabaseService,
-    private readonly cashoutAdapter: CashoutAdapter,
-    private readonly ledgerService: LedgerService,
+    @Inject(DatabaseService) private readonly database: DatabaseService,
+    @Inject(CashoutAdapter) private readonly cashoutAdapter: CashoutAdapter,
+    @Inject(LedgerService) private readonly ledgerService: LedgerService,
   ) {}
 
   public async getAccount(
@@ -31,14 +32,54 @@ export class RewardsService {
     return account;
   }
 
+  public async getPendingBalanceCents(
+    tenantId: string,
+    accountId: string,
+  ): Promise<number> {
+    const pendingTransactions =
+      await this.database.client.rewardTransaction.findMany({
+        where: { tenantId, accountId, status: "PENDING" },
+        select: { amountCents: true },
+      });
+    return pendingTransactions.reduce(
+      (sum, tx) => sum + Number(tx.amountCents),
+      0,
+    );
+  }
+
   public async getTransactions(
     tenantId: string,
     accountId: string,
-  ): Promise<RewardTransaction[]> {
-    return this.database.client.rewardTransaction.findMany({
-      where: { tenantId, accountId },
-      orderBy: { createdAt: "desc" },
-    });
+    page: number = 1,
+    limit: number = 20,
+  ): Promise<{
+    data: RewardTransaction[];
+    meta: { total: number; page: number; limit: number; totalPages: number };
+  }> {
+    const skip = (page - 1) * limit;
+    const [data, total] = await Promise.all([
+      this.database.client.rewardTransaction.findMany({
+        where: { tenantId, accountId },
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit,
+      }),
+      this.database.client.rewardTransaction.count({
+        where: { tenantId, accountId },
+      }),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages,
+      },
+    };
   }
 
   public async earn(

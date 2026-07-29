@@ -3,16 +3,55 @@ import {
   PackagingAggregate,
   type PackagingSnapshot,
 } from "@digitalwallet/domain";
-import { Injectable } from "@nestjs/common";
+import { Injectable, Inject } from "@nestjs/common";
 import { randomUUID } from "node:crypto";
 
+import { DatabaseService } from "../common/database/database.service.js";
 import type { CreatePackagingDto } from "./dto/create-packaging.dto.js";
 import type { TransitionPackagingDto } from "./dto/transition-packaging.dto.js";
 import { PackagingRepository } from "./packaging.repository.js";
 
+export interface PublicPackagingLookupResult {
+  id: string;
+  status: string;
+  materialCode: string;
+  rewardCents: number;
+  tenantName: string;
+  allowedCountries: string[];
+}
+
 @Injectable()
 export class PackagingService {
-  public constructor(private readonly repository: PackagingRepository) {}
+  public constructor(
+    @Inject(PackagingRepository)
+    private readonly repository: PackagingRepository,
+    @Inject(DatabaseService) private readonly database: DatabaseService,
+  ) {}
+
+  public async findPublicByExternalQrHash(
+    externalQrHash: string,
+  ): Promise<PublicPackagingLookupResult> {
+    const packaging =
+      await this.repository.findByExternalQrHash(externalQrHash);
+
+    if (packaging === undefined) {
+      throw new DomainError("PACKAGING_NOT_FOUND", "Packaging was not found");
+    }
+
+    const tenant = await this.database.client.tenant.findUnique({
+      where: { id: packaging.tenantId },
+      select: { name: true, countryCodes: true },
+    });
+
+    return {
+      id: packaging.id,
+      status: packaging.status,
+      materialCode: packaging.materialCode,
+      rewardCents: packaging.rewardCents,
+      tenantName: tenant?.name || "Unknown Factory",
+      allowedCountries: tenant?.countryCodes || [],
+    };
+  }
 
   public async create(
     tenantId: string,
@@ -84,5 +123,36 @@ export class PackagingService {
     }
 
     return this.repository.save(updated, current.version);
+  }
+
+  public async list(
+    tenantId: string,
+    filters: { batchId?: string; status?: string },
+  ): Promise<PackagingSnapshot[]> {
+    return this.repository.findMany(tenantId, filters);
+  }
+
+  public async findEvents(
+    tenantId: string,
+    packagingId: string,
+  ): Promise<any[]> {
+    // Verify that the packaging belongs to this tenant first
+    await this.findById(tenantId, packagingId);
+
+    const events = await this.database.client.packagingEvent.findMany({
+      where: { tenantId, packagingId },
+      orderBy: { occurredAt: "asc" },
+    });
+
+    return events.map((e) => ({
+      id: e.id,
+      packagingId: e.packagingId,
+      tenantId: e.tenantId,
+      type: e.type,
+      occurredAt: e.occurredAt,
+      actualWeightGrams: e.actualWeightGrams
+        ? e.actualWeightGrams.toNumber()
+        : undefined,
+    }));
   }
 }

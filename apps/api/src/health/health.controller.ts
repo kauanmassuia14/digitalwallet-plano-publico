@@ -1,4 +1,4 @@
-import { Controller, Get } from "@nestjs/common";
+import { Controller, Get, Inject } from "@nestjs/common";
 import { ApiOkResponse, ApiTags } from "@nestjs/swagger";
 import { Prisma } from "@digitalwallet/database";
 
@@ -7,7 +7,9 @@ import { DatabaseService } from "../common/database/database.service.js";
 @ApiTags("system")
 @Controller({ path: "health", version: "1" })
 export class HealthController {
-  public constructor(private readonly database: DatabaseService) {}
+  public constructor(
+    @Inject(DatabaseService) private readonly database: DatabaseService,
+  ) {}
 
   @Get()
   @ApiOkResponse({

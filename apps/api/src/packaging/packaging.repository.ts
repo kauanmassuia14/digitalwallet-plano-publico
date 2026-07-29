@@ -15,10 +15,19 @@ export abstract class PackagingRepository {
     packagingId: string,
   ): Promise<PackagingSnapshot | undefined>;
 
+  public abstract findByExternalQrHash(
+    externalQrHash: string,
+  ): Promise<PackagingSnapshot | undefined>;
+
   public abstract save(
     packaging: PackagingAggregate,
     expectedVersion: number,
   ): Promise<PackagingSnapshot>;
+
+  public abstract findMany(
+    tenantId: string,
+    filters: { batchId?: string; status?: string },
+  ): Promise<PackagingSnapshot[]>;
 }
 
 @Injectable()
@@ -56,6 +65,17 @@ export class InMemoryPackagingRepository extends PackagingRepository {
     return Promise.resolve(this.copy(snapshot));
   }
 
+  public findByExternalQrHash(
+    externalQrHash: string,
+  ): Promise<PackagingSnapshot | undefined> {
+    const snapshots = Array.from(this.byId.values());
+    const snapshot = snapshots.find((s) => s.externalQrHash === externalQrHash);
+    if (snapshot === undefined) {
+      return Promise.resolve(undefined);
+    }
+    return Promise.resolve(this.copy(snapshot));
+  }
+
   public save(
     packaging: PackagingAggregate,
     expectedVersion: number,
@@ -83,6 +103,19 @@ export class InMemoryPackagingRepository extends PackagingRepository {
 
     this.byId.set(next.id, next);
     return Promise.resolve(this.copy(next));
+  }
+
+  public findMany(
+    tenantId: string,
+    filters: { batchId?: string; status?: string },
+  ): Promise<PackagingSnapshot[]> {
+    const results = Array.from(this.byId.values()).filter((s) => {
+      if (s.tenantId !== tenantId) return false;
+      if (filters.batchId && s.batchId !== filters.batchId) return false;
+      if (filters.status && s.status !== filters.status) return false;
+      return true;
+    });
+    return Promise.resolve(results.map((s) => this.copy(s)));
   }
 
   private serialKey(tenantId: string, serial: string): string {

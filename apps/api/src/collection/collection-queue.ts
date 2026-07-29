@@ -1,9 +1,11 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Inject } from "@nestjs/common";
 import { RedisService } from "../common/redis/redis.service.js";
 
 @Injectable()
 export class CollectionQueue {
-  public constructor(private readonly redisService: RedisService) {}
+  public constructor(
+    @Inject(RedisService) private readonly redisService: RedisService,
+  ) {}
 
   private getQueueKey(tenantId: string): string {
     return `tenant:${tenantId}:collections:queue`;

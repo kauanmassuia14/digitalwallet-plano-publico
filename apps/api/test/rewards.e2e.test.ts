@@ -84,8 +84,8 @@ describe("Rewards and Cashout E2E", () => {
       .set("x-tenant-id", tenantEs)
       .expect(200);
 
-    const list = history.body as TransactionBody[];
-    expect(list).toHaveLength(0);
+    expect(history.body.data).toHaveLength(0);
+    expect(history.body.meta.total).toBe(0);
   });
 
   it("earns rewards, prevents double-crediting package, and registers in the Ledger", async () => {
@@ -279,6 +279,76 @@ describe("Rewards and Cashout E2E", () => {
       })
       .expect(400);
   });
+
+  it("calculates pendingBalanceCents and supports paginated transaction history", async () => {
+    // 1. Manually insert a PENDING transaction to test pending balance
+    const account = await database.client.rewardAccount.create({
+      data: {
+        tenantId: tenantEs,
+        userId: userEs,
+        balanceCents: 500n,
+        version: 1,
+      },
+    });
+
+    await database.client.rewardTransaction.create({
+      data: {
+        tenantId: tenantEs,
+        accountId: account.id,
+        type: "CASHOUT",
+        status: "PENDING",
+        amountCents: 200n,
+        idempotencyKey: "manual-pending-key-999",
+      },
+    });
+
+    // Get balance and verify available vs pending
+    const balRes = await request(httpServer(app))
+      .get("/api/v1/rewards/balance")
+      .set("x-user-id", userEs)
+      .set("x-tenant-id", tenantEs)
+      .expect(200);
+
+    expect(balRes.body.balanceCents).toBe(500);
+    expect(balRes.body.pendingBalanceCents).toBe(200);
+
+    // 2. Add another transaction to test pagination
+    await database.client.rewardTransaction.create({
+      data: {
+        tenantId: tenantEs,
+        accountId: account.id,
+        type: "EARN",
+        status: "SETTLED",
+        amountCents: 100n,
+        idempotencyKey: "manual-earn-key-999",
+      },
+    });
+
+    // Query page 1 limit 1
+    const historyRes1 = await request(httpServer(app))
+      .get("/api/v1/rewards/transactions?page=1&limit=1")
+      .set("x-user-id", userEs)
+      .set("x-tenant-id", tenantEs)
+      .expect(200);
+
+    expect(historyRes1.body.data).toHaveLength(1);
+    expect(historyRes1.body.meta).toEqual({
+      total: 2,
+      page: 1,
+      limit: 1,
+      totalPages: 2,
+    });
+
+    // Query page 2 limit 1
+    const historyRes2 = await request(httpServer(app))
+      .get("/api/v1/rewards/transactions?page=2&limit=1")
+      .set("x-user-id", userEs)
+      .set("x-tenant-id", tenantEs)
+      .expect(200);
+
+    expect(historyRes2.body.data).toHaveLength(1);
+    expect(historyRes2.body.meta.page).toBe(2);
+  });
 });
 
 async function resetDatabase(database: DatabaseService): Promise<void> {
@@ -289,6 +359,9 @@ async function resetDatabase(database: DatabaseService): Promise<void> {
     database.client.rewardAccount.deleteMany({}),
     database.client.packaging.deleteMany({}),
     database.client.packagingBatch.deleteMany({}),
+    database.client.collectionRequest.deleteMany({}),
+    database.client.condominium.deleteMany({}),
+    database.client.cooperative.deleteMany({}),
     database.client.tenantMembership.deleteMany({}),
     database.client.user.deleteMany({}),
     database.client.tenant.deleteMany({}),

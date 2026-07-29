@@ -92,9 +92,18 @@ export class ApiExceptionFilter implements ExceptionFilter {
         details: exception.metadata,
         message: exception.message,
       };
+      if (process.env.NODE_ENV === "development") {
+        this.logger.warn(
+          `DomainError in development: ${exception.code} - ${exception.message}`,
+          exception.stack,
+        );
+      }
     } else if (exception instanceof HttpException) {
       status = exception.getStatus();
       payload = payloadFromHttpException(exception);
+      if (process.env.NODE_ENV === "development") {
+        this.logger.warn(`HttpException in development: ${exception.message}`);
+      }
     } else {
       this.logger.error(
         `Unhandled error ${errorId} for ${request.method ?? "UNKNOWN"} ${request.url ?? "UNKNOWN"}`,

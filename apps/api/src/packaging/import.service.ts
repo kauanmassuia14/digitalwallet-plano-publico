@@ -6,6 +6,7 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
+  Inject,
 } from "@nestjs/common";
 import {
   ImportJobAggregate,
@@ -30,8 +31,9 @@ export class ImportService {
   private readonly errorsDir = join(process.cwd(), "uploads", "error-reports");
 
   public constructor(
+    @Inject(BatchImportRepository)
     private readonly repository: BatchImportRepository,
-    private readonly database: DatabaseService,
+    @Inject(DatabaseService) private readonly database: DatabaseService,
   ) {}
 
   public async upload(
@@ -116,6 +118,31 @@ export class ImportService {
     return job;
   }
 
+  public async listJobs(tenantId: string): Promise<ImportJobSnapshot[]> {
+    const records = await this.database.client.importJob.findMany({
+      where: { tenantId },
+      orderBy: { createdAt: "desc" },
+    });
+    return records.map((record) => ({
+      acceptedRows: record.acceptedRows,
+      contractVersion: record.contractVersion,
+      createdAt: record.createdAt,
+      createdByUserId: record.createdByUserId,
+      errorReportKey: record.errorReportKey,
+      expiresAt: record.expiresAt,
+      fileHash: record.fileHash,
+      id: record.id,
+      objectKey: record.objectKey,
+      originalFileName: record.originalFileName,
+      rejectedRows: record.rejectedRows,
+      sourceEventId: record.sourceEventId,
+      status: record.status,
+      tenantId: record.tenantId,
+      totalRows: record.totalRows,
+      updatedAt: record.updatedAt,
+    }));
+  }
+
   public async getErrorReport(
     tenantId: string,
     jobId: string,
@@ -144,6 +171,12 @@ export class ImportService {
     if (jobSnap.status !== "READY") {
       throw new BadRequestException(
         `Import job is not ready to be committed. Current status: ${jobSnap.status}`,
+      );
+    }
+
+    if (jobSnap.expiresAt < new Date()) {
+      throw new BadRequestException(
+        "Import job has expired and cannot be committed",
       );
     }
 
@@ -539,5 +572,42 @@ export class ImportService {
     }
     result.push(current.trim());
     return result;
+  }
+
+  public async expirePendingImports(): Promise<number> {
+    const now = new Date();
+    const expiredJobs = await this.database.client.importJob.findMany({
+      where: {
+        expiresAt: { lt: now },
+        status: { in: ["UPLOADED", "VALIDATING", "READY"] },
+      },
+    });
+
+    for (const jobSnap of expiredJobs) {
+      const job = ImportJobAggregate.rehydrate(jobSnap);
+      const expiredJob = job.expire(now);
+      await this.repository.saveImportJob(expiredJob);
+
+      const batchSnap = await this.database.client.packagingBatch.findFirst({
+        where: { importJobId: jobSnap.id, tenantId: jobSnap.tenantId },
+      });
+      if (batchSnap !== null) {
+        const batch = PackagingBatchAggregate.rehydrate({
+          code: batchSnap.code,
+          countryCode: batchSnap.countryCode,
+          createdAt: batchSnap.createdAt,
+          currencyCode: batchSnap.currencyCode,
+          id: batchSnap.id,
+          importJobId: batchSnap.importJobId,
+          status: batchSnap.status,
+          tenantId: batchSnap.tenantId,
+          updatedAt: batchSnap.updatedAt,
+        });
+        const failedBatch = batch.fail(now);
+        await this.repository.saveBatch(failedBatch);
+      }
+    }
+
+    return expiredJobs.length;
   }
 }

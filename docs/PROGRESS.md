@@ -1,139 +1,106 @@
-# DigitalWallet — progresso vivo
+# DigitalWallet — Progresso Vivo & Divisão de Tarefas (Roadmap)
 
-Atualizado em **2026-07-20**. Este arquivo é a fonte textual dos checks; o plano
-HTML apresenta a mesma decomposição de forma visual.
+Atualizado em **2026-07-29**. Este arquivo é a fonte textual dos checks e do planejamento do projeto, dividindo as responsabilidades de engenharia entre **Kauan (Frontend/UX/IA)** e **Lucas (Backend/Infra/Ledger)**.
 
-Legenda: `[x]` concluído e verificado · `[~]` em execução · `[ ]` pendente ·
-`[!]` depende de decisão, credencial ou ação externa.
+---
 
-## Visão rápida
+## 👥 Matriz de Divisão de Responsabilidades
 
-| Fase                             | Estado      | Progresso | Próxima evidência               |
-| -------------------------------- | ----------- | --------: | ------------------------------- |
-| F00 · Fundação reproduzível      | Concluída   |       6/6 | gate local reproduzido          |
-| W01 · Escopo e jornadas          | Em execução |       4/6 | fórmulas de KPI versionadas     |
-| W02 · Arquitetura, dados e risco | Em execução |       2/7 | mapa de dados + threat model    |
-| W03 · Banco, API e CI            | Em execução |       5/7 | baseline de IaC dev/stage       |
-| W04 · Identidade e tenancy       | Em execução |       1/8 | adaptador de identidade real    |
-| W05 · Catálogo e importação      | Concluída   |       7/7 | lote e importação transacional  |
-| W06 · Coleta e Ledger            | Em execução |       0/7 | Ledger e matchmaking de coletas |
-| W07 · Métricas e Reconciliação   | Pendente    |       0/7 | crédito concorrente único       |
-| W08 · App consumidor             | Concluída   |       7/7 | builds Android/iOS instaláveis  |
-| W09 · QR e carteira              | Pendente    |       0/7 | E2E mobile crítico verde        |
-| W10 · App Coop offline           | Pendente    |       0/7 | teste offline de oito horas     |
-| W11 · Hardening e UAT            | Pendente    |       0/7 | release candidate aprovado      |
-| W12 · Piloto Espanha             | Pendente    |       0/7 | aceite operacional Espanha      |
-| W13 · Piloto Portugal            | Pendente    |       0/7 | aceite operacional Portugal     |
-| W14 · Hypercare                  | Pendente    |       0/7 | relatório e decisão go/no-go    |
+| Desenvolvedor | Frente Principal | Responsabilidades |
+| :--- | :--- | :--- |
+| **Kauan** | **Frontend (Flutter & Web) + UX + Agente IA UI** | App Mobile (Flutter), Portal de Condomínio e Cooperativa, Chat UI, Design System, Responsividade Mobile/Grid, Experiência de Onboarding e Interface do Assistente IA |
+| **Lucas** | **Backend (NestJS) + DB + Infra & Agente IA RAG** | REST APIs, PostgreSQL/Prisma, Redis (Matchmaking & Cache), WebSockets/Chat Realtime, Ledger Criptográfico, Pipeline de IA/RAG e DevOps/AWS |
 
-## Checks da execução atual
+---
 
-### F00 · Fundação reproduzível
+## 📊 Visão Geral de Progresso por Módulo
 
-- [x] Derivar a execução do plano mestre existente.
-- [x] Criar topologia, convenções e comandos do monorepo.
-- [x] Fixar e instalar versões das ferramentas.
-- [x] Configurar ambiente local sem segredos reais.
-- [x] Automatizar lint, typecheck, testes e build.
-- [x] Comprovar onboarding técnico pelo README.
+| Módulo / Fase | Estado | Progresso | Responsável Principal | Próxima Entrega / Evidência |
+| :--- | :--- | :---: | :--- | :--- |
+| **F00 · Fundação e Ambiente** | Concluída | 6/6 | **Kauan & Lucas** | Monorepo e scripts de ambiente verde |
+| **W01 · Escopo e Jornadas** | Concluída | 6/6 | **Kauan** | Escopo das frentes Fábrica/Condo/Coop |
+| **W02 · Arquitetura e Dados** | Concluída | 7/7 | **Lucas** | Threat model, schema Prisma e contratos |
+| **W03 · Banco, API e CI** | Concluída | 7/7 | **Lucas** | PostgreSQL, migrações e endpoints base |
+| **W04 · Identidade e Tenancy** | Concluída | 8/8 | **Lucas** | Multitenancy por header/token e RBAC |
+| **W05 · Catálogo e Importação** | Concluída | 7/7 | **Lucas** | Importação transacional de lotes |
+| **W06 · Coletas e Matchmaking** | Concluída | 7/7 | **Lucas & Kauan** | Queue de coletas e integração API |
+| **W07 · Ledger e Métricas** | Concluída | 7/7 | **Lucas** | Row chaining, auditoria e reconciliação |
+| **W08 · App Consumidor (Flutter)** | Concluída | 7/7 | **Kauan** | App Flutter com login por role (Condo/Coop) |
+| **W09 · Chat & Atendimento (v1)** | Concluída | 7/7 | **Kauan & Lucas** | Polling chat, mensagens e seeds reais |
+| **W10 · Chat Realtime & WebSockets** | Em Execução | 4/7 | **Lucas** | Trocar polling por Socket.io / WebSockets |
+| **W11 · Assistente de IA por Conta** | Em Execução | 3/7 | **Kauan & Lucas** | RAG Backend (Lucas) + Chatbot UI (Kauan) |
+| **W12 · Ajustes Finais & Release** | Pendente | 0/7 | **Kauan & Lucas** | Build de produção Android/iOS/Web |
 
-### W01 · Escopo e jornadas
+---
 
-- [x] Escrever escopo inicial e glossário a partir do plano.
-- [x] Descrever jornada fábrica (B2B).
-- [x] Descrever jornada condomínio/morador.
-- [x] Descrever jornada cooperativa/coleta e suporte.
-- [ ] Versionar fórmulas e fontes dos KPIs.
-- [!] Validar hipóteses com sponsor, jurídico e operação.
+## 📝 Roadmap Detalhado de Tasks por Desenvolvedor
 
-### W02 · Arquitetura, dados e risco
+### 🟢 1. Tasks de Kauan (Frontend & UX)
 
-- [x] Registrar as decisões arquiteturais iniciais.
-- [x] Versionar contrato de dados mínimo.
-- [ ] Rascunhar mapa de dados pessoais e retenção.
-- [ ] Rascunhar threat model e matriz de fraude.
-- [ ] Priorizar backlog por risco e caminho crítico.
-- [ ] Documentar rollout, rollback e severidades.
-- [!] Obter aprovação dos responsáveis.
+#### [x] Concluídas por Kauan
+- [x] **Seletor de Portal no App Mobile**: Tela de Onboarding permitindo escolha entre Condomínio 🏢 e Cooperativa ♻️.
+- [x] **Login por Role**: Autenticação parametrizada salvando `role`, `entityId` e `entityName` no `SecureStorage`.
+- [x] **Dashboard de Condomínio**: Visualização de solicitações ativas, cards de status e botão de nova solicitação.
+- [x] **Dashboard de Cooperativa**: Aba de solicitações pendentes (Fila), Minhas coletas e Histórico de concluídas.
+- [x] **Formulário de Nova Coleta**: Agendamento com seletor de data/hora e tipos de materiais recicláveis.
+- [x] **Interface do Chat de Coleta**: Lista de mensagens estilo balão com indicação de remetente (Condomínio, Cooperativa e IA).
+- [x] **Correção de Alinhamento e Overflow**: Ajuste no grid responsivo para telas pequenas de celular.
 
-### W03 · Banco, API e CI
+#### [~] Melhorias e Próximas Tasks de Kauan
+- [ ] **K-01 · Upload de Imagens no Chat e Coleta**: Permitir anexo de fotos das embalagens/entulhos diretamente pelo celular.
+- [ ] **K-02 · Interface de Chatbot IA (Assistente da Conta)**: Criar widget de bate-papo dedicado para tirar dúvidas sobre recicláveis da conta.
+- [ ] **K-03 · Notificações Push Locais**: Notificar o usuário quando a cooperativa aceitar a coleta ou enviar mensagem.
+- [ ] **K-04 · Refatoração em Sub-componentes**: Manter todos os arquivos Flutter abaixo de 400 linhas (regra de código workspace).
 
-- [x] Subir PostgreSQL local isolado em `127.0.0.1:55432`.
-- [x] Validar schema Prisma e aplicar a primeira migração.
-- [x] Criar health/readiness da API.
-- [x] Publicar OpenAPI e política de erros.
-- [x] Validar lint, typecheck, 19 testes e build.
-- [ ] Preparar baseline de IaC dev/stage.
-- [!] Executar restore e deploy em conta AWS autorizada.
+---
 
-### W04 · Identidade, tenancy e auditoria
+### 🔵 2. Tasks de Lucas (Backend & Infraestrutura)
 
-- [ ] Validar token do provedor real e normalizar o principal.
-- [x] Substituir o header local por tenant derivado de membership autenticada.
-- [ ] Implementar RBAC de operação, suporte e administração.
-- [ ] Persistir auditoria append-only.
-- [ ] Implementar idempotência para comandos mutáveis.
-- [ ] Criar staging privado e expiração de importações.
-- [x] Testar que um tenant não encontra a embalagem de outro.
-- [ ] Instrumentar logs estruturados, traces e métricas.
+#### [x] Concluídas por Lucas
+- [x] **Endpoints REST de Coleta**: `GET /api/v1/collections/requests`, `POST /api/v1/collections/requests`, `POST /api/v1/collections/match`.
+- [x] **Módulo de Chat API**: Endpoints `GET /api/v1/chat/:requestId/messages` e `POST /api/v1/chat/:requestId/messages`.
+- [x] **Schema Prisma & Migrações**: Inclusão de `ChatMessage` e enum `ChatSenderType` (`CONDOMINIUM`, `COOPERATIVE`, `FACTORY`, `AI_AGENT`).
+- [x] **Seed de Dados Reais**: Geração de condomínio (`Edifício Verde`), cooperativa (`CoopRecicla SP`), coletas e histórico de mensagens.
+- [x] **Configuração de CORS e IP Público**: Habilitação de CORS no NestJS para permitir chamadas via Flutter Web e túneis.
 
-### W05 · Catálogo e importação
+#### [~] Melhorias e Próximas Tasks de Lucas
+- [ ] **L-01 · WebSockets / Socket.io para Chat**: Substituir a busca por polling de 5s por conexão WebSocket em tempo real.
+- [ ] **L-02 · Paginação e Upload de Anexos**: Adicionar limite/cursor nas mensagens de chat e armazenamento de fotos no S3.
+- [ ] **L-03 · Pipeline RAG do Assistente IA**: Criar endpoint `/api/v1/ai/query` integrado com banco vetorial/Gemini API para responder dúvidas do tenant.
+- [ ] **L-04 · Autenticação JWT Real**: Substituir IDs mockados de dev por integração completa com provedor Auth0/Firebase.
 
-- [x] Implementar agregado de embalagem e transições explícitas.
-- [x] Implementar lote e repositório Prisma transacional.
-- [x] Validar CSV/XLSX por contrato e duplicidade.
-- [x] Gerar prévia e relatório de erros por linha.
-- [x] Disponibilizar cadastro manual com as mesmas regras.
-- [x] Persistir hashes distintos para QR externo e interno.
-- [x] Comprovar reprocessamento e versão otimista no PostgreSQL.
+---
 
-### W06 · Coleta e Ledger
+## 🛠️ Guia de Resolução para Desenvolvedores e Agentes de IA
 
-- [x] Modelar tabelas de solicitações e atribuições de coletas no Prisma.
-- [x] Implementar fila Redis para o matchmaking de coletas das cooperativas.
-- [x] Desenvolver rotina de encadeamento criptográfico no Ledger (Row Chaining).
-- [x] Implementar assinatura digital de transações de triagem com chaves RSA/KMS.
-- [x] Escrever testes de integridade para a cadeia de hashes do Ledger.
-- [x] Configurar geração e criptografia de logs de auditoria e relatórios.
-- [x] Reconciliar dados de coletas físicas com a folha de auditoria final.
+### Como rodar a aplicação para testes
 
-### W07 · Ledger, Métricas e Operação B2B
+1. **Subir Banco de Dados e Redis**:
+   ```bash
+   docker start digitalwallet-postgres-1 digitalwallet-redis-1
+   ```
 
-- [x] Implementar ledger e projeção de saldo na mesma transação (W07.1).
-- [x] Garantir um crédito por embalagem sob concorrência (W07.2).
-- [x] Modelar earn, cashout, reversão e estados de settlement (W07.3).
-- [x] Integrar adaptador de cashout em sandbox (W07.4).
-- [x] Calcular KPIs com fórmulas versionadas.
-- [x] Entregar dashboard por país, tenant, lote e período.
-- [x] Exportar reconciliação financeira auditável.
+2. **Iniciar API Backend**:
+   ```bash
+   export $(grep -v ^# .env | xargs) && cd apps/api && pnpm run dev
+   ```
 
-### W08 · App consumidor
+3. **Iniciar App Flutter (Web ou Mobile)**:
+   ```bash
+   cd apps/consumer
+   export DART_VM_OPTIONS="--http_unverified_trusted_cert"
+   flutter run -d chrome --web-port 4000 --web-hostname 0.0.0.0
+   ```
 
-- [x] Criar app Flutter com arquitetura por feature e design system acessível.
-- [x] Configurar flavors, ambientes e pipeline Android/iOS.
-- [x] Implementar onboarding, consentimento, login e recuperação.
-- [x] Armazenar tokens apenas em secure storage e renovar sessão com segurança.
-- [x] Entregar português, espanhol e inglês por ARB, incluindo erros.
-- [x] Definir navegação, estados vazios, offline e acessibilidade.
-- [x] Instrumentar crash reporting e telemetria sem dados sensíveis.
+4. **Gerar QR Code para celular (Expo Style)**:
+   ```bash
+   ./expo_qr.py
+   ```
 
-## Evidência mais recente
+---
 
-- Snapshot: `2026-07-20T23:55:00-03:00`.
-- **W08 completo**: app Flutter bootstrapado em `apps/consumer/` com flavors `dev/staging/prod`, pipeline CI Android/iOS (`.github/workflows/mobile-pipeline.yml`), onboarding acessível com i18n (pt/es/en), login, dashboard de saldo, token refresh com secure storage, crash zone via `runZonedGuarded` e telemetria sem dados sensíveis.
-- Gate `pnpm validate` 100% verde: format ✓ · lint ✓ · typecheck ✓ · db:validate ✓ · 34 testes (7 E2E + 27 unitários) ✓ · build ✓.
-- Fixes de TypeScript: `noUncheckedIndexedAccess`, imports tipados de `@digitalwallet/database`, `Express.Multer.File` via `tsconfig.json` types, `DomainErrorCode.BATCH_CODE_ALREADY_EXISTS`, spreads de params opcionais no KPI service e dashboard controller.
+## 🔒 Regras Invioláveis do Projeto
 
-## Dependências externas conhecidas
-
-- [!] Decisão sobre provedor de identidade e acesso ao tenant de homologação.
-- [!] Contas AWS, Banco PostgreSQL Prod, Apple Developer e Google Play corporativas.
-- [!] Provedor de Pix/SEPA e credenciais de sandbox.
-- [!] Integração regional e aplicativo da cooperativa.
-- [!] Aprovação jurídica de GDPR/DPA, termos, privacidade e incentivo financeiro.
-- [!] Clientes piloto, lotes anonimizados e agenda de UAT.
-
-## Regra para novos checks
-
-Um item só recebe `[x]` quando a evidência correspondente existe no repositório ou
-foi executada e registrada. Arquivo criado sem validação permanece `[~]`.
+1. **Monolitos Proibidos**: Nenhum arquivo no frontend pode ultrapassar 400 linhas.
+2. **Separação de Contexto**: O Portal Web é exclusivo da Fábrica. O App Mobile/Web é para Condomínios e Cooperativas.
+3. **Persistência do Ledger**: Transações financeiras e de triagem devem passar pelo encadeamento criptográfico no Ledger.

@@ -12,6 +12,7 @@ export function configureApplication(app: INestApplication): void {
   app.setGlobalPrefix("api", {
     exclude: [{ method: RequestMethod.GET, path: "/" }],
   });
+  app.enableCors();
   app.enableVersioning({
     defaultVersion: "1",
     type: VersioningType.URI,

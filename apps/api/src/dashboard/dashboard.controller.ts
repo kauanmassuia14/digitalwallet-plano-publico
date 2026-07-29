@@ -1,4 +1,4 @@
-import { Controller, Get, Query, UseGuards } from "@nestjs/common";
+import { Controller, Get, Inject, Query, UseGuards } from "@nestjs/common";
 import {
   KpiService,
   KpiResult,
@@ -10,7 +10,9 @@ import { CurrentTenant } from "../common/tenant/tenant-context.js";
 @Controller({ path: "dashboard", version: "1" })
 @UseGuards(TenantContextGuard)
 export class DashboardController {
-  public constructor(private readonly kpiService: KpiService) {}
+  public constructor(
+    @Inject(KpiService) private readonly kpiService: KpiService,
+  ) {}
 
   @Get("kpis")
   public async getKpis(
@@ -47,5 +49,10 @@ export class DashboardController {
       startDate,
       endDate,
     );
+  }
+
+  @Get("charts")
+  public async getChartData(@CurrentTenant() tenantId: string): Promise<any> {
+    return this.kpiService.getChartData(tenantId);
   }
 }

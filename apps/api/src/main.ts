@@ -1,3 +1,4 @@
+import "./instrumentation.js";
 import "reflect-metadata";
 
 import { Logger } from "@nestjs/common";
@@ -9,7 +10,9 @@ import { configureApplication } from "./configure-application.js";
 const logger = new Logger("Bootstrap");
 
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  console.log("[bootstrap] Creating NestJS application...");
+  const app = await NestFactory.create(AppModule);
+  console.log("[bootstrap] NestJS application created — configuring...");
   configureApplication(app);
 
   const port = Number.parseInt(process.env.PORT ?? "3000", 10);

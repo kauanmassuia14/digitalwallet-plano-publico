@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Inject } from "@nestjs/common";
 import * as crypto from "node:crypto";
 import { DatabaseService } from "../common/database/database.service.js";
 import { KmsService } from "./kms.service.js";
@@ -9,8 +9,8 @@ const GENESIS_HASH =
 @Injectable()
 export class LedgerService {
   public constructor(
-    private readonly database: DatabaseService,
-    private readonly kmsService: KmsService,
+    @Inject(DatabaseService) private readonly database: DatabaseService,
+    @Inject(KmsService) private readonly kmsService: KmsService,
   ) {}
 
   public calculateRowHash(prevHash: string, payload: any): string {

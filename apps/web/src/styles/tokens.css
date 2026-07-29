@@ -1,0 +1,108 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;700&display=swap");
+
+/* ─── Design Tokens ─────────────────────────────────────────────────── */
+:root {
+  /* Teal/Turquoise Brand scale */
+  --color-primary-50: #f0fdfa;
+  --color-primary-100: #ccfbf1;
+  --color-primary-200: #99f6e4;
+  --color-primary-300: #5eead4;
+  --color-primary-400: #2dd4bf;
+  --color-primary-500: #14b8a6;
+  --color-primary-600: #0d9488;
+  --color-primary-700: #0f766e;
+  --color-primary-800: #115e59;
+  --color-primary-900: #134e4a;
+  --color-primary-950: #042f2e;
+
+  /* Typography */
+  --font-display: "Outfit", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+
+  /* Spacing */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --radius-full: 9999px;
+
+  /* Transitions */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 120ms;
+  --duration-normal: 220ms;
+  --duration-slow: 380ms;
+
+  /* Layout */
+  --sidebar-width: 260px;
+  --sidebar-collapsed-width: 76px;
+  --navbar-height: 70px;
+
+  /* Neutral Scale (resolves --color-neutral-* usages in components.css) */
+  --color-neutral-0:   #ffffff;
+  --color-neutral-50:  #f8fafc;
+  --color-neutral-100: #f1f5f9;
+  --color-neutral-200: #e2e8f0;
+  --color-neutral-300: #cbd5e1;
+  --color-neutral-400: #94a3b8;
+  --color-neutral-500: #64748b;
+  --color-neutral-600: #475569;
+  --color-neutral-700: #334155;
+  --color-neutral-800: #1e293b;
+  --color-neutral-900: #0f172a;
+
+  /* Semantic - Light Theme (Default) */
+  --color-bg: #f4f5f9;
+  --color-surface: #ffffff;
+  --color-surface-hover: #fcfdfe;
+  --color-border: #e8ecf2;
+  --color-text: #0f172a; /* Deep Slate */
+  --color-text-muted: #64748b; /* Slate Muted */
+  --color-accent: var(--color-primary-600);
+  --color-accent-dark: var(--color-primary-900);
+  --color-accent-light: var(--color-primary-100);
+
+  /* Status */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #06b6d4;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.02);
+  --shadow-md: 0 12px 30px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 20px 48px rgba(15, 23, 42, 0.06);
+  --shadow-xl:  0 24px 64px rgba(15, 23, 42, 0.10);
+  --shadow-glow: 0 0 16px rgba(13, 148, 136, 0.08);
+}
+
+/* ─── Dark Theme Overrides ────────────────────────────────────────── */
+[data-theme="dark"] {
+  --color-bg: #0b0e14;
+  --color-surface: #131822;
+  --color-surface-hover: #19202c;
+  --color-border: #1f293d;
+  --color-text: #f8fafc;
+  --color-text-muted: #94a3b8;
+  --color-accent: var(--color-primary-400);
+  --color-accent-dark: var(--color-primary-200);
+  --color-accent-light: var(--color-primary-950);
+
+  /* Shadows for dark mode */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 12px 30px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 20px 48px rgba(0, 0, 0, 0.7);
+  --shadow-glow: 0 0 16px rgba(45, 212, 191, 0.15);
+}

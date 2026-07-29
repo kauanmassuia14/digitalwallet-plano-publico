@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Inject } from "@nestjs/common";
 import { DatabaseService } from "../common/database/database.service.js";
 import { EncryptionHelper } from "./encryption-helper.js";
 
@@ -19,7 +19,9 @@ export interface CreateAuditLogParams {
 export class AuditLogService {
   private readonly encryptionHelper = new EncryptionHelper();
 
-  public constructor(private readonly database: DatabaseService) {}
+  public constructor(
+    @Inject(DatabaseService) private readonly database: DatabaseService,
+  ) {}
 
   public async createLog(params: CreateAuditLogParams): Promise<any> {
     const encryptedBefore = params.before

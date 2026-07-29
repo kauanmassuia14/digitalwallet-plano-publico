@@ -11,14 +11,16 @@ import {
   type PackagingBatchAggregate,
   type PackagingBatchSnapshot,
 } from "@digitalwallet/domain";
-import { Injectable } from "@nestjs/common";
+import { Injectable, Inject } from "@nestjs/common";
 
 import { DatabaseService } from "../common/database/database.service.js";
 import { BatchImportRepository } from "./batch-import.repository.js";
 
 @Injectable()
 export class PrismaBatchImportRepository extends BatchImportRepository {
-  public constructor(private readonly database: DatabaseService) {
+  public constructor(
+    @Inject(DatabaseService) private readonly database: DatabaseService,
+  ) {
     super();
   }
 

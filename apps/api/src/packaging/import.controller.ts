@@ -10,21 +10,25 @@ import {
   UploadedFile,
   UseGuards,
   UseInterceptors,
+  Inject,
 } from "@nestjs/common";
 
 import { FileInterceptor } from "@nestjs/platform-express";
 import { ApiConsumes, ApiHeader, ApiTags } from "@nestjs/swagger";
 import type { Response } from "express";
 import type { ImportJobSnapshot } from "@digitalwallet/domain";
+import { TenantMembershipRole } from "@digitalwallet/database";
 
 import { CurrentTenant } from "../common/tenant/tenant-context.js";
 import { TenantContextGuard } from "../common/tenant/tenant-context.guard.js";
+import { RolesGuard } from "../common/tenant/roles.guard.js";
+import { Roles } from "../common/tenant/roles.decorator.js";
 import { UploadImportDto } from "./dto/upload-import.dto.js";
 import { ImportService } from "./import.service.js";
 
 @ApiTags("Imports")
 @Controller({ path: "imports", version: "1" })
-@UseGuards(TenantContextGuard)
+@UseGuards(TenantContextGuard, RolesGuard)
 @ApiHeader({
   name: "x-user-id",
   required: true,
@@ -36,7 +40,9 @@ import { ImportService } from "./import.service.js";
   description: "Tenant UUID context",
 })
 export class ImportController {
-  public constructor(private readonly importService: ImportService) {}
+  public constructor(
+    @Inject(ImportService) private readonly importService: ImportService,
+  ) {}
 
   @Post()
   @ApiConsumes("multipart/form-data")
@@ -57,6 +63,13 @@ export class ImportController {
       file.originalname,
       dto,
     );
+  }
+
+  @Get()
+  public async listJobs(
+    @CurrentTenant() tenantId: string,
+  ): Promise<ImportJobSnapshot[]> {
+    return this.importService.listJobs(tenantId);
   }
 
   @Get(":jobId")
@@ -84,5 +97,12 @@ export class ImportController {
     @Param("jobId") jobId: string,
   ): Promise<ImportJobSnapshot> {
     return this.importService.commitJob(tenantId, jobId);
+  }
+
+  @Post("cleanup")
+  @Roles(TenantMembershipRole.ADMIN)
+  public async cleanup(): Promise<{ expiredCount: number }> {
+    const expiredCount = await this.importService.expirePendingImports();
+    return { expiredCount };
   }
 }

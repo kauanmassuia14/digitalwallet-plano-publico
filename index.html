@@ -2654,39 +2654,39 @@ model AuditLedger {
           code: 'W08',
           period: 'Semana 8',
           weeks: 'Semana 8 · Gate G3',
-          title: 'Fundação do app consumidor',
-          owner: 'OWNER · MOBILE',
-          status: 'planned',
+          title: 'App Consumidor Flutter & UI/UX (Kauan)',
+          owner: 'OWNER · KAUAN (FRONTEND)',
+          status: 'completed',
           tasks: [
-            ['W08.1', 'Criar app Flutter por feature e design system acessível.', 'pending'],
-            ['W08.2', 'Configurar flavors e pipeline Android/iOS.', 'blocked'],
-            ['W08.3', 'Implementar onboarding, consentimento e login.', 'pending'],
-            ['W08.4', 'Guardar tokens em secure storage e renovar sessão.', 'pending'],
-            ['W08.5', 'Entregar português, espanhol e inglês por ARB.', 'pending'],
-            ['W08.6', 'Definir navegação, vazios, offline e acessibilidade.', 'pending'],
-            ['W08.7', 'Instrumentar crash reporting sem dados sensíveis.', 'pending']
+            ['W08.1', '[Kauan · Frontend] Criar app Flutter por feature e design system acessível.', 'done'],
+            ['W08.2', '[Kauan · Frontend] Seletor de portal no Onboarding (Condomínio vs Cooperativa).', 'done'],
+            ['W08.3', '[Kauan · Frontend] Implementar login por role e armazenamento em SecureStorage.', 'done'],
+            ['W08.4', '[Kauan · Frontend] Dashboard de Condomínio com solicitação de coleta.', 'done'],
+            ['W08.5', '[Kauan · Frontend] Dashboard de Cooperativa com aceite e histórico.', 'done'],
+            ['W08.6', '[Kauan · Frontend] Interface de chat entre condomínio e cooperativa.', 'done'],
+            ['W08.7', '[Kauan · Frontend] Suporte a execução no Safari iOS, Android e Web.', 'done']
           ],
-          exit: 'Builds instaláveis autenticam em iOS e Android nos três idiomas.',
-          evidence: 'Build matrix, vídeo de onboarding e checklist de acessibilidade.'
+          exit: 'Builds instaláveis autenticam e navegam por roles em iOS/Android/Web.',
+          evidence: 'App Flutter funcional com telas de condomínio, cooperativa e chat.'
         },
         {
           code: 'W09',
           period: 'Semana 9',
           weeks: 'Semana 9 · Gate G3',
-          title: 'QR, carteira e cashout',
-          owner: 'OWNER · MOBILE + BACKEND',
-          status: 'planned',
+          title: 'Coletas, API & Chat (Lucas)',
+          owner: 'OWNER · LUCAS (BACKEND)',
+          status: 'completed',
           tasks: [
-            ['W09.1', 'Ler QR externo e mostrar procedência permitida.', 'pending'],
-            ['W09.2', 'Consumir QR interno com challenge único de coleta.', 'pending'],
-            ['W09.3', 'Exibir saldo disponível, pendente e extrato paginado.', 'pending'],
-            ['W09.4', 'Implementar claim, retry seguro e suporte acionável.', 'pending'],
-            ['W09.5', 'Integrar cashout Pix/SEPA no sandbox aprovado.', 'blocked'],
-            ['W09.6', 'Cobrir deep links e permissões de câmera.', 'pending'],
-            ['W09.7', 'Executar E2E cadastro → claim → saldo → cashout.', 'pending']
+            ['W09.1', '[Lucas · Backend] Criar endpoints REST de solicitação e aceite de coletas.', 'done'],
+            ['W09.2', '[Lucas · Backend] Desenvolver módulo NestJS de mensagens de chat por solicitação.', 'done'],
+            ['W09.3', '[Lucas · Backend] Atualizar schema Prisma com ChatMessage e ChatSenderType.', 'done'],
+            ['W09.4', '[Lucas · Backend] Seed de dados reais (Edifício Verde + CoopRecicla SP).', 'done'],
+            ['W09.5', '[Lucas · Backend] Habilitar CORS e permissões para consumo mobile via túnel.', 'done'],
+            ['W09.6', '[Kauan · Frontend] Conectar repositório Flutter aos endpoints de chat.', 'done'],
+            ['W09.7', '[Kauan & Lucas] Testar comunicação completa de ponta a ponta no iPhone.', 'done']
           ],
-          exit: 'Fluxo crítico funciona nos dois sistemas sem crédito duplicado.',
-          evidence: 'E2E mobile, extrato explicável e recibo do sandbox.'
+          exit: 'Fluxo completo de coleta e atendimento funcionando de ponta a ponta.',
+          evidence: 'API NestJS com endpoints de coleta/chat e app Flutter integrados.'
         },
         {
           code: 'W10',
@@ -2910,7 +2910,7 @@ model AuditLedger {
 
       renderPlanSummary();
       renderTimelineNavigation();
-      renderTimelinePhase(5);
+      renderTimelinePhase(8);
     });
   </script>
 </body>

@@ -25,12 +25,13 @@ class _ConsumerAppState extends State<ConsumerApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
+    return MaterialApp(
       title: 'DigitalWallet',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      routerConfig: _appRouter.router,
+      initialRoute: '/onboarding',
+      routes: _appRouter.routes,
       localizationsDelegates: const [
         AppLocalizationsDelegate(),
         GlobalMaterialLocalizations.delegate,
@@ -38,9 +39,9 @@ class _ConsumerAppState extends State<ConsumerApp> {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [
-        Locale('en'),
-        Locale('es'),
-        Locale('pt'),
+        Locale('en', ''),
+        Locale('pt', ''),
+        Locale('es', ''),
       ],
     );
   }

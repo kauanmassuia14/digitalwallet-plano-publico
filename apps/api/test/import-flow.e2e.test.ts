@@ -215,6 +215,82 @@ describe("Import Flow API E2E", () => {
       .set("x-tenant-id", tenantEs)
       .expect(404);
   });
+
+  it("expires pending import jobs and rejects committing them", async () => {
+    // 1. Seed an admin user for the cleanup role check
+    const adminUser = "88888888-8888-4888-8888-888888888888";
+    await database.client.user.create({
+      data: {
+        id: adminUser,
+        email: "admin@es.com",
+        externalSubject: "auth0|admin",
+      },
+    });
+    await database.client.tenantMembership.create({
+      data: { tenantId: tenantEs, userId: adminUser, role: "ADMIN" },
+    });
+
+    const csvData =
+      "serial,materialCode,expectedWeightGrams,unitCostCents,rewardCents,externalQrHash,internalQrHash\n" +
+      "SN-EXP-1,PET,50.0,10,15,e5fa000000000000000000000000000000000000000000000000000000000001,f5fa000000000000000000000000000000000000000000000000000000000001\n";
+
+    const uploadResponse = await request(httpServer(app))
+      .post("/api/v1/imports")
+      .set("x-user-id", userEs)
+      .set("x-tenant-id", tenantEs)
+      .attach("file", Buffer.from(csvData), "import.csv")
+      .field("contractVersion", "v1")
+      .field("sourceEventId", "evt-exp-001")
+      .field("batchCode", "BATCH-EXP-001")
+      .field("countryCode", "ES")
+      .field("currencyCode", "EUR")
+      .expect(201);
+
+    const jobId = uploadResponse.body.id;
+
+    // Force expiration in database
+    const pastDate = new Date(Date.now() - 3600 * 1000); // 1 hour ago
+    await database.client.importJob.update({
+      where: { id: jobId },
+      data: { expiresAt: pastDate },
+    });
+
+    // 2. Try committing expired job -> 400 Bad Request
+    const commitResponse = await request(httpServer(app))
+      .post(`/api/v1/imports/${jobId}/commit`)
+      .set("x-user-id", userEs)
+      .set("x-tenant-id", tenantEs)
+      .expect(400);
+
+    expect(commitResponse.body.error?.message).toContain("expired");
+
+    // 3. Call cleanup endpoint (non-admin should get 403 Forbidden)
+    await request(httpServer(app))
+      .post("/api/v1/imports/cleanup")
+      .set("x-user-id", userEs)
+      .set("x-tenant-id", tenantEs)
+      .expect(403);
+
+    // 4. Call cleanup endpoint as ADMIN -> 201 Created and return expiredCount
+    const cleanupResponse = await request(httpServer(app))
+      .post("/api/v1/imports/cleanup")
+      .set("x-user-id", adminUser)
+      .set("x-tenant-id", tenantEs)
+      .expect(201);
+
+    expect(cleanupResponse.body.expiredCount).toBe(1);
+
+    // 5. Verify job status updated to EXPIRED and batch to FAILED
+    const expiredJob = await database.client.importJob.findUnique({
+      where: { id: jobId },
+    });
+    expect(expiredJob?.status).toBe("EXPIRED");
+
+    const failedBatch = await database.client.packagingBatch.findFirst({
+      where: { importJobId: jobId },
+    });
+    expect(failedBatch?.status).toBe("FAILED");
+  });
 });
 
 async function resetDatabase(database: DatabaseService): Promise<void> {
@@ -222,6 +298,9 @@ async function resetDatabase(database: DatabaseService): Promise<void> {
     database.client.packaging.deleteMany({}),
     database.client.packagingBatch.deleteMany({}),
     database.client.importJob.deleteMany({}),
+    database.client.collectionRequest.deleteMany({}),
+    database.client.condominium.deleteMany({}),
+    database.client.cooperative.deleteMany({}),
     database.client.tenantMembership.deleteMany({}),
     database.client.user.deleteMany({}),
     database.client.tenant.deleteMany({}),

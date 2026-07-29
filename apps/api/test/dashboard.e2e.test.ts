@@ -201,6 +201,19 @@ describe("Dashboard and Versioned KPIs E2E", () => {
     expect(reconBody.financialTotals.isReconciled).toBe(true);
     expect(reconBody.ledgerValidation.isValid).toBe(true);
   });
+
+  it("retrieves the dashboard charts data structure successfully", async () => {
+    const res = await request(httpServer(app))
+      .get("/api/v1/dashboard/charts")
+      .set("x-user-id", userEs)
+      .set("x-tenant-id", tenantEs)
+      .expect(200);
+
+    expect(res.body).toHaveProperty("timeline");
+    expect(res.body).toHaveProperty("materialDistribution");
+    expect(Array.isArray(res.body.timeline)).toBe(true);
+    expect(res.body.timeline).toHaveLength(30);
+  });
 });
 
 async function resetDatabase(database: DatabaseService): Promise<void> {
@@ -212,6 +225,9 @@ async function resetDatabase(database: DatabaseService): Promise<void> {
     database.client.packagingEvent.deleteMany({}),
     database.client.packaging.deleteMany({}),
     database.client.packagingBatch.deleteMany({}),
+    database.client.collectionRequest.deleteMany({}),
+    database.client.condominium.deleteMany({}),
+    database.client.cooperative.deleteMany({}),
     database.client.tenantMembership.deleteMany({}),
     database.client.user.deleteMany({}),
     database.client.tenant.deleteMany({}),

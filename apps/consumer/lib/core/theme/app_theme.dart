@@ -70,7 +70,7 @@ class AppTheme {
         ),
         bodyLarge: TextStyle(
           fontSize: 16,
-          color: Colors.white90,
+          color: Colors.white,
           height: 1.5,
         ),
         bodyMedium: TextStyle(

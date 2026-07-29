@@ -75,41 +75,44 @@ enum AuditActorType {
 }
 
 model Tenant {
-  id                 String              @id @default(uuid()) @db.Uuid
-  name               String
-  slug               String              @unique
-  countryCodes       String[]            @default([])
-  subscriptionActive Boolean             @default(true)
-  monthlyFeeCents    Int                 @default(25000)
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  memberships        TenantMembership[]
-  packagingBatches   PackagingBatch[]
-  packaging          Packaging[]
-  packagingEvents    PackagingEvent[]
-  importJobs         ImportJob[]
-  rewardAccounts     RewardAccount[]
-  rewardTransactions RewardTransaction[]
-  idempotencyRecords IdempotencyRecord[]
-  outboxEvents       OutboxEvent[]
-  auditLogs          AuditLog[]
-  condominiums       Condominium[]
-  cooperatives       Cooperative[]
-  collectionRequests CollectionRequest[]
+  id                   String              @id @default(uuid()) @db.Uuid
+  name                 String
+  slug                 String              @unique
+  countryCodes         String[]            @default([])
+  subscriptionActive   Boolean             @default(true)
+  monthlyFeeCents      Int                 @default(25000)
+  aiAgentModuleEnabled Boolean             @default(false)
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+  memberships          TenantMembership[]
+  packagingBatches     PackagingBatch[]
+  packaging            Packaging[]
+  packagingEvents      PackagingEvent[]
+  importJobs           ImportJob[]
+  rewardAccounts       RewardAccount[]
+  rewardTransactions   RewardTransaction[]
+  idempotencyRecords   IdempotencyRecord[]
+  outboxEvents         OutboxEvent[]
+  auditLogs            AuditLog[]
+  condominiums         Condominium[]
+  cooperatives         Cooperative[]
+  collectionRequests   CollectionRequest[]
+  chatMessages         ChatMessage[]
 
   @@index([createdAt])
 }
 
 model User {
-  id                 String              @id @default(uuid()) @db.Uuid
-  externalSubject    String              @unique
-  email              String?             @unique
-  locale             String              @default("en") @db.VarChar(10)
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
-  memberships        TenantMembership[]
-  importJobs         ImportJob[]
-  rewardAccounts     RewardAccount[]
+  id              String             @id @default(uuid()) @db.Uuid
+  externalSubject String             @unique
+  email           String?            @unique
+  locale          String             @default("en") @db.VarChar(10)
+  publicKey       String?            @db.Text
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  memberships     TenantMembership[]
+  importJobs      ImportJob[]
+  rewardAccounts  RewardAccount[]
 
   @@index([createdAt])
 }
@@ -174,30 +177,30 @@ model PackagingBatch {
 }
 
 model Packaging {
-  id                  String              @id @default(uuid()) @db.Uuid
-  tenantId            String              @db.Uuid
-  batchId             String              @db.Uuid
-  condominiumId       String?             @db.Uuid
-  cooperativeId       String?             @db.Uuid
-  serial              String              @db.VarChar(128)
-  status              PackagingStatus     @default(MINTED)
-  materialCode        String              @db.VarChar(64)
-  expectedWeightGrams Decimal             @db.Decimal(10, 2)
+  id                  String             @id @default(uuid()) @db.Uuid
+  tenantId            String             @db.Uuid
+  batchId             String             @db.Uuid
+  condominiumId       String?            @db.Uuid
+  cooperativeId       String?            @db.Uuid
+  serial              String             @db.VarChar(128)
+  status              PackagingStatus    @default(MINTED)
+  materialCode        String             @db.VarChar(64)
+  expectedWeightGrams Decimal            @db.Decimal(10, 2)
   unitCostCents       Int
   rewardCents         Int
-  externalQrHash      String              @unique @db.Char(64)
-  internalQrHash      String              @unique @db.Char(64)
-  version             Int                 @default(0)
-  mintedAt            DateTime            @default(now())
+  externalQrHash      String             @unique @db.Char(64)
+  internalQrHash      String             @unique @db.Char(64)
+  version             Int                @default(0)
+  mintedAt            DateTime           @default(now())
   circulatedAt        DateTime?
   collectedAt         DateTime?
   recycledAt          DateTime?
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @updatedAt
-  tenant              Tenant              @relation(fields: [tenantId], references: [id], onDelete: Restrict)
-  batch               PackagingBatch      @relation(fields: [tenantId, batchId], references: [tenantId, id], onDelete: Restrict)
-  condominium         Condominium?        @relation(fields: [condominiumId], references: [id], onDelete: SetNull)
-  cooperative         Cooperative?        @relation(fields: [cooperativeId], references: [id], onDelete: SetNull)
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  tenant              Tenant             @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  batch               PackagingBatch     @relation(fields: [tenantId, batchId], references: [tenantId, id], onDelete: Restrict)
+  condominium         Condominium?       @relation(fields: [condominiumId], references: [id], onDelete: SetNull)
+  cooperative         Cooperative?       @relation(fields: [cooperativeId], references: [id], onDelete: SetNull)
   events              PackagingEvent[]
   rewardTransaction   RewardTransaction?
 
@@ -207,20 +210,20 @@ model Packaging {
 }
 
 model PackagingEvent {
-  id                  String             @id @default(uuid()) @db.Uuid
-  tenantId            String             @db.Uuid
-  packagingId         String             @db.Uuid
-  type                PackagingEventType
-  actorType           AuditActorType
-  actorId             String             @db.VarChar(128)
-  idempotencyKey      String             @db.VarChar(128)
-  actualWeightGrams   Decimal?           @db.Decimal(10, 2)
-  payload             Json?
+  id                   String             @id @default(uuid()) @db.Uuid
+  tenantId             String             @db.Uuid
+  packagingId          String             @db.Uuid
+  type                 PackagingEventType
+  actorType            AuditActorType
+  actorId              String             @db.VarChar(128)
+  idempotencyKey       String             @db.VarChar(128)
+  actualWeightGrams    Decimal?           @db.Decimal(10, 2)
+  payload              Json?
   chainTransactionHash String?            @unique @db.VarChar(66)
-  occurredAt          DateTime
-  recordedAt          DateTime           @default(now())
-  tenant              Tenant             @relation(fields: [tenantId], references: [id], onDelete: Restrict)
-  packaging           Packaging          @relation(fields: [packagingId], references: [id], onDelete: Restrict)
+  occurredAt           DateTime
+  recordedAt           DateTime           @default(now())
+  tenant               Tenant             @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  packaging            Packaging          @relation(fields: [packagingId], references: [id], onDelete: Restrict)
 
   @@unique([tenantId, idempotencyKey])
   @@index([packagingId, occurredAt])
@@ -244,28 +247,28 @@ model RewardAccount {
 }
 
 model RewardTransaction {
-  id                    String                @id @default(uuid()) @db.Uuid
-  tenantId              String                @db.Uuid
-  accountId             String                @db.Uuid
-  packagingId           String?               @unique @db.Uuid
-  reversalOfId          String?               @unique @db.Uuid
-  type                  RewardTransactionType
-  status                TransactionStatus     @default(PENDING)
-  amountCents           BigInt
-  idempotencyKey        String                @db.VarChar(128)
-  externalReference     String?               @unique
-  providerReference     String?               @unique
-  chainTransactionHash  String?               @unique @db.VarChar(66)
-  settledAt             DateTime?
-  failedAt              DateTime?
-  failureCode           String?               @db.VarChar(64)
-  createdAt             DateTime              @default(now())
-  updatedAt             DateTime              @updatedAt
-  tenant                Tenant                @relation(fields: [tenantId], references: [id], onDelete: Restrict)
-  account               RewardAccount         @relation(fields: [accountId], references: [id], onDelete: Restrict)
-  packaging             Packaging?            @relation(fields: [packagingId], references: [id], onDelete: Restrict)
-  reversalOf            RewardTransaction?    @relation("RewardReversal", fields: [reversalOfId], references: [id], onDelete: Restrict)
-  reversedBy            RewardTransaction?    @relation("RewardReversal")
+  id                   String                @id @default(uuid()) @db.Uuid
+  tenantId             String                @db.Uuid
+  accountId            String                @db.Uuid
+  packagingId          String?               @unique @db.Uuid
+  reversalOfId         String?               @unique @db.Uuid
+  type                 RewardTransactionType
+  status               TransactionStatus     @default(PENDING)
+  amountCents          BigInt
+  idempotencyKey       String                @db.VarChar(128)
+  externalReference    String?               @unique
+  providerReference    String?               @unique
+  chainTransactionHash String?               @unique @db.VarChar(66)
+  settledAt            DateTime?
+  failedAt             DateTime?
+  failureCode          String?               @db.VarChar(64)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  tenant               Tenant                @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  account              RewardAccount         @relation(fields: [accountId], references: [id], onDelete: Restrict)
+  packaging            Packaging?            @relation(fields: [packagingId], references: [id], onDelete: Restrict)
+  reversalOf           RewardTransaction?    @relation("RewardReversal", fields: [reversalOfId], references: [id], onDelete: Restrict)
+  reversedBy           RewardTransaction?    @relation("RewardReversal")
 
   @@unique([tenantId, idempotencyKey])
   @@index([accountId, status, createdAt])
@@ -369,29 +372,53 @@ model Cooperative {
 }
 
 model CollectionRequest {
-  id             String            @id @default(uuid()) @db.Uuid
-  tenantId       String            @db.Uuid
-  condominiumId  String            @db.Uuid
-  cooperativeId  String?           @db.Uuid
-  status         RequestStatus     @default(PENDING)
-  scheduledFor   DateTime?
-  completedAt    DateTime?
-  createdAt      DateTime          @default(now())
-  updatedAt      DateTime          @updatedAt
-  tenant         Tenant            @relation(fields: [tenantId], references: [id], onDelete: Restrict)
-  condominium    Condominium       @relation(fields: [condominiumId], references: [id], onDelete: Cascade)
-  cooperative    Cooperative?      @relation(fields: [cooperativeId], references: [id], onDelete: SetNull)
+  id            String        @id @default(uuid()) @db.Uuid
+  tenantId      String        @db.Uuid
+  condominiumId String        @db.Uuid
+  cooperativeId String?       @db.Uuid
+  status        RequestStatus @default(PENDING)
+  scheduledFor  DateTime?
+  completedAt   DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  tenant        Tenant        @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  condominium   Condominium   @relation(fields: [condominiumId], references: [id], onDelete: Cascade)
+  cooperative   Cooperative?  @relation(fields: [cooperativeId], references: [id], onDelete: SetNull)
+  chatMessages  ChatMessage[]
 
   @@index([tenantId, status, createdAt])
 }
 
 model AuditLedger {
-  id             String            @id @default(uuid()) @db.Uuid
-  prevHash       String            @db.VarChar(64)
-  rowHash        String            @unique @db.VarChar(64)
-  payload        Json
-  signature      String
-  createdAt      DateTime          @default(now())
+  id        String   @id @default(uuid()) @db.Uuid
+  prevHash  String   @db.VarChar(64)
+  rowHash   String   @unique @db.VarChar(64)
+  payload   Json
+  signature String
+  createdAt DateTime @default(now())
 
   @@index([createdAt])
+}
+
+// ─── Chat ──────────────────────────────────────────────────────────────────
+
+enum ChatSenderType {
+  CONDOMINIUM
+  COOPERATIVE
+  AI_AGENT
+}
+
+model ChatMessage {
+  id                  String            @id @default(uuid()) @db.Uuid
+  tenantId            String            @db.Uuid
+  collectionRequestId String            @db.Uuid
+  senderType          ChatSenderType
+  senderName          String
+  content             String
+  createdAt           DateTime          @default(now())
+  tenant              Tenant            @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  collectionRequest   CollectionRequest @relation(fields: [collectionRequestId], references: [id], onDelete: Cascade)
+
+  @@index([collectionRequestId, createdAt])
+  @@index([tenantId, createdAt])
 }

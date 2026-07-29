@@ -7,14 +7,16 @@ import {
   type PackagingAggregate,
   type PackagingSnapshot,
 } from "@digitalwallet/domain";
-import { Injectable } from "@nestjs/common";
+import { Injectable, Inject } from "@nestjs/common";
 
 import { DatabaseService } from "../common/database/database.service.js";
 import { PackagingRepository } from "./packaging.repository.js";
 
 @Injectable()
 export class PrismaPackagingRepository extends PackagingRepository {
-  public constructor(private readonly database: DatabaseService) {
+  public constructor(
+    @Inject(DatabaseService) private readonly database: DatabaseService,
+  ) {
     super();
   }
 
@@ -90,6 +92,33 @@ export class PrismaPackagingRepository extends PackagingRepository {
     });
 
     return packaging === null ? undefined : this.toSnapshot(packaging);
+  }
+
+  public async findByExternalQrHash(
+    externalQrHash: string,
+  ): Promise<PackagingSnapshot | undefined> {
+    const packaging = await this.database.client.packaging.findFirst({
+      where: {
+        externalQrHash,
+      },
+    });
+
+    return packaging === null ? undefined : this.toSnapshot(packaging);
+  }
+
+  public async findMany(
+    tenantId: string,
+    filters: { batchId?: string; status?: any },
+  ): Promise<PackagingSnapshot[]> {
+    const records = await this.database.client.packaging.findMany({
+      where: {
+        tenantId,
+        ...(filters.batchId ? { batchId: filters.batchId } : {}),
+        ...(filters.status ? { status: filters.status } : {}),
+      },
+      orderBy: { mintedAt: "desc" },
+    });
+    return records.map((record) => this.toSnapshot(record));
   }
 
   public async save(

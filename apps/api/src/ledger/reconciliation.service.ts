@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Inject } from "@nestjs/common";
 import { DatabaseService } from "../common/database/database.service.js";
 import { LedgerService } from "./ledger.service.js";
 
@@ -15,8 +15,8 @@ export interface ReconciliationReport {
 @Injectable()
 export class ReconciliationService {
   public constructor(
-    private readonly database: DatabaseService,
-    private readonly ledgerService: LedgerService,
+    @Inject(DatabaseService) private readonly database: DatabaseService,
+    @Inject(LedgerService) private readonly ledgerService: LedgerService,
   ) {}
 
   public async reconcileTenantCollections(

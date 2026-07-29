@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  UseGuards,
+  Inject,
+} from "@nestjs/common";
 import { RewardsService } from "./rewards.service.js";
 import { TenantContextGuard } from "../common/tenant/tenant-context.guard.js";
 import {
@@ -36,7 +44,9 @@ function formatTransaction(tx: any): any {
 @Controller({ path: "rewards", version: "1" })
 @UseGuards(TenantContextGuard)
 export class RewardsController {
-  public constructor(private readonly rewardsService: RewardsService) {}
+  public constructor(
+    @Inject(RewardsService) private readonly rewardsService: RewardsService,
+  ) {}
 
   @Get("balance")
   public async getBalance(
@@ -44,11 +54,14 @@ export class RewardsController {
     @CurrentUser() user: AuthenticatedUser,
   ): Promise<any> {
     const account = await this.rewardsService.getAccount(tenantId, user.id);
+    const pendingBalanceCents =
+      await this.rewardsService.getPendingBalanceCents(tenantId, account.id);
     return {
       accountId: account.id,
       tenantId: account.tenantId,
       userId: account.userId,
       balanceCents: Number(account.balanceCents),
+      pendingBalanceCents,
       version: account.version,
       createdAt: account.createdAt,
       updatedAt: account.updatedAt,
@@ -59,10 +72,23 @@ export class RewardsController {
   public async getTransactions(
     @CurrentTenant() tenantId: string,
     @CurrentUser() user: AuthenticatedUser,
-  ): Promise<any[]> {
+    @Query("page") pageQuery?: string,
+    @Query("limit") limitQuery?: string,
+  ): Promise<any> {
+    const page = pageQuery ? parseInt(pageQuery, 10) : 1;
+    const limit = limitQuery ? parseInt(limitQuery, 10) : 20;
+
     const account = await this.rewardsService.getAccount(tenantId, user.id);
-    const txs = await this.rewardsService.getTransactions(tenantId, account.id);
-    return txs.map(formatTransaction);
+    const paginated = await this.rewardsService.getTransactions(
+      tenantId,
+      account.id,
+      page,
+      limit,
+    );
+    return {
+      data: paginated.data.map(formatTransaction),
+      meta: paginated.meta,
+    };
   }
 
   @Post("earn")

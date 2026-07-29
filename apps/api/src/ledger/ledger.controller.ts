@@ -1,4 +1,4 @@
-import { Controller, Get, Post, UseGuards } from "@nestjs/common";
+import { Controller, Get, Post, UseGuards, Inject } from "@nestjs/common";
 import { LedgerService } from "./ledger.service.js";
 import { KmsService } from "./kms.service.js";
 import { AuditLogService } from "./audit-log.service.js";
@@ -12,9 +12,10 @@ import { CurrentTenant } from "../common/tenant/tenant-context.js";
 @Controller({ path: "ledger", version: "1" })
 export class LedgerController {
   public constructor(
-    private readonly ledgerService: LedgerService,
-    private readonly kmsService: KmsService,
-    private readonly auditLogService: AuditLogService,
+    @Inject(LedgerService) private readonly ledgerService: LedgerService,
+    @Inject(KmsService) private readonly kmsService: KmsService,
+    @Inject(AuditLogService) private readonly auditLogService: AuditLogService,
+    @Inject(ReconciliationService)
     private readonly reconciliationService: ReconciliationService,
   ) {}
 
