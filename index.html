@@ -2592,78 +2592,68 @@ model AuditLedger {
           code: 'W04',
           period: 'Semana 4',
           weeks: 'Semana 4 · Gate G1',
-          title: 'Identidade, tenancy e auditoria',
-          owner: 'OWNER · BACKEND + PLATFORM',
-          status: 'completed',
+          title: 'Identidade e Tenancy (FastAPI)',
+          owner: 'LUCAS (FASTAPI/CORE)',
+          status: 'planned',
           tasks: [
-            ['W04.1', 'Validar token real e normalizar o principal autenticado.', 'done'],
-            ['W04.2', 'Trocar o header local por tenant derivado de membership.', 'done'],
-            ['W04.3', 'Implementar RBAC para operação, suporte e administração.', 'done'],
-            ['W04.4', 'Persistir trilha de auditoria append-only.', 'done'],
-            ['W04.5', 'Padronizar idempotência em comandos mutáveis.', 'done'],
-            ['W04.6', 'Criar staging privado e expiração de importações.', 'done'],
-            ['W04.7', 'Testar isolamento de dados entre dois tenants.', 'done'],
-            ['W04.8', 'Instrumentar logs, traces e métricas essenciais.', 'done']
+            ['W04.1', '[Lucas · Backend Core] Criar middleware no FastAPI para extração de Tenant via token JWT.', 'pending'],
+            ['W04.2', '[Lucas · Backend Core] Normalizar o principal autenticado e papeis RBAC em Python.', 'pending'],
+            ['W04.3', '[Lucas · Backend DB] Converter schemas e modelos Prisma para SQLModel / Pydantic v2.', 'pending'],
+            ['W04.4', '[Lucas · Backend Core] Persistir trilha de auditoria append-only no FastAPI.', 'pending'],
+            ['W04.5', '[Kauan · Fullstack] Padronizar tratamento uniforme de exceções no FastAPI.', 'pending'],
+            ['W04.6', '[Lucas · Backend Core] Testar isolamento multitenant nas rotas assíncronas em Python.', 'pending']
           ],
-          exit: 'Nenhuma consulta ou mutação atravessa tenants nos testes de integração.',
-          evidence: 'Isolamento multitenant, auditoria e RBAC totalmente integrados.'
+          exit: 'Isolamento multitenant e autenticação JWT funcionando no FastAPI.',
+          evidence: 'Middlewares FastAPI testados com isolamento de tenant 100% verde.'
         },
         {
           code: 'W05',
           period: 'Semana 5',
           weeks: 'Semana 5 · Gate G2',
-          title: 'Catálogo e importação de embalagens',
-          owner: 'OWNER · BACKEND',
-          status: 'completed',
+          title: 'Catálogo e Importação de Embalagens (FastAPI)',
+          owner: 'LUCAS & KAUAN (FASTAPI)',
+          status: 'planned',
           tasks: [
-            ['W05.1', 'Implementar agregado e transições explícitas da embalagem.', 'done'],
-            ['W05.2', 'Implementar lote e repositório Prisma transacional.', 'done'],
-            ['W05.3', 'Validar CSV/XLSX por contrato, conteúdo e duplicidade.', 'done'],
-            ['W05.4', 'Gerar prévia e relatório de erros por linha.', 'done'],
-            ['W05.5', 'Disponibilizar cadastro manual com as mesmas regras.', 'done'],
-            ['W05.6', 'Persistir hashes distintos para QR externo e interno.', 'done'],
-            ['W05.7', 'Provar reprocessamento e versão otimista com lote anonimizado.', 'done']
+            ['W05.1', '[Lucas · Backend Engine] Implementar serviço de importação em lote CSV/XLSX usando Pandas em Python.', 'pending'],
+            ['W05.2', '[Lucas · Backend Engine] Gerar prévia e relatório de erros por linha com Pydantic v2.', 'pending'],
+            ['W05.3', '[Kauan · Backend API] Endpoint de cadastro manual de embalagens no FastAPI.', 'pending'],
+            ['W05.4', '[Kauan · Backend API] Persistir hashes distintos para QR Code externo e interno.', 'pending'],
+            ['W05.5', '[Lucas · Backend DB] Testar transações assíncronas de lote com versão otimista em Python.', 'pending']
           ],
-          exit: 'Um lote real anonimizado entra, é auditado e pode ser reconciliado.',
-          evidence: 'Importação transacional em lote via CSV/XLSX e cadastro de embalagens.'
+          exit: 'Importação transacional de lotes operando via FastAPI em Python.',
+          evidence: 'Endpoint FastAPI de upload de arquivos CSV/XLSX importando dados em lote.'
         },
         {
           code: 'W06',
           period: 'Semana 6',
           weeks: 'Semana 6 · Gate G2',
-          title: 'Processo de Coleta e Auditoria Ledger',
-          owner: 'OWNER · BACKEND + PLATFORM',
-          status: 'done',
+          title: 'Coletas e Queue Matchmaking (FastAPI)',
+          owner: 'KAUAN & LUCAS (FASTAPI)',
+          status: 'planned',
           tasks: [
-            ['W06.1', 'Modelar tabelas de solicitações e atribuições de coletas no Prisma.', 'done'],
-            ['W06.2', 'Implementar fila Redis para o matchmaking de coletas das cooperativas.', 'done'],
-            ['W06.3', 'Desenvolver rotina de encadeamento criptográfico no Ledger (Row Chaining).', 'done'],
-            ['W06.4', 'Implementar assinatura digital de transações de triagem com chaves RSA/KMS.', 'done'],
-            ['W06.5', 'Escrever testes de integridade para a cadeia de hashes do Ledger.', 'done'],
-            ['W06.6', 'Configurar geração e criptografia de logs de auditoria e relatórios.', 'done'],
-            ['W06.7', 'Reconciliar dados de coletas físicas com a folha de auditoria final.', 'done']
+            ['W06.1', '[Kauan · Backend API] Criar Router `/api/v1/collections` assíncrono em FastAPI.', 'pending'],
+            ['W06.2', '[Lucas · Backend Engine] Configurar fila Redis (Celery / ARQ) para o matchmaking de coletas.', 'pending'],
+            ['W06.3', '[Kauan · Fullstack] Conectar formulários do App Flutter às rotas FastAPI.', 'pending'],
+            ['W06.4', '[Lucas · Backend Engine] Implementar notificações e atribuição automática de cooperativa.', 'pending']
           ],
-          exit: 'Solicitações de coleta e assinaturas criptográficas do Ledger validadas com sucesso.',
-          evidence: 'Serviço de Ledger atômico com encadeamento de hashes e testes unitários.'
+          exit: 'Matchmaking de coletas rodando em Python com filas Redis.',
+          evidence: 'Routers FastAPI de coletas aceitando requisições e enfileirando tarefas.'
         },
         {
           code: 'W07',
           period: 'Semana 7',
           weeks: 'Semana 7 · Gate G2',
-          title: 'Ledger, métricas e operação B2B',
-          owner: 'OWNER · BACKEND + PRODUCT',
-          status: 'done',
+          title: 'Ledger Criptográfico & Reconciliação (FastAPI)',
+          owner: 'LUCAS (FASTAPI/LEDGER)',
+          status: 'planned',
           tasks: [
-            ['W07.1', 'Implementar ledger e projeção de saldo na mesma transação.', 'done'],
-            ['W07.2', 'Garantir um crédito por embalagem sob concorrência.', 'done'],
-            ['W07.3', 'Modelar earn, cashout, reversão e estados de settlement.', 'done'],
-            ['W07.4', 'Integrar adaptador de cashout em sandbox.', 'done'],
-            ['W07.5', 'Calcular KPIs com fórmulas versionadas.', 'done'],
-            ['W07.6', 'Entregar dashboard por país, tenant, lote e período.', 'done'],
-            ['W07.7', 'Exportar reconciliação financeira auditável.', 'done']
+            ['W07.1', '[Lucas · Backend Ledger] Implementar encadeamento de hashes (Row Chaining) em Python.', 'pending'],
+            ['W07.2', '[Lucas · Backend Ledger] Assinaturas digitais de transações com criptografia em Python.', 'pending'],
+            ['W07.3', '[Lucas · Backend Engine] Extrato paginado de saldo e settlement no FastAPI.', 'pending'],
+            ['W07.4', '[Lucas · Backend Engine] Adaptador de cashout Pix/SEPA em sandbox Python.', 'pending']
           ],
-          exit: 'Embalagem coletada gera exatamente um crédito e métricas conciliadas.',
-          evidence: 'Teste concorrente, extrato reconciliado e dashboard com janela explícita.'
+          exit: 'Ledger criptográfico assinado e reconciliado em Python.',
+          evidence: 'Módulo de Ledger em Python com teste de integridade da cadeia de hashes.'
         },
         {
           code: 'W08',
@@ -2688,20 +2678,15 @@ model AuditLedger {
           code: 'W09',
           period: 'Semana 9',
           weeks: 'Semana 9 · Gate G3',
-          title: 'Coletas, APIs & Chat Module (Kauan & Lucas)',
-          owner: 'KAUAN (BACKEND/API) & LUCAS (CORE)',
+          title: 'Protótipo Validação NestJS (Legado)',
+          owner: 'KAUAN & LUCAS',
           status: 'completed',
           tasks: [
-            ['W09.1', '[Lucas · Backend Core] Criar endpoints REST de solicitação e aceite de coletas.', 'done'],
-            ['W09.2', '[Kauan · Backend API] Desenvolver módulo NestJS de mensagens de chat por solicitação.', 'done'],
-            ['W09.3', '[Kauan · Backend DB] Atualizar schema Prisma com ChatMessage e ChatSenderType.', 'done'],
-            ['W09.4', '[Kauan · Backend Seed] Seed de dados reais (Edifício Verde + CoopRecicla SP).', 'done'],
-            ['W09.5', '[Lucas · Infra/Security] Habilitar CORS e permissões para consumo mobile via túnel.', 'done'],
-            ['W09.6', '[Kauan · Fullstack] Conectar repositório Flutter aos endpoints de chat.', 'done'],
-            ['W09.7', '[Kauan & Lucas] Testar comunicação completa de ponta a ponta no iPhone.', 'done']
+            ['W09.1', '[Lucas & Kauan] Validação de conceito inicial com backend NestJS.', 'done'],
+            ['W09.2', '[Kauan & Lucas] Testar comunicação completa de ponta a ponta no iPhone com mock real.', 'done']
           ],
-          exit: 'Fluxo completo de coleta e atendimento funcionando de ponta a ponta.',
-          evidence: 'API NestJS com endpoints de coleta/chat e app Flutter integrados.'
+          exit: 'Conceito validado para início da migração oficial para FastAPI.',
+          evidence: 'Protótipo inicial validado no iPhone.'
         },
         {
           code: 'W10',
@@ -2709,15 +2694,15 @@ model AuditLedger {
           weeks: 'Semana 10 · Gate G3',
           title: 'Migração para FastAPI (Python) & IA RAG (Kauan & Lucas)',
           owner: 'KAUAN (FASTAPI/IA) & LUCAS (CORE/FASTAPI)',
-          status: 'active',
+          status: 'planned',
           tasks: [
-            ['W10.1', '[Kauan · Fullstack] Criar estrutura inicial da API em FastAPI com Uvicorn e Pydantic v2.', 'done'],
-            ['W10.2', '[Kauan · Backend IA] Desenvolver módulo RAG NestJS/FastAPI `/api/v1/ai/query` integrado com Gemini API.', 'done'],
-            ['W10.3', '[Lucas · Backend Engine] Migrar DTOs e Schemas do Prisma para SQLModel / SQLAlchemy em Python.', 'done'],
+            ['W10.1', '[Kauan · Fullstack] Criar estrutura inicial `apps/api-fastapi` com Uvicorn e Pydantic v2.', 'pending'],
+            ['W10.2', '[Kauan · Backend IA] Desenvolver módulo RAG `/api/v1/ai/query` em Python integrado com Gemini API.', 'pending'],
+            ['W10.3', '[Lucas · Backend Engine] Converter DTOs e Schemas para SQLModel / SQLAlchemy em Python.', 'pending'],
             ['W10.4', '[Lucas · Backend Auth] Implementar middleware de multitenancy e JWT no FastAPI.', 'pending'],
             ['W10.5', '[Kauan · Backend API] Migrar endpoints de Chat e Coletas para Routers assíncronos do FastAPI.', 'pending'],
             ['W10.6', '[Kauan · Fullstack] Atualizar apontamento do App Flutter para os novos endpoints FastAPI.', 'pending'],
-            ['W10.7', '[Lucas & Kauan] Executar suíte de testes de integração e validar performance do FastAPI.', 'blocked']
+            ['W10.7', '[Lucas & Kauan] Executar suíte de testes de integração e validar performance do FastAPI.', 'pending']
           ],
           exit: 'Backend migrado com sucesso para FastAPI (Python) com IA RAG nativa e alta performance.',
           evidence: 'Servidor FastAPI em Python rodando em 0.0.0.0:3000 com documentação OpenAPI/Swagger automática.'
