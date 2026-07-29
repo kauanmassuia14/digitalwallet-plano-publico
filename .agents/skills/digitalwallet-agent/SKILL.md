@@ -1,15 +1,15 @@
 ---
 name: digitalwallet-agent
-description: Instruções completas, arquitetura, regras de codificação, banco de dados e guias de desenvolvimento para assistentes de IA e desenvolvedores no projeto DigitalWallet. Use quando precisar modificar o backend NestJS, app consumidor Flutter, painel web ou arquitetura de dados e agentes.
+description: Instruções completas, arquitetura, regras de codificação, banco de dados e guias de desenvolvimento para assistentes de IA e desenvolvedores no projeto DigitalWallet. Use quando precisar modificar o backend FastAPI (Python), NestJS (Legado/Migração), app consumidor Flutter, painel web ou arquitetura de dados e agentes.
 ---
 
 # Skill do Projeto DigitalWallet — Guia Completo para IA e Desenvolvedores
 
-Esta skill reúne todo o conhecimento arquitetural, regras de negócio, contratos da API, estrutura do banco de dados e boas práticas do ecossistema **DigitalWallet**.
+Esta skill reúne todo o conhecimento arquitetural, regras de negócio, contratos da API, estrutura do banco de dados e boas práticas do ecossistema **DigitalWallet** (incluindo o plano de migração do backend de NestJS para FastAPI).
 
 ---
 
-## 1. Visão Geral da Arquitetura
+## 1. Visão Geral da Arquitetura & Migração FastAPI
 
 O **DigitalWallet** é uma plataforma de economia circular e rastreabilidade de embalagens recicláveis com 3 frentes de usuários:
 
@@ -31,12 +31,12 @@ O **DigitalWallet** é uma plataforma de economia circular e rastreabilidade de 
                                  │
                                  ▼
                     ┌──────────────────────────┐
-                    │    BACKEND API (NestJS)  │
-                    │ - PostgreSQL + Prisma    │
-                    │ - Redis (Queue/Cache)    │
-                    │ - Chat & Coletas (v1)    │
-                    │ - Ledger Criptográfico   │
-                    │ - AI Agent RAG Adapter   │
+                    │  BACKEND FASTAPI (Python)│  ◄── [Plano de Migração]
+                    │ - PostgreSQL + SQLModel  │  (Substituindo NestJS)
+                    │ - Redis + Celery / ARQ   │
+                    │ - Chat Realtime & Coletas│
+                    │ - Ledger & Criptografia  │
+                    │ - IA RAG & Gemini Native │
                     └──────────────────────────┘
 ```
 
@@ -47,11 +47,12 @@ O **DigitalWallet** é uma plataforma de economia circular e rastreabilidade de 
 ```
 digitalwallet/
 ├── apps/
-│   ├── api/          # Backend NestJS (REST API, Redis, Ledger, Auth, Chat, Coletas)
+│   ├── api-fastapi/  # Backend FastAPI em Python (Novo Padrão)
+│   ├── api/          # Backend NestJS (Legado / Fonte de Regras de Negócio)
 │   ├── consumer/     # App Mobile / Web em Flutter (Condomínio & Cooperativa)
 │   └── web/          # Portal Web Fábrica (Vite / TypeScript)
 ├── packages/
-│   └── database/     # Prisma ORM, Schemas e Migrações PostgreSQL
+│   └── database/     # Schemas PostgreSQL, Migrações e Seeds
 ├── .agents/
 │   └── skills/       # Skills e instruções para Agentes de IA
 ├── docs/             # Documentação técnica, arquitetura e PROGRESS.md
@@ -60,54 +61,42 @@ digitalwallet/
 
 ---
 
-## 3. Principais Modelos de Dados (Prisma Schema)
+## 3. Principais Módulos da API em FastAPI (Python)
 
-- **Tenant**: Fábrica / Organização contratante do ecossistema.
-- **Condominium**: Entidade do condomínio solicitante (`id`, `name`, `address`, `tenantId`).
-- **Cooperative**: Entidade da cooperativa de reciclagem (`id`, `name`, `contactPhone`, `tenantId`).
-- **CollectionRequest**: Solicitação de coleta criada pelo condomínio (`status`: `PENDING`, `ASSIGNED`, `COMPLETED`, `CANCELLED`).
-- **ChatMessage**: Mensagem do chat atrelado à solicitação (`senderType`: `CONDOMINIUM`, `COOPERATIVE`, `FACTORY`, `AI_AGENT`).
+- **Auth & Multitenancy**: Injeção de dependência via `Depends(get_current_tenant)` e tokens JWT (`python-jose`/`passlib`).
+- **Collections Router** (`/api/v1/collections`): Endpoints de solicitações de coleta, aceite pela cooperativa e atualização de status.
+- **Chat Router** (`/api/v1/chat`): Mensagens de chat com suporte a polling e WebSockets nativos (`asyncio`).
+- **Packaging & Batch Router** (`/api/v1/packaging`): Importação transacional de lotes via `pandas` / `openpyxl`.
+- **AI Agent Module** (`/api/v1/ai`): Pipeline RAG nativo em Python com LangChain e Gemini API.
+- **Ledger Router** (`/api/v1/ledger`): Encadeamento de hashes (Row Chaining) e auditoria.
 
 ---
 
 ## 4. Regras de Código Workspace (AGENTS.md)
 
-1. **Limite de Tamanho de Arquivo Frontend**:
-   - Nenhum arquivo de código no frontend (Flutter/Dart ou React/TypeScript) pode exceder **400 linhas**.
-   - Se um componente crescer perto desse limite, DEVE ser modularizado em sub-componentes.
-2. **Componentização Modular**:
-   - Evitar arquivos monolíticos. Separar botões, cards, modais, formulários e listas.
-3. **Comunicação por Roles**:
-   - Web é **exclusivo para Fábrica**.
-   - App Mobile (Flutter) é **para Condomínio e Cooperativa**, com seleção de portal no login.
+1. **Backend Python/FastAPI**:
+   - Usar `Pydantic v2` para Schemas e DTOs.
+   - Tipagem estática rigorosa (`mypy` / `pyright`).
+   - Gerenciador de dependências `uv` ou `poetry`.
+2. **Limite de Tamanho de Arquivo Frontend**:
+   - Nenhum arquivo no Flutter ou Web pode exceder **400 linhas**.
 
 ---
 
-## 5. Como Executar o Projeto Localmente
+## 5. Como Executar o Ambiente Localmente
 
 ### Subir Banco de Dados e Redis (Docker)
 ```bash
 docker start digitalwallet-postgres-1 digitalwallet-redis-1
 ```
 
-### Iniciar Backend API (Porta 3000)
+### Iniciar Backend NestJS (Legado)
 ```bash
-export $(cat .env | grep -v ^# | xargs)
-cd apps/api
-pnpm run dev
+export $(cat .env | grep -v ^# | xargs) && cd apps/api && pnpm run dev
 ```
 
-### Iniciar App Consumer (Flutter Web/Mobile)
+### Iniciar Backend FastAPI (Novo)
 ```bash
-cd apps/consumer
-export DART_VM_OPTIONS="--http_unverified_trusted_cert"
-flutter run -d chrome --web-port 4000 --web-hostname 0.0.0.0
+cd apps/api-fastapi
+uvicorn app.main:app --reload --port 3000
 ```
-
----
-
-## 6. Orientações para Agentes de IA
-
-- **Sempre consulte este guia** antes de realizar alterações nas telas de Coleta ou Chat.
-- **Preserve os IDs das entidades de teste** (`cd000001-...` para Edifício Verde e `dddddddd-...` para CoopRecicla SP) em ambientes de simulação/seed.
-- **Não remova a tipagem do `ChatMessageSenderType.AI_AGENT`**, pois ela garante a retrocompatibilidade com o assistente inteligente individualizado de cada conta.

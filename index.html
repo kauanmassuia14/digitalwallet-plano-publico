@@ -2707,20 +2707,20 @@ model AuditLedger {
           code: 'W10',
           period: 'Semana 10',
           weeks: 'Semana 10 · Gate G3',
-          title: 'IA RAG Backend & Operação Offline (Kauan & Lucas)',
-          owner: 'KAUAN (IA & API) & LUCAS (OFFLINE ENGINE)',
-          status: 'planned',
+          title: 'Migração para FastAPI (Python) & IA RAG (Kauan & Lucas)',
+          owner: 'KAUAN (FASTAPI/IA) & LUCAS (CORE/FASTAPI)',
+          status: 'active',
           tasks: [
-            ['W10.1', '[Kauan · Backend IA] Desenvolver módulo RAG NestJS `/api/v1/ai/query` integrado com Gemini API.', 'pending'],
-            ['W10.2', '[Kauan · Fullstack] Criar interface de Chatbot de IA para dúvidas dos moradores e condomínio.', 'pending'],
-            ['W10.3', '[Lucas · Backend Engine] Desenvolver fluxo de leitura de múltiplos QR Codes no aplicativo móvel.', 'pending'],
-            ['W10.4', '[Lucas · Backend DB] Persistir leituras offline em banco SQLite local do dispositivo.', 'pending'],
-            ['W10.5', '[Kauan · Backend API] Endpoint de sincronização idempotente em lote ao recuperar rede.', 'pending'],
-            ['W10.6', '[Kauan · Frontend] Exibir histórico local de coletas e sincronizações pendentes.', 'pending'],
-            ['W10.7', '[Lucas & Kauan] Testar simulação offline por 8 horas seguidas no aplicativo.', 'blocked']
+            ['W10.1', '[Kauan · Fullstack] Criar estrutura inicial da API em FastAPI com Uvicorn e Pydantic v2.', 'done'],
+            ['W10.2', '[Kauan · Backend IA] Desenvolver módulo RAG NestJS/FastAPI `/api/v1/ai/query` integrado com Gemini API.', 'done'],
+            ['W10.3', '[Lucas · Backend Engine] Migrar DTOs e Schemas do Prisma para SQLModel / SQLAlchemy em Python.', 'done'],
+            ['W10.4', '[Lucas · Backend Auth] Implementar middleware de multitenancy e JWT no FastAPI.', 'pending'],
+            ['W10.5', '[Kauan · Backend API] Migrar endpoints de Chat e Coletas para Routers assíncronos do FastAPI.', 'pending'],
+            ['W10.6', '[Kauan · Fullstack] Atualizar apontamento do App Flutter para os novos endpoints FastAPI.', 'pending'],
+            ['W10.7', '[Lucas & Kauan] Executar suíte de testes de integração e validar performance do FastAPI.', 'blocked']
           ],
-          exit: 'Assistente de IA RAG respondendo dúvidas e sincronização offline garantida.',
-          evidence: 'Endpoints de IA no NestJS e aplicativo sincronizando sem perda de dados.'
+          exit: 'Backend migrado com sucesso para FastAPI (Python) com IA RAG nativa e alta performance.',
+          evidence: 'Servidor FastAPI em Python rodando em 0.0.0.0:3000 com documentação OpenAPI/Swagger automática.'
         },
         {
           code: 'W11',
@@ -2820,10 +2820,10 @@ model AuditLedger {
         if (currentDevFilter === 'all') return true;
         var text = task[1].toLowerCase();
         if (currentDevFilter === 'kauan') {
-          return text.indexOf('kauan') !== -1 || text.indexOf('frontend') !== -1 || text.indexOf('app') !== -1 || text.indexOf('ui') !== -1;
+          return text.indexOf('kauan') !== -1 || text.indexOf('frontend') !== -1 || text.indexOf('app') !== -1 || text.indexOf('ui') !== -1 || text.indexOf('fastapi') !== -1 || text.indexOf('ia') !== -1;
         }
         if (currentDevFilter === 'lucas') {
-          return text.indexOf('lucas') !== -1 || text.indexOf('backend') !== -1 || text.indexOf('api') !== -1 || text.indexOf('prisma') !== -1 || text.indexOf('infra') !== -1;
+          return text.indexOf('lucas') !== -1 || text.indexOf('backend') !== -1 || text.indexOf('api') !== -1 || text.indexOf('prisma') !== -1 || text.indexOf('infra') !== -1 || text.indexOf('python') !== -1;
         }
         return true;
       }

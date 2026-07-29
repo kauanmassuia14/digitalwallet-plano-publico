@@ -8,8 +8,8 @@ Atualizado em **2026-07-29**. Este arquivo é a fonte textual dos checks e do pl
 
 | Desenvolvedor | Frente Principal | Responsabilidades |
 | :--- | :--- | :--- |
-| **Kauan** | **Fullstack (NestJS & Flutter) + IA Lead + DevOps** | Endpoints NestJS (Chat, IA/RAG, Sync), App Mobile (Flutter), Interface do Chatbot de IA, Design System, Responsividade, Automação & Scripting (Expo QR) |
-| **Lucas** | **Backend Core + Ledger Criptográfico + Infra/DB** | Row Chaining do Ledger, Assinaturas Criptográficas RSA/KMS, Fila Redis (Matchmaking), WebSockets (Realtime Chat), Reconciliação Financeira & PostgreSQL/Prisma |
+| **Kauan** | **Fullstack (FastAPI/Python & Flutter) + IA Lead** | Migração FastAPI (Routers Chat, IA RAG, Sync), App Mobile (Flutter), Interface do Chatbot de IA, Design System, Scripting (Expo QR) |
+| **Lucas** | **Backend Core (FastAPI/Python) + Ledger & Infra** | Migração FastAPI (Ledger Criptográfico, Auth/JWT, Multitenancy), Redis Queues, WebSockets Realtime & Banco PostgreSQL/SQLModel |
 
 ---
 
@@ -26,10 +26,10 @@ Atualizado em **2026-07-29**. Este arquivo é a fonte textual dos checks e do pl
 | **W06 · Coletas e Matchmaking** | Concluída | 7/7 | **Lucas & Kauan** | Queue de coletas e integração API |
 | **W07 · Ledger e Métricas** | Concluída | 7/7 | **Lucas** | Row chaining, auditoria e reconciliação |
 | **W08 · App Consumidor (Flutter)** | Concluída | 7/7 | **Kauan** | App Flutter com login por role (Condo/Coop) |
-| **W09 · Chat & Atendimento (v1)** | Concluída | 7/7 | **Kauan & Lucas** | Polling chat, mensagens e seeds reais |
-| **W10 · Chat Realtime & WebSockets** | Em Execução | 4/7 | **Lucas** | Trocar polling por Socket.io / WebSockets |
-| **W11 · Assistente de IA por Conta** | Em Execução | 3/7 | **Kauan & Lucas** | RAG Backend (Lucas) + Chatbot UI (Kauan) |
-| **W12 · Ajustes Finais & Release** | Pendente | 0/7 | **Kauan & Lucas** | Build de produção Android/iOS/Web |
+| **W09 · Chat & Atendimento (NestJS)** | Concluída | 7/7 | **Kauan & Lucas** | Polling chat, mensagens e seeds reais em NestJS |
+| **W10 · Migração para FastAPI (Python)** | Em Execução | 3/7 | **Kauan & Lucas** | Estruturação do aplicativo FastAPI e Módulos RAG/Chat |
+| **W11 · Assistente de IA RAG & WebSockets** | Em Execução | 2/7 | **Kauan & Lucas** | RAG Backend em Python (Kauan) + WebSockets (Lucas) |
+| **W12 · Ajustes Finais & Release** | Pendente | 0/7 | **Kauan & Lucas** | Build de produção Android/iOS/Web com FastAPI |
 
 ---
 
