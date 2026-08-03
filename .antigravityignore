@@ -1,0 +1,15 @@
+node_modules/
+.dart_tool/
+build/
+.git/
+.idea/
+.vscode/
+dist/
+ios/Pods/
+android/.gradle/
+*.png
+*.jpg
+*.jpeg
+*.svg
+*.ico
+*.pdf

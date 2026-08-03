@@ -2600,7 +2600,7 @@ model AuditLedger {
             ['W04.2', '[Lucas · Backend Core] Normalizar o principal autenticado e papeis RBAC em Python.', 'pending'],
             ['W04.3', '[Lucas · Backend DB] Converter schemas e modelos Prisma para SQLModel / Pydantic v2.', 'pending'],
             ['W04.4', '[Lucas · Backend Core] Persistir trilha de auditoria append-only no FastAPI.', 'pending'],
-            ['W04.5', '[Kauan · Fullstack] Padronizar tratamento uniforme de exceções no FastAPI.', 'pending'],
+            ['W04.5', '[Kauan · Fullstack] Padronizar tratamento uniforme de exceções no FastAPI.', 'done'],
             ['W04.6', '[Lucas · Backend Core] Testar isolamento multitenant nas rotas assíncronas em Python.', 'pending']
           ],
           exit: 'Isolamento multitenant e autenticação JWT funcionando no FastAPI.',
@@ -2616,8 +2616,8 @@ model AuditLedger {
           tasks: [
             ['W05.1', '[Lucas · Backend Engine] Implementar serviço de importação em lote CSV/XLSX usando Pandas em Python.', 'pending'],
             ['W05.2', '[Lucas · Backend Engine] Gerar prévia e relatório de erros por linha com Pydantic v2.', 'pending'],
-            ['W05.3', '[Kauan · Backend API] Endpoint de cadastro manual de embalagens no FastAPI.', 'pending'],
-            ['W05.4', '[Kauan · Backend API] Persistir hashes distintos para QR Code externo e interno.', 'pending'],
+            ['W05.3', '[Kauan · Backend API] Endpoint de cadastro manual de embalagens no FastAPI.', 'done'],
+            ['W05.4', '[Kauan · Backend API] Persistir hashes distintos para QR Code externo e interno.', 'done'],
             ['W05.5', '[Lucas · Backend DB] Testar transações assíncronas de lote com versão otimista em Python.', 'pending']
           ],
           exit: 'Importação transacional de lotes operando via FastAPI em Python.',
@@ -2631,9 +2631,9 @@ model AuditLedger {
           owner: 'KAUAN & LUCAS (FASTAPI)',
           status: 'planned',
           tasks: [
-            ['W06.1', '[Kauan · Backend API] Criar Router `/api/v1/collections` assíncrono em FastAPI.', 'pending'],
+            ['W06.1', '[Kauan · Backend API] Criar Router `/api/v1/collections` assíncrono em FastAPI.', 'done'],
             ['W06.2', '[Lucas · Backend Engine] Configurar fila Redis (Celery / ARQ) para o matchmaking de coletas.', 'pending'],
-            ['W06.3', '[Kauan · Fullstack] Conectar formulários do App Flutter às rotas FastAPI.', 'pending'],
+            ['W06.3', '[Kauan · Fullstack] Conectar formulários do App Flutter às rotas FastAPI.', 'done'],
             ['W06.4', '[Lucas · Backend Engine] Implementar notificações e atribuição automática de cooperativa.', 'pending']
           ],
           exit: 'Matchmaking de coletas rodando em Python com filas Redis.',
@@ -2696,12 +2696,12 @@ model AuditLedger {
           owner: 'KAUAN (FASTAPI/IA) & LUCAS (CORE/FASTAPI)',
           status: 'planned',
           tasks: [
-            ['W10.1', '[Kauan · Fullstack] Criar estrutura inicial `apps/api-fastapi` com Uvicorn e Pydantic v2.', 'pending'],
-            ['W10.2', '[Kauan · Backend IA] Desenvolver módulo RAG `/api/v1/ai/query` em Python integrado com Gemini API.', 'pending'],
+            ['W10.1', '[Kauan · Fullstack] Criar estrutura inicial `apps/api-fastapi` com Uvicorn e Pydantic v2.', 'done'],
+            ['W10.2', '[Kauan · Backend IA] Desenvolver módulo RAG `/api/v1/ai/query` em Python integrado com Gemini API.', 'done'],
             ['W10.3', '[Lucas · Backend Engine] Converter DTOs e Schemas para SQLModel / SQLAlchemy em Python.', 'pending'],
-            ['W10.4', '[Lucas · Backend Auth] Implementar middleware de multitenancy e JWT no FastAPI.', 'pending'],
-            ['W10.5', '[Kauan · Backend API] Migrar endpoints de Chat e Coletas para Routers assíncronos do FastAPI.', 'pending'],
-            ['W10.6', '[Kauan · Fullstack] Atualizar apontamento do App Flutter para os novos endpoints FastAPI.', 'pending'],
+            ['W10.4', '[Kauan · Fullstack] Interface do Chatbot de IA no Flutter conectada ao FastAPI.', 'done'],
+            ['W10.5', '[Kauan · Backend API] Migrar endpoints de Chat e Coletas para Routers assíncronos do FastAPI.', 'done'],
+            ['W10.6', '[Kauan · Fullstack] Atualizar apontamento do App Flutter para os novos endpoints FastAPI.', 'done'],
             ['W10.7', '[Lucas & Kauan] Executar suíte de testes de integração e validar performance do FastAPI.', 'pending']
           ],
           exit: 'Backend migrado com sucesso para FastAPI (Python) com IA RAG nativa e alta performance.',
@@ -2805,10 +2805,10 @@ model AuditLedger {
         if (currentDevFilter === 'all') return true;
         var text = task[1].toLowerCase();
         if (currentDevFilter === 'kauan') {
-          return text.indexOf('kauan') !== -1 || text.indexOf('frontend') !== -1 || text.indexOf('app') !== -1 || text.indexOf('ui') !== -1 || text.indexOf('fastapi') !== -1 || text.indexOf('ia') !== -1;
+          return text.indexOf('kauan') !== -1;
         }
         if (currentDevFilter === 'lucas') {
-          return text.indexOf('lucas') !== -1 || text.indexOf('backend') !== -1 || text.indexOf('api') !== -1 || text.indexOf('prisma') !== -1 || text.indexOf('infra') !== -1 || text.indexOf('python') !== -1;
+          return text.indexOf('lucas') !== -1;
         }
         return true;
       }

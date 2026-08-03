@@ -8,7 +8,7 @@ class ApiClient {
 
   ApiClient({
     required this.secureStorage,
-    required this.baseUrl,
+    this.baseUrl = 'http://localhost:3000/api/v1',
   });
 
   Future<Map<String, String>> _buildHeaders() async {
